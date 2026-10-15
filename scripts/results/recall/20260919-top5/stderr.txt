@@ -1,0 +1,24 @@
+Traceback (most recent call last):
+  File "F:\python project\finance-rag-retrieval\scripts\eval_recall.py", line 65, in _preflight
+    with socket.create_connection((host, port), timeout=3):
+         ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\jason\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 864, in create_connection
+    raise exceptions[0]
+  File "C:\Users\jason\AppData\Local\Programs\Python\Python313\Lib\socket.py", line 849, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+ConnectionRefusedError: [WinError 10061] 由于目标计算机积极拒绝，无法连接。
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "F:\python project\finance-rag-retrieval\scripts\eval_recall.py", line 199, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "F:\python project\finance-rag-retrieval\scripts\eval_recall.py", line 176, in main
+    _preflight()
+    ~~~~~~~~~~^^
+  File "F:\python project\finance-rag-retrieval\scripts\eval_recall.py", line 68, in _preflight
+    print(f"\u2717 Milvus 不可达（{host}:{port}）：{exc}")
+    ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'gbk' codec can't encode character '\u2717' in position 0: illegal multibyte sequence

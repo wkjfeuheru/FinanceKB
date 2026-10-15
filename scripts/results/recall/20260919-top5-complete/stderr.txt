@@ -1,0 +1,3 @@
+剔除 3 条相关文档不在知识库的测试条目
+RERANKER_DEVICE=cuda 但 CUDA 不可用，回退到 CPU
+Loading weights:   0%|          | 0/393 [00:00<?, ?it/s]Loading weights:  65%|██████▍   | 255/393 [00:00<00:00, 2538.72it/s]Loading weights: 100%|██████████| 393/393 [00:00<00:00, 2552.92it/s]

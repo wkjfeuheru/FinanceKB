@@ -81,13 +81,16 @@ async def chat(
     except Exception as exc:
         from finance_rag.src.core.exceptions import friendly_message
 
-        raise HTTPException(status_code=500, detail=friendly_message(exc))
+        raise HTTPException(status_code=500, detail=friendly_message(exc)) from exc
 
     return ChatResponse(
         answer=result["answer"],
         sources=[SourceInfo(**s) for s in result["sources"]],
         rewritten_query=result["rewritten_query"],
+        filters=result.get("filters", {}),
         citation_validation=result.get("citation_validation"),
         answer_rejected=bool(result.get("answer_rejected", False)),
         low_confidence=bool(result.get("low_confidence", False)),
+        answer_status=result.get("answer_status", "unverified"),
+        missing_items=result.get("missing_items", []),
     )

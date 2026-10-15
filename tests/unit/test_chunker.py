@@ -1,7 +1,9 @@
 import re
 from pathlib import Path
 
+from finance_rag.src.core.config import DOCLING_CHUNK_MAX_TOKENS, EMBEDDING_MAX_TOKENS
 from finance_rag.src.rag.ingestion.chunker import (
+    _CHARS_PER_TOKEN,
     HierarchicalChunker,
     _classify_heading_line,
     _inject_heading_structure,
@@ -16,7 +18,7 @@ def _workdir(name: str) -> Path:
 
 
 def test_parents_follow_complete_heading_sections():
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
 
     parents = chunker._split_into_parents(
         "# 第一章\n第一章正文。\n\n## 第一节\n第一节正文。\n\n# 第二章\n第二章正文。",
@@ -31,7 +33,7 @@ def test_parents_follow_complete_heading_sections():
 
 
 def test_unheaded_text_uses_natural_paragraphs_without_length_split():
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
     text = "第一段第一行。\n第一段第二行。\n\n第二段内容。"
 
     parents = chunker._split_into_parents(text, "doc.txt", "doc")
@@ -42,8 +44,27 @@ def test_unheaded_text_uses_natural_paragraphs_without_length_split():
     ]
 
 
+def test_child_char_budget_fits_embedding_window():
+    """子块上限必须满足两条：不超嵌入窗口，且明显小于窗口（否则等于没在管粒度）。
+
+    实测（bge-m3 分词器 / 18 篇真实研报）：最坏 token 密度 0.707 token/字符。
+    历史值「×4 = 2048 字符 ≈ 1370 token」远超 512 窗口，导致 12.2% 的子块尾部
+    进不了稠密向量；而把上限放到和窗口齐平（512 token）时，597 个父块里只有
+    23% 被切开——上限形同虚设。故两条约束一起锁。
+    """
+    cap_chars = DOCLING_CHUNK_MAX_TOKENS * _CHARS_PER_TOKEN
+    worst_case_tokens = cap_chars * 0.707
+    assert worst_case_tokens <= EMBEDDING_MAX_TOKENS, (
+        f"子块最坏情况 {worst_case_tokens:.0f} token 超过嵌入窗口 {EMBEDDING_MAX_TOKENS} token"
+    )
+    assert DOCLING_CHUNK_MAX_TOKENS <= EMBEDDING_MAX_TOKENS * 0.75, (
+        f"子块上限 {DOCLING_CHUNK_MAX_TOKENS} token 太接近嵌入窗口 "
+        f"{EMBEDDING_MAX_TOKENS} token——上限太大就等于没在管粒度"
+    )
+
+
 def test_long_complete_paragraph_remains_one_parent_but_children_split():
-    chunker = HierarchicalChunker(max_tokens=10, parent_max_tokens=1, overlap=0)
+    chunker = HierarchicalChunker(max_tokens=10, overlap=0)
     paragraph = "。".join(["这是一个很长的自然段"] * 20) + "。"
 
     parents = chunker._split_into_parents(paragraph, "doc.txt", "doc")
@@ -56,14 +77,17 @@ def test_long_complete_paragraph_remains_one_parent_but_children_split():
 
 
 def test_tables_keep_full_parent_and_index_summary_in_child_processing():
-    chunker = HierarchicalChunker(max_tokens=4, parent_max_tokens=1, overlap=0)
+    chunker = HierarchicalChunker(max_tokens=4, overlap=0)
     table = "| 项目 | 数值 |\n| --- | --- |\n| 收入 | 100 |\n| 支出 | 50 |"
 
     parent_content = f"表格前文。\n\n{table}\n\n表格后文。"
     children = chunker._split_parent_into_children(parent_content)
+    joined = "\n".join(children)
 
     assert table not in children
-    assert "| 项目 | 数值 |\n| 收入 | 100 |" in children
+    assert "表头：项目 | 数值" in joined
+    assert "行标签：收入、支出" in joined
+    assert "100" not in joined                 # 数据数字不进索引
 
 
 # --- 标题结构注入：中文公文/法规无 Markdown 标题时的结构骨架 ---
@@ -167,7 +191,7 @@ def test_inject_heading_structure_skips_fenced_code_blocks():
 
 def test_mixed_document_keeps_injected_hierarchy():
     """仅有一个 Markdown 标题的公文，注入后仍应切出章/条层级。"""
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
     markdown = "# 合规管理办法\n\n第一章 总则\n第一条 目的\n为加强管理。\n"
 
     chunks = chunker._build_chunks(markdown, "doc.md", "doc")
@@ -215,7 +239,7 @@ def test_marker_kinds_beyond_available_levels_clamp_at_six():
 
 
 def test_heading_path_tracks_nesting_and_resets_on_sibling():
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
     markdown = "# 标题\n## 第一章 总则\n### 第一节 范围\n#### 第一条 目的\n## 第二章 风险管理\n"
 
     parents = chunker._split_into_parents(markdown, "doc.md", "doc")
@@ -231,7 +255,7 @@ def test_heading_path_tracks_nesting_and_resets_on_sibling():
 
 
 def test_child_chunks_carry_heading_path():
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
     markdown = "第一章 总则\n第一条 目的\n为加强管理。\n"
 
     chunks = chunker._build_chunks(markdown, "doc.md", "doc")
@@ -253,8 +277,8 @@ _TABLE_MARKDOWN = (
 
 
 def test_table_child_is_atomic_and_full_table_kept_separately():
-    """向量库只留「表头 + 首行」作索引，整表另存；表格不与相邻文本合并。"""
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    """向量库只留「表头 + 摘要」作索引，整表另存；表格不与相邻文本合并。"""
+    chunker = HierarchicalChunker(max_tokens=512)
     markdown = (
         f"## 盈利预测\n\n前文说明。\n\n{_TABLE_MARKDOWN}\n后文说明。\n"
     )
@@ -264,9 +288,12 @@ def test_table_child_is_atomic_and_full_table_kept_separately():
     table_children = [c for c in result.chunks if c.metadata["block_type"] == "table"]
     assert len(table_children) == 1
     index_text = table_children[0].page_content
-    assert "2026E" in index_text          # 首行数据留在索引里
-    assert "2028E" not in index_text      # 表体不进索引
-    assert "前文说明" not in index_text    # 且不与相邻文本合并
+    assert "盈利预测" in index_text          # 章节路径（heading_path）进索引
+    assert "表头：年份 | 营收 | 净利" in index_text
+    assert "2026E" in index_text             # 行标签预览覆盖表体指标
+    assert "2028E" in index_text             # 不止首行——深处的行标签也在
+    assert "100" not in index_text           # 数据数字不进索引
+    assert "前文说明" not in index_text       # 且不与相邻文本合并
     assert "后文说明" not in index_text
 
     assert len(result.tables) == 1
@@ -286,7 +313,7 @@ def test_table_child_is_atomic_and_full_table_kept_separately():
 
 
 def test_text_children_keep_parent_linkage_and_text_block_type():
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
     result = chunker.chunk_markdown("## 投资要点\n\n燃机订单超预期。\n", source="s.pdf")
 
     child = result.chunks[0]
@@ -298,7 +325,7 @@ def test_child_pages_follow_blocks_and_stay_zero_when_unmatched():
     """页码来自 content_list 的分页文本块；匹配不上留 0，绝不猜。"""
     from finance_rag.src.rag.ingestion.pdf_assets import ContentBlock
 
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
     markdown = "## 投资要点\n\n燃机订单超预期，AIDC 一体化打开成长空间。\n"
 
     matched = chunker.chunk_markdown(
@@ -321,7 +348,7 @@ def test_child_pages_follow_blocks_and_stay_zero_when_unmatched():
 def test_child_spanning_two_pages_widens_page_range():
     from finance_rag.src.rag.ingestion.pdf_assets import ContentBlock
 
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
     markdown = "## 产能\n\n第一页讲产能利用率提升。\n\n第二页讲新增产线投产节奏。\n"
 
     result = chunker.chunk_markdown(
@@ -363,4 +390,61 @@ def test_parse_and_chunk_carries_blocks_from_parser(monkeypatch):
 
     result = HierarchicalChunker().parse_and_chunk(source)
 
-    assert [c.metadata["start_page"] for c in result.chunks] == [7]
+    assert result.chunks[0].metadata["start_page"] == 7
+
+
+# --- 表格索引文本：表头 + 摘要（描述表展示了什么内容） -----------------------
+
+def test_table_index_text_caps_label_preview():
+    """行标签预览有界：条数封顶，语义信号（科目名）保留，数据数字不进。"""
+    from finance_rag.src.rag.ingestion.chunker import (
+        _TABLE_LABEL_PREVIEW_COUNT,
+        _table_index_text,
+    )
+
+    rows = "\n".join(f"| 科目{i} | {i} |" for i in range(50))
+    table = f"| 指标 | 数值 |\n| --- | --- |\n{rows}"
+
+    text = _table_index_text(table, "盈利预测 > 财务摘要")
+
+    assert "章节：盈利预测 > 财务摘要" in text
+    assert "表头：指标 | 数值" in text
+    assert "科目0" in text
+    assert f"科目{_TABLE_LABEL_PREVIEW_COUNT - 1}" in text
+    assert f"科目{_TABLE_LABEL_PREVIEW_COUNT}" not in text   # 预览封顶
+
+
+def test_table_index_text_without_heading_or_title_still_composes():
+    """无表题、无章节的表：表头 + 行标签本身就是可用的摘要。"""
+    from finance_rag.src.rag.ingestion.chunker import _table_index_text
+
+    table = "| 指标 | 数值 |\n| --- | --- |\n| 收入 | 100 |"
+
+    text = _table_index_text(table)
+
+    assert text == "表头：指标 | 数值\n行标签：收入"
+
+
+def test_parse_and_chunk_carries_figure_captions_from_parser(monkeypatch):
+    """解析层抽取的原文图注必须一路传到切块结果，图片块组装才有语义来源。"""
+    from finance_rag.src.rag.ingestion import pdf_assets
+    from finance_rag.src.rag.ingestion.mineru_parser import ParseResult
+
+    source = _workdir("parser-captions") / "note.md"
+    source.write_text("## 投资要点\n\n燃机订单超预期。\n", encoding="utf-8")
+
+    monkeypatch.setattr(
+        "finance_rag.src.rag.ingestion.get_parser",
+        lambda: type(
+            "_P",
+            (),
+            {"parse": lambda self, path, source="", title="": ParseResult(
+                markdown="## 投资要点\n\n燃机订单超预期。\n",
+                figure_captions={4: ["图12 燃机订单结构"]},
+            )},
+        )(),
+    )
+
+    result = HierarchicalChunker().parse_and_chunk(source)
+
+    assert result.figure_captions == {4: ["图12 燃机订单结构"]}

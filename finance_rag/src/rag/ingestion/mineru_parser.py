@@ -36,6 +36,10 @@ class ParseResult:
     # 内嵌图片与分页文本块：Markdown 里拿不到，页码溯源与图片索引都依赖它们。
     images: tuple[ImageAsset, ...] = ()
     blocks: tuple[ContentBlock, ...] = ()
+    # 原文图注（content_list 的 img_caption / chart_caption）：页码 -> 图注列表。
+    # 图片块的索引文本靠它兜底——视觉描述失败或超外发上限的图，
+    # 至少还能靠原文图注被语义召回。
+    figure_captions: dict[int, list[str]] = field(default_factory=dict)
 
 
 class MinerUParseError(RuntimeError):
@@ -111,6 +115,41 @@ def _blocks_from_content_list(payload: Any) -> tuple[ContentBlock, ...]:
     return tuple(blocks)
 
 
+# 图注字段：图片块是 img_caption，图表块实测叫 chart_caption（不是 img_caption）
+_FIGURE_CAPTION_KEYS = ("img_caption", "chart_caption")
+
+
+def _figure_captions_from_content_list(payload: Any) -> dict[int, list[str]]:
+    """从 content_list 抽取「页码 -> 图注列表」（页码 1-based）。
+
+    原文图注是图片块索引文本的重要语义来源：视觉描述失败、图片过小被拦
+    或超过外发上限的图，至少还能靠图注被召回。字段缺失/类型不符一律跳过，
+    不抛异常——图注宁缺，不拼错。
+    """
+    captions: dict[int, list[str]] = {}
+    if not isinstance(payload, list):
+        return captions
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        raw_page = item.get("page_idx")
+        if isinstance(raw_page, bool) or not isinstance(raw_page, int) or raw_page < 0:
+            continue
+        for key in _FIGURE_CAPTION_KEYS:
+            value = item.get(key)
+            if isinstance(value, list):
+                text = " ".join(
+                    str(part).strip() for part in value if str(part).strip()
+                )
+            elif isinstance(value, str):
+                text = value.strip()
+            else:
+                continue
+            if text:
+                captions.setdefault(raw_page + 1, []).append(text)
+    return captions
+
+
 def _load_content_list(markdown_path: Path) -> Any | None:
     content_list_path = _find_content_list(markdown_path)
     if content_list_path is None:
@@ -123,13 +162,14 @@ def _load_content_list(markdown_path: Path) -> Any | None:
 
 
 def _extract_blocks(
-    markdown_path: Path, input_path: Path
+    payload: Any, input_path: Path
 ) -> tuple[tuple[ContentBlock, ...], str]:
     """优先用 MinerU 自己的分块（与 Markdown 对齐更好），否则退回 PDF 文本块。
 
+    ``payload`` 是已加载的 content_list（调用方加载一次，图注抽取复用）。
     返回 ``(blocks, 来源标记)``，来源写入 ``stats`` 便于排障。
     """
-    blocks = _blocks_from_content_list(_load_content_list(markdown_path))
+    blocks = _blocks_from_content_list(payload)
     if blocks:
         return blocks, "content_list"
     blocks = extract_blocks(input_path)
@@ -184,8 +224,11 @@ def parse_with_mineru(path: str | Path, *, source: str = "") -> ParseResult:
         if not markdown:
             raise MinerUParseError(f"MinerU 输出为空：{source or input_path.name}")
         # 注意：必须在 finally 删除 work_dir 之前读取 content_list。
-        blocks, blocks_source = _extract_blocks(markdown_path, input_path)
+        # content_list 只加载一次：分页文本块与图注抽取共用同一份 payload。
+        content_list_payload = _load_content_list(markdown_path)
+        blocks, blocks_source = _extract_blocks(content_list_payload, input_path)
         images = extract_images(input_path)
+        figure_captions = _figure_captions_from_content_list(content_list_payload)
         from mineru.version import __version__
 
         return ParseResult(
@@ -197,9 +240,11 @@ def parse_with_mineru(path: str | Path, *, source: str = "") -> ParseResult:
                 "blocks_source": blocks_source,
                 "block_count": len(blocks),
                 "image_count": len(images),
+                "figure_caption_count": sum(len(v) for v in figure_captions.values()),
             },
             images=images,
             blocks=blocks,
+            figure_captions=figure_captions,
         )
     except Exception as exc:
         keep_dir = MINERU_KEEP_ARTIFACTS_ON_ERROR

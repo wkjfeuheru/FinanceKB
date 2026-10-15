@@ -1,0 +1,135 @@
+{
+  "status": "ok",
+  "sources": [
+    {
+      "source": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf",
+      "status": "ok",
+      "rows": 26,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609201829669604_1.pdf",
+      "status": "ok",
+      "rows": 53,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609211829713285_1.pdf",
+      "status": "ok",
+      "rows": 127,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609231829798847_1.pdf",
+      "status": "ok",
+      "rows": 33,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609241829833777_1.pdf",
+      "status": "ok",
+      "rows": 37,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609241829864267_1.pdf",
+      "status": "ok",
+      "rows": 100,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609251829896818_1.pdf",
+      "status": "ok",
+      "rows": 48,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609261829925702_1.pdf",
+      "status": "ok",
+      "rows": 23,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609261829929547_1.pdf",
+      "status": "ok",
+      "rows": 47,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609261829929869_1.pdf",
+      "status": "ok",
+      "rows": 104,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609261829929943_1.pdf",
+      "status": "ok",
+      "rows": 179,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609261829930314_1.pdf",
+      "status": "ok",
+      "rows": 231,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609271829935298_1.pdf",
+      "status": "ok",
+      "rows": 116,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609271829939976_1.pdf",
+      "status": "ok",
+      "rows": 77,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609271829940631_1.pdf",
+      "status": "ok",
+      "rows": 22,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609281829951050_1.pdf",
+      "status": "ok",
+      "rows": 171,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609281829951153_1.pdf",
+      "status": "ok",
+      "rows": 100,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    },
+    {
+      "source": "H3_AP202609281829953173_1.pdf",
+      "status": "ok",
+      "rows": 65,
+      "state": "unchanged_before",
+      "manifest": "skipped_missing_table"
+    }
+  ],
+  "derived": {
+    "parent_chunks": 597,
+    "table_chunks": 105
+  }
+}

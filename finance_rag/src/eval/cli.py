@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any
 
 from .dataset import DatasetValidationError, EvaluationDataset
+from .human_calibration import DEFAULT_HUMAN_SAMPLE_SIZE
 from .statistics import EXPERIMENT_SPECS, compare_runs
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -37,6 +38,7 @@ def _write_comparison(report: dict[str, Any], output: Path) -> None:
     lines = [
         f"# A/B 对比：{report['experiment']}", "",
         f"- 判定：{report['decision']}",
+        f"- 可比性：{report.get('comparability_status', 'unavailable')}；原因：{', '.join(report.get('comparability_reasons') or []) or '无'}",
         f"- 主指标：{report['primary_metric']}",
         f"- 护栏：{', '.join(report['guardrails'])}",
         f"- Bootstrap：{report['bootstrap_samples']} 次（seed={report['seed']}）", "",
@@ -82,8 +84,9 @@ def _cmd_dataset(args: argparse.Namespace) -> int:
 
         output = Path(args.out)
         if args.from_markdown:
-            from .migration import migrate_markdown_dataset
             from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+
+            from .migration import migrate_markdown_dataset
 
             kb = get_knowledge_base()
             dataset = migrate_markdown_dataset(
@@ -105,11 +108,18 @@ def _cmd_dataset(args: argparse.Namespace) -> int:
     dataset = EvaluationDataset.load(args.dataset)
     if args.dataset_action == "validate":
         resolver = None
+        structured_resolver = None
         if args.online:
-            from .testset_generator import build_evidence_resolver
             from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
-            resolver = build_evidence_resolver(get_knowledge_base())
-        audit = dataset.validate(evidence_resolver=resolver)
+
+            from .testset_generator import build_evidence_resolver
+            kb = get_knowledge_base()
+            if any(case.schema_version == "2.0" for case in dataset.cases):
+                from .retrieval import build_online_evidence_resolver
+                structured_resolver = build_online_evidence_resolver(kb)
+            else:
+                resolver = build_evidence_resolver(kb)
+        audit = dataset.validate(evidence_resolver=resolver, resolve_evidence=structured_resolver)
         print(f"校验通过：{audit.case_count} 条，在线核对证据 {audit.checked_evidence} 条")
         return 0
     if args.dataset_action == "export-review":
@@ -124,8 +134,9 @@ def _cmd_dataset(args: argparse.Namespace) -> int:
     if args.dataset_action == "freeze":
         fingerprint = args.kb_fingerprint
         if not fingerprint:
-            from .testset_generator import knowledge_base_fingerprint
             from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+
+            from .testset_generator import knowledge_base_fingerprint
             fingerprint = knowledge_base_fingerprint(get_knowledge_base())
         manifest = dataset.freeze(
             args.out,
@@ -140,10 +151,11 @@ def _cmd_dataset(args: argparse.Namespace) -> int:
 
 
 def _cmd_retrieval(args: argparse.Namespace) -> int:
-    from .retrieval import LAYER_SPECS, build_retrieval_strategy
+    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+
+    from .retrieval import LAYER_SPECS, build_retrieval_strategy, knowledge_content_fingerprints
     from .runner import EvaluationRunner
     from .testset_generator import knowledge_base_fingerprint
-    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
 
     dataset_path = Path(args.dataset)
     dataset = EvaluationDataset.load(dataset_path)
@@ -162,6 +174,7 @@ def _cmd_retrieval(args: argparse.Namespace) -> int:
 
     kb = get_knowledge_base()
     current_fingerprint = knowledge_base_fingerprint(kb)
+    content_fingerprints = knowledge_content_fingerprints(kb)
     manifest_path = dataset_path.with_suffix(".manifest.json")
     expected_fingerprint = None
     if manifest_path.exists():
@@ -175,11 +188,12 @@ def _cmd_retrieval(args: argparse.Namespace) -> int:
     version = _dataset_version(dataset_path, args.dataset_version)
     run_id = args.run_id or datetime.now().strftime("%Y%m%d-%H%M%S")
     layers = [layer.upper() for layer in args.strategy]
-    unknown = sorted(set(layers) - set(LAYER_SPECS))
+    unknown = sorted(set(layers) - (set(LAYER_SPECS) | {"PRODUCTION"}))
     if unknown:
         raise ValueError(f"未知检索层：{unknown}")
     runner = EvaluationRunner()
     run_records: dict[str, list[dict[str, Any]]] = {}
+    run_summaries: dict[str, dict[str, Any]] = {}
     for order, layer in enumerate(layers, 1):
         output = Path(args.outdir) / version / f"{run_id}-{layer}"
         strategy = build_retrieval_strategy(
@@ -198,10 +212,12 @@ def _cmd_retrieval(args: argparse.Namespace) -> int:
                 "seed": args.seed,
                 "execution_order": order,
                 "execution_plan": layers,
+                **content_fingerprints,
             },
         )
         dataset.save(output / "dataset_snapshot.jsonl")
         run_records[layer] = result.records
+        run_summaries[layer] = result.summary
         print(f"[{layer}] n={result.summary['n']} → {output}")
 
     pairs = (
@@ -215,6 +231,7 @@ def _cmd_retrieval(args: argparse.Namespace) -> int:
         report = compare_runs(
             run_records[baseline], run_records[candidate], EXPERIMENT_SPECS[experiment],
             bootstrap_samples=args.bootstrap, seed=args.seed,
+            baseline_config=run_summaries[baseline], candidate_config=run_summaries[candidate],
         )
         comparison_dir = Path(args.outdir) / version / f"{run_id}-{experiment}"
         _write_comparison(report, comparison_dir)
@@ -233,9 +250,73 @@ def _cmd_ab(args: argparse.Namespace) -> int:
         EXPERIMENT_SPECS[args.experiment],
         bootstrap_samples=args.bootstrap,
         seed=args.seed,
+        baseline_config=_run_config(_records_path(args.baseline)),
+        candidate_config=_run_config(_records_path(args.candidate)),
     )
     _write_comparison(report, Path(args.out))
     print(f"A/B 判定：{report['decision']} → {args.out}")
+    return 0
+
+
+def _run_config(records_path: Path) -> dict[str, Any] | None:
+    for name in ("run_config.json", "summary.json"):
+        path = records_path.parent / name
+        if path.exists():
+            return json.loads(path.read_text(encoding="utf-8"))
+    return None
+
+
+def _cmd_calibration_export(args: argparse.Namespace) -> int:
+    """从已落盘的运行产物抽样导出待人工标注 CSV（不花 LLM 成本）。"""
+    from .human_calibration import export_human_sample, load_run_arms
+
+    run_dir = Path(args.run_dir)
+    arms = load_run_arms(run_dir)
+    if not arms:
+        raise ValueError(f"运行目录里没有可用的评测产物（无 <arm>.json / records.jsonl）：{run_dir}")
+    out = Path(args.out) if args.out else run_dir / "human_sample.csv"
+    path = export_human_sample(
+        arms, out_csv=out, n=args.n, seed=args.seed, arm=args.arm
+    )
+    print(f"已导出 {args.n} 条待人工标注样本（每臂）：{path}")
+    print("请填写 human_faithfulness / human_answer_relevancy / "
+          "human_context_precision / human_context_recall（0~1，空=未评），"
+          "再执行 calibration import。")
+    return 0
+
+
+def _cmd_calibration_import(args: argparse.Namespace) -> int:
+    """回填人工标注并输出 judge-人类一致性报告。"""
+    from .human_calibration import (
+        calibration_report,
+        load_human_scores,
+        load_run_arms,
+        render_calibration_markdown,
+        write_calibration_report,
+    )
+
+    run_dir = Path(args.run_dir)
+    arms = load_run_arms(run_dir)
+    if not arms:
+        raise ValueError(f"运行目录里没有可用的评测产物（无 <arm>.json / records.jsonl）：{run_dir}")
+    human_scores = load_human_scores(args.csv)
+    if not human_scores:
+        raise ValueError(f"人工标注 CSV 中没有已填写的 human_* 分数：{args.csv}")
+
+    auto_rows = [row for rows in arms.values() for row in rows]
+    report = calibration_report(auto_rows, human_scores)
+    if args.out:
+        target = Path(args.out)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False),
+            encoding="utf-8",
+        )
+    else:
+        target = write_calibration_report(run_dir, report)
+    for line in render_calibration_markdown(report):
+        print(line)
+    print(f"\n校准报告：{target}")
     return 0
 
 
@@ -274,7 +355,7 @@ def build_parser() -> argparse.ArgumentParser:
     run = retrieval_actions.add_parser("run")
     run.add_argument("--dataset", required=True)
     run.add_argument("--strategy", nargs="+", default=["L0", "L1", "L2", "L3", "L5"])
-    run.add_argument("--candidate-k", type=int, default=20)
+    run.add_argument("--candidate-k", type=int, default=50)
     run.add_argument("--sample", type=int, default=0)
     run.add_argument("--seed", type=int, default=7)
     run.add_argument("--bootstrap", type=int, default=10_000)
@@ -293,6 +374,23 @@ def build_parser() -> argparse.ArgumentParser:
     compare.add_argument("--out", required=True)
     compare.add_argument("--bootstrap", type=int, default=10_000)
     compare.add_argument("--seed", type=int, default=7)
+
+    calibration = groups.add_parser(
+        "calibration", help="人工标注校准：导出待标注样本 / 回填一致性报告"
+    )
+    calibration_actions = calibration.add_subparsers(
+        dest="calibration_action", required=True
+    )
+    cal_export = calibration_actions.add_parser("export")
+    cal_export.add_argument("--run-dir", required=True, help="A/B 运行目录")
+    cal_export.add_argument("--arm", default=None, help="只导出某一臂（默认全部）")
+    cal_export.add_argument("--n", type=int, default=DEFAULT_HUMAN_SAMPLE_SIZE)
+    cal_export.add_argument("--seed", type=int, default=7)
+    cal_export.add_argument("--out", default=None)
+    cal_import = calibration_actions.add_parser("import")
+    cal_import.add_argument("--run-dir", required=True)
+    cal_import.add_argument("--csv", required=True, help="已填写 human_* 的 CSV")
+    cal_import.add_argument("--out", default=None, help="报告输出路径（默认写入运行目录）")
     return parser
 
 
@@ -304,4 +402,9 @@ def main(argv: list[str] | None = None) -> int:
         return _cmd_retrieval(args)
     if args.command == "ab" and args.ab_action == "run":
         return _cmd_ab(args)
+    if args.command == "calibration":
+        if args.calibration_action == "export":
+            return _cmd_calibration_export(args)
+        if args.calibration_action == "import":
+            return _cmd_calibration_import(args)
     raise ValueError("未知命令")

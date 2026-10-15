@@ -82,6 +82,7 @@ from finance_rag.src.infrastructure.vector_store.milvus_kb import (
     KnowledgeBase,
     ParsedDocument,
 )
+from finance_rag.src.rag.context_injection import embed_text_for_chunk
 from finance_rag.src.rag.ingestion.chunk_worker import (
     chunk_document,
     chunk_markdown_inline,
@@ -108,6 +109,7 @@ async def enrich_chunks(
     chunks: Any,
     metadata: dict[str, Any] | None,
     enable_llm: bool | None = None,
+    pdf_path: Path | None = None,
 ) -> tuple[Any, dict[str, Any]]:
     """切块之后、嵌入之前的增强：研报元数据抽取 + 图片描述成块。
 
@@ -117,6 +119,9 @@ async def enrich_chunks(
       （写阶段 ``zip(chunks.chunks, dense_vectors, strict=True)``），
       嵌入之后再追加块会让向量与块错位；
     * 元数据要写进 Milvus 标量，越早合并越不容易漏掉某条写入路径。
+
+    原文图注（``chunks.figure_captions``）在这里一并传给图片块组装：
+    视觉描述失败或超外发上限的图，至少还能靠图注被语义召回。
 
     外部调用（LLM / 视觉模型）都放到线程执行器里，不阻塞事件循环。
     「抽取失败不阻断入库」由 :func:`extract_metadata` 内部保证（模型异常一律
@@ -130,6 +135,16 @@ async def enrich_chunks(
     )
 
     loop = asyncio.get_running_loop()
+    from finance_rag.src.rag.ingestion.public_metadata import resolve_public_metadata
+
+    public_metadata = dict(metadata or {})
+    # 已有内部公共审计须原样保留；不得把自动提取值重新标成 manual。
+    if "public_metadata_audit" not in public_metadata:
+        resolved = await loop.run_in_executor(None, functools.partial(
+            resolve_public_metadata, source, getattr(chunks, "markdown", None) or markdown or "",
+            pdf_path=pdf_path, explicit=metadata,
+        ))
+        public_metadata.update(resolved.as_metadata())
     if enable_llm is None:
         enable_llm = bool(_config.ENABLE_METADATA_LLM)
     extracted = await loop.run_in_executor(
@@ -142,7 +157,7 @@ async def enrich_chunks(
             enable_llm=enable_llm,
         ),
     )
-    merged = apply_metadata(metadata, extracted)
+    merged = apply_metadata(public_metadata, extracted)
 
     images = list(getattr(chunks, "images", None) or ())
     if images:
@@ -154,6 +169,7 @@ async def enrich_chunks(
                 source=source,
                 title=title,
                 start_index=len(chunks.chunks),
+                figure_captions=dict(getattr(chunks, "figure_captions", None) or {}),
             ),
         )
         chunks.chunks.extend(image_chunks)
@@ -716,14 +732,17 @@ class IngestionPipeline:
             is_pdf=Path(parsed.source).suffix.lower() == ".pdf",
             blocks=tuple(getattr(chunks, "blocks", None) or ()),
         )
-        # 图片字节不进程池化：切块进程只做纯文本工作，图片在这里原样接回来
+        # 图片字节与图注不进程池化：切块进程只做纯文本工作，
+        # 两者在这里原样接回来（图注供 build_image_chunks 组装索引文本）
         new_chunks.images = list(getattr(chunks, "images", None) or ())
+        new_chunks.figure_captions = dict(getattr(chunks, "figure_captions", None) or {})
         new_chunks, metadata = await enrich_chunks(
             source=parsed.source,
             title=parsed.title,
             markdown=markdown,
             chunks=new_chunks,
             metadata=parsed.metadata,
+            pdf_path=parsed.path,
         )
         item.parsed = ParsedDocument(
             path=parsed.path,
@@ -750,7 +769,12 @@ class IngestionPipeline:
             raise RuntimeError(f"知识库上下文缺失（task_id={item.task_id}）")
 
         chunks = parsed.chunks
-        texts = [chunk.page_content for chunk in chunks.chunks]
+        # 嵌入输入带上下文注入（公司简称 + 章节路径）：短标题块靠块外元数据
+        # 才能拿到查询词对齐信号；content 本体不变，content_hash / 块 id 不受影响。
+        # 注意：已有向量按 content_hash 复用会跳过重算，本改动对旧向量不追溯，
+        # 需要强制重嵌（rebuild_collection / 清空该 source 向量）才全量生效。
+        doc_meta = parsed.metadata or {}
+        texts = [embed_text_for_chunk(chunk, doc_meta) for chunk in chunks.chunks]
         loop = asyncio.get_running_loop()
         existing_vectors = await loop.run_in_executor(
             self._embed_executor, kb.fetch_existing_vectors, parsed.source

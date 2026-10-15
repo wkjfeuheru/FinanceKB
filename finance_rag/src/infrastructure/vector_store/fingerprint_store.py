@@ -8,6 +8,7 @@ SimHash、mtime、size、version 等元数据。写入采用「临时文件 + �
 from __future__ import annotations
 
 import hashlib
+import copy
 import json
 import os
 import threading
@@ -44,7 +45,8 @@ class FingerprintStore:
 
     def get(self, source: str) -> dict[str, Any] | None:
         """获取指定 source 的指纹记录，不存在返回 None。"""
-        return self._data.get(source)
+        with self._lock:
+            return copy.deepcopy(self._data.get(source))
 
     def is_unchanged(self, source: str, file_hash: str) -> bool:
         """检查文件是否未变更（哈希一致）。"""
@@ -74,6 +76,7 @@ class FingerprintStore:
         mtime: float | None = None,
         size: int | None = None,
         version: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> None:
         """更新（或创建）指纹记录；可选记录元数据检测与去重所需的扩展字段。"""
         record: dict[str, Any] = {
@@ -91,7 +94,33 @@ class FingerprintStore:
         if version is not None:
             record["version"] = version
         with self._lock:
+            record = {**self._data.get(source, {}), **record}
+            if metadata is not None:
+                for key in ("public_metadata_audit", "type_metadata_audit"):
+                    record.pop(key, None)
+                    if key in metadata:
+                        record[key] = copy.deepcopy(metadata[key])
             self._data[source] = record
+            self._save()
+
+    def update_metadata(self, source: str, metadata: dict[str, Any]) -> None:
+        """只更新审核载荷，保持 SHA、内容指纹及文件属性原样。"""
+        with self._lock:
+            record = copy.deepcopy(self._data.get(source, {}))
+            for key in ("public_metadata_audit", "type_metadata_audit"):
+                record.pop(key, None)
+                if key in metadata:
+                    record[key] = copy.deepcopy(metadata[key])
+            self._data[source] = record
+            self._save()
+
+    def restore_record(self, source: str, record: dict[str, Any] | None) -> None:
+        """逐源精确补偿；不重建记录，不改变其他来源。"""
+        with self._lock:
+            if record is None:
+                self._data.pop(source, None)
+            else:
+                self._data[source] = copy.deepcopy(record)
             self._save()
 
     def get_all_simhashes(self) -> dict[str, int]:

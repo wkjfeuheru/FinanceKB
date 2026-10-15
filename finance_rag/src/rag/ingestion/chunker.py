@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import html
 import re
 from collections.abc import Sequence
 from dataclasses import dataclass, field
@@ -11,18 +12,28 @@ from pathlib import Path
 from langchain_core.documents import Document
 
 from finance_rag.src.rag.ingestion.recursive_splitter import RecursiveCharacterTextSplitter
+from finance_rag.src.rag.ingestion.html_table import restore_html_table
 
 from finance_rag.src.core.config import (
     CHILD_OVERLAP_TOKENS,
     DOCLING_CHUNK_MAX_TOKENS,
     ENABLE_SEMANTIC_CHUNKER,
-    PARENT_MAX_TOKENS,
     SEMANTIC_BREAK_THRESHOLD,
     SEMANTIC_DEVICE,
     SEMANTIC_EMBED_MODEL,
     SEMANTIC_MIN_TOKENS,
 )
 from finance_rag.src.rag.ingestion.pdf_assets import ContentBlock, ImageAsset
+
+# 子块预算的 token → 字符换算系数。
+#
+# 实测（bge-m3 分词器，18 篇真实研报 MinerU 产物）：中文财经语料均值 1 token ≈ 1.5
+# 字符，而数字/英文密集的块最坏密度 ≈ 0.707 token/字符 → EMBEDDING_MAX_TOKENS(512)
+# 的窗口最多只容得下约 724 字符。取 1.4 折算，使 DOCLING_CHUNK_MAX_TOKENS 真正等于
+# 「块内 token 上限」：512 × 1.4 = 716 字符（最坏密度下 ≈506 token，仍在窗口内）。
+# 历史值是 ×4（512 → 2048 字符 ≈ 1370 token），导致 12.2% 的块尾部被嵌入截断、
+# 只有 BM25 能看到；回归守卫见 tests/unit/test_chunker.py。
+_CHARS_PER_TOKEN = 1.4
 
 
 @dataclass
@@ -50,7 +61,8 @@ class BlockPiece:
 
     Attributes:
         kind: ``text`` 或 ``table``。
-        text: 进入向量索引的文本；表格这里是「表头 + 首行」摘要。
+        text: 进入向量索引的文本；表格这里是「表头 + 摘要」索引文本
+              （:func:`_table_index_text`，``_build_chunks`` 会带章节路径重组）。
         full_text: 表格的完整 Markdown（仅 ``kind == "table"``），进 PostgreSQL。
     """
 
@@ -63,8 +75,9 @@ class BlockPiece:
 class TableChunk:
     """整表：既进 PostgreSQL（结构化 JSONB + 原始 Markdown），也供检索侧展开。
 
-    向量库只存 ``BlockPiece.text``（表头 + 首行）作索引，整表靠 ``id`` 关联，
-    因此表体不会被 3000 字符的父块上限丢弃。
+    向量库只存 ``BlockPiece.text``（表头 + 摘要）作索引，整表靠 ``id`` 关联，
+    因此表体不会被 3000 字符的父块上限丢弃；输出拼上下文时才按 ``id``
+    展开成完整表格。
     """
 
     id: str
@@ -92,6 +105,9 @@ class DoclingChunks:
         tables: 整表列表（进 PostgreSQL，不进向量库）。
         blocks: 解析层给出的分页文本块（``ContentBlock``）。流水线会重建
                 ``chunks``，因此这里必须留存，否则页码归属在重切块后全部丢失。
+        figure_captions: 解析层从 content_list 抽取的「页码 -> 原文图注列表」，
+                供图片块组装索引文本（图注是图片语义召回的重要来源）。与
+                ``images`` 一样**不进切块进程池载荷**，由流水线在池返回后重挂载。
     """
 
     chunks: list[Document] = field(default_factory=list)
@@ -100,6 +116,7 @@ class DoclingChunks:
     images: list[dict] = field(default_factory=list)
     tables: list[TableChunk] = field(default_factory=list)
     blocks: list[ContentBlock] = field(default_factory=list)
+    figure_captions: dict[int, list[str]] = field(default_factory=dict)
 
 
 class HierarchicalChunker:
@@ -108,15 +125,11 @@ class HierarchicalChunker:
     def __init__(
         self,
         max_tokens: int = DOCLING_CHUNK_MAX_TOKENS,
-        parent_max_tokens: int = PARENT_MAX_TOKENS,
         overlap: int = CHILD_OVERLAP_TOKENS,
     ) -> None:
         if max_tokens <= 0:
             raise ValueError("max_tokens 必须大于 0")
-        if parent_max_tokens <= 0:
-            raise ValueError("parent_max_tokens 必须大于 0")
         self.max_tokens = max_tokens
-        self.parent_max_tokens = parent_max_tokens
         self.overlap = overlap
 
     def parse_and_chunk(
@@ -140,6 +153,7 @@ class HierarchicalChunker:
             is_pdf=path.suffix.lower() == ".pdf",
             images=result.images,
             blocks=result.blocks,
+            figure_captions=getattr(result, "figure_captions", None) or {},
             category=category,
         )
 
@@ -153,19 +167,22 @@ class HierarchicalChunker:
         category: str = "",
         images: Sequence[ImageAsset] = (),
         blocks: Sequence[ContentBlock] = (),
+        figure_captions: dict[int, list[str]] | None = None,
     ) -> DoclingChunks:
         """从 Markdown 文本直接切块（MinerU 解析结果复用此路径）。
 
         与 parse_and_chunk_from_text 的区别：保留 markdown（is_pdf=True 时），
         便于后续上传解析后的 .md 文件到对象存储。
 
-        ``blocks`` 是解析层给出的分页文本块，用于把切块结果归属到页码。
+        ``blocks`` 是解析层给出的分页文本块，用于把切块结果归属到页码；
+        ``figure_captions`` 是解析层抽取的原文图注，供图片块组装索引文本。
         """
         if not markdown or not markdown.strip():
             raise ValueError(f"解析结果为空：{source}")
         return self._build_chunks(
             markdown.strip(), source, title,
-            is_pdf=is_pdf, images=images, blocks=blocks, category=category,
+            is_pdf=is_pdf, images=images, blocks=blocks,
+            figure_captions=figure_captions, category=category,
         )
 
     def _build_chunks(
@@ -178,6 +195,7 @@ class HierarchicalChunker:
         images: Sequence[ImageAsset] = (),
         blocks: Sequence[ContentBlock] = (),
         category: str = "",
+        figure_captions: dict[int, list[str]] | None = None,
     ) -> DoclingChunks:
         """内部方法：对 markdown 文本进行层级切块。"""
         if not markdown:
@@ -199,6 +217,12 @@ class HierarchicalChunker:
         tables: list[TableChunk] = []
         for parent in parents:
             for piece in self._split_parent_into_blocks(parent.content):
+                if piece.kind == "table":
+                    # 表格索引文本在这里带章节路径重组：
+                    # _split_parent_into_blocks 拿不到 parent，只能先给无章节版本
+                    index_text = _table_index_text(piece.full_text, parent.heading_path)
+                    if index_text:
+                        piece.text = index_text
                 index = len(documents)
                 content_hash = hashlib.sha256(piece.text.strip().encode("utf-8")).hexdigest()
                 chunk_id = chunk_key = hashlib.sha256(
@@ -246,6 +270,7 @@ class HierarchicalChunker:
             images=list(images or []),
             tables=tables,
             blocks=list(blocks or []),
+            figure_captions=dict(figure_captions or {}),
         )
 
     @staticmethod
@@ -267,7 +292,8 @@ class HierarchicalChunker:
         标题级别参与结构还原：用栈维护「顶层 → 当前」的标题路径，父块除叶子
         ``heading`` 外还携带完整 ``heading_path``，为层级检索/引用提供骨架。
 
-        ``parent_max_tokens`` 保留为兼容参数，但不再拆分结构完整的父块；
+        父块长度**不参与**切分决策：结构完整性优先，章节不允许被腰斩。
+        长度兜底在检索侧——``_expand_to_parents`` 只还原 50–3000 字符的父块。
         子块长度由 ``_split_parent_into_children`` 控制。
         """
         heading_pattern = re.compile(r"^(#{1,6})\s+(.+)$", re.MULTILINE)
@@ -323,18 +349,20 @@ class HierarchicalChunker:
         """按原子单元切分父块，返回 ``(类型, 文本, 整表)`` 序列。
 
         表格**独占**一个块：既不与相邻文本合并，也不丢弃表体。
-        索引文本取 :func:`_table_summary`（表头 + 首行），整表由调用方另存。
+        索引文本取 :func:`_table_index_text`（表头 + 摘要；无章节路径的
+        临时版本，``_build_chunks`` 会带 ``heading_path`` 重组），
+        整表由调用方另存。
         """
         if not content.strip():
             return []
 
         units = _extract_atomic_units(content)
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=self.max_tokens * 4,
-            chunk_overlap=self.overlap * 4,
+            chunk_size=int(self.max_tokens * _CHARS_PER_TOKEN),
+            chunk_overlap=int(self.overlap * _CHARS_PER_TOKEN),
             separators=["\n\n", "\n", "。", "！", "？", "；", "，", " ", ""],
         )
-        max_chars = self.max_tokens * 4
+        max_chars = int(self.max_tokens * _CHARS_PER_TOKEN)
         blocks: list[BlockPiece] = []
         pending: list[str] = []
 
@@ -358,7 +386,7 @@ class HierarchicalChunker:
         for kind, text in units:
             if kind == "table":
                 flush_pending()
-                summary = _table_summary(text)
+                summary = _table_index_text(text)
                 if summary:
                     blocks.append(
                         BlockPiece(kind="table", text=summary, full_text=text.strip())
@@ -583,7 +611,13 @@ def _rows_to_markdown(rows: list[list[str]]) -> str:
     if not rows:
         return ""
     width = max(len(row) for row in rows)
-    normalized = [list(row) + [""] * (width - len(row)) for row in rows]
+    normalized = [
+        [html.escape(str(cell), quote=False)
+         .replace('\\', '\\\\').replace('|', '\\|')
+         .replace('\r\n', '\n').replace('\n', '<br>') for cell in row]
+        + [""] * (width - len(row))
+        for row in rows
+    ]
     head = "| " + " | ".join(normalized[0]) + " |"
     separator = "| " + " | ".join("---" for _ in range(width)) + " |"
     body = ["| " + " | ".join(row) + " |" for row in normalized[1:]]
@@ -597,46 +631,98 @@ def _table_markdown(table: str) -> str:
     「完整表」展示给分析师，``<table><tr><td>`` 标签既费 token 又难读。
     """
     if _HTML_TABLE_RE.search(table):
-        return _rows_to_markdown(_html_table_rows(table)) or table.strip()
+        layout = restore_html_table(table)
+        if layout.error:
+            return table.strip()
+        markdown = _rows_to_markdown(layout.rows)
+        if layout.merges:
+            markdown += '\n\n<!-- 合并范围：' + ', '.join(layout.merges) + ' -->'
+        return markdown or table.strip()
     return table.strip()
 
 
-def _summary_rows(rows: list[list[str]]) -> list[list[str]]:
-    """挑出「表头 + 首行数据」两行。
+#: 行标签预览的条数与字符上限：描述「表里有哪些科目/条目」，不是数据本体
+_TABLE_LABEL_PREVIEW_COUNT = 15
+_TABLE_LABEL_PREVIEW_CHARS = 300
 
-    研报的财务表第一行常是一格大标题（如「资产负债表(亿)」），真正的表头
-    （年份）在第二行。直接取前两行会让索引里只有「标题 + 年份」而没有数字，
-    检索与「整合数据」都用不上。
+
+def _row_label_preview(rows: list[list[str]]) -> str:
+    """首列去重标签预览（有界）。
+
+    财务表的行标签就是指标名（营业收入/净利润/毛利率…），是「净利润预测」
+    这类问题的主要查询词；只取标签不取数字，覆盖面比旧的「首行数据」更广、
+    噪音更少（不止首行的指标都能命中）。
     """
+    seen: set[str] = set()
+    labels: list[str] = []
+    used = 0
+    for row in rows:
+        if not row:
+            continue
+        label = str(row[0]).strip()
+        if not label or label in seen:
+            continue
+        seen.add(label)
+        labels.append(label)
+        used += len(label) + 1
+        if len(labels) >= _TABLE_LABEL_PREVIEW_COUNT or used >= _TABLE_LABEL_PREVIEW_CHARS:
+            break
+    return "、".join(labels)
+
+
+def _table_index_text(table: str, heading_path: str = "") -> str:
+    """构造表格索引文本：「表头 + 摘要（描述表展示了什么内容）」。
+
+    组成（全部来自确定性信号，不调 LLM）：
+
+    * **表题**：表格自身的单格大标题行（如「资产负债表(亿)」）——
+      「这张表展示什么」的最直接来源；
+    * **章节**：``heading_path``（表所在章节路径）；
+    * **表头**：多格表头行（列名是 BM25/稠密召回的主要命中面）；
+    * **行标签预览**：首列去重后的前若干个值（:func:`_row_label_preview`）。
+
+    检索侧召回与重排全程只看这份紧凑文本；完整表格在输出拼上下文时才按
+    ``table_id`` 从整表存储展开（见 chat_service.expand_table_docs）。
+    HTML 与 Markdown 表统一经 :func:`_table_payload` 转成行再抽取。
+    """
+    layout = restore_html_table(table) if _HTML_TABLE_RE.search(table) else None
+    if layout and layout.error:
+        return table.strip()
+    rows = layout.rows if layout else _table_payload(table)
     if not rows:
-        return []
-    header = 0
-    while header < len(rows) - 1 and len(rows[header]) < 2:
-        header += 1
-    return rows[header : header + 2]
-
-
-def _table_summary(table: str) -> str:
-    """返回用于索引的「表头 + 首行」。HTML 表先转成行再挑。"""
-    if _HTML_TABLE_RE.search(table):
-        rows = _html_table_rows(table)
-        if not rows:
-            return ""
-        return _rows_to_markdown(_summary_rows(rows))
-
-    lines = [line.strip() for line in table.splitlines() if line.strip()]
-    if not lines:
         return ""
-    selected = lines[:1]
-    if len(lines) > 1 and re.fullmatch(r"\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?", lines[1]):
-        if len(lines) > 2:
-            selected.append(lines[2])
-    elif len(lines) > 1:
-        selected.append(lines[1])
-    return "\n".join(selected)
+
+    # 表题：开头连续的单格行（研报财务表第一行常是一格大标题，真正表头在下一行）
+    title_cells: list[str] = []
+    body_start = 0
+    for row in rows:
+        if sum(bool(str(cell).strip()) for cell in row) == 1 and str(row[0]).strip():
+            title_cells.append(str(row[0]).strip())
+            body_start += 1
+        else:
+            break
+    body = rows[body_start:]
+
+    lines: list[str] = []
+    if title_cells:
+        lines.append("表格：" + " ".join(title_cells))
+    if heading_path:
+        lines.append(f"章节：{heading_path}")
+    if body:
+        header_count = max(1, layout.header_rows - body_start) if layout else 1
+        lines.append("表头：" + " / ".join(" | ".join(str(cell).strip() for cell in row) for row in body[:header_count]))
+    else:
+        header_count = 0
+    labels = _row_label_preview(body[header_count:] if body else [])
+    if labels:
+        lines.append(f"行标签：{labels}")
+    if not lines:
+        # 空表/全是空单元格：返回空让调用方跳过（与旧的空摘要行为一致）
+        return ""
+    return "\n".join(lines)
 
 
-_TABLE_SEPARATOR_RE = re.compile(r"^\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)+\|?$")
+_TABLE_SEPARATOR_RE = re.compile(r"^\|?\s*:?-{3,}:?\s*(?:\|\s*:?-{3,}:?\s*)*\|?$")
 
 
 def _table_payload(table: str) -> list[list[str]]:
@@ -646,9 +732,18 @@ def _table_payload(table: str) -> list[list[str]]:
     rows: list[list[str]] = []
     for line in table.splitlines():
         line = line.strip()
-        if not line or _TABLE_SEPARATOR_RE.fullmatch(line):
+        if not line or line.startswith('<!--') or _TABLE_SEPARATOR_RE.fullmatch(line):
             continue
-        rows.append([cell.strip() for cell in line.strip("|").split("|")])
+        if line.startswith('|'):
+            line = line[1:]
+        if line.endswith('|'):
+            line = line[:-1]
+        cells = re.split(r'(?<!\\)\|', line)
+        # 先还原生成的换行标签，再解码实体；字面量 &lt;br&gt; 保持文字。
+        rows.append([
+            html.unescape(re.sub(r'\\([\\|])', r'\1', cell.strip()).replace('<br>', '\n'))
+            for cell in cells
+        ])
     return rows
 
 
@@ -771,14 +866,8 @@ def _strip_html_tags(fragment: str) -> str:
 
 
 def _html_table_rows(table: str) -> list[list[str]]:
-    """把 HTML 表转成二维数组（跨行跨列只取可见文字，不做布局还原）。"""
-    rows: list[list[str]] = []
-    for row_html in _HTML_ROW_RE.findall(table):
-        cells = [_strip_html_tags(cell) for cell in _HTML_CELL_RE.findall(row_html)]
-        cells = [cell for cell in cells if cell != ""]
-        if cells:
-            rows.append(cells)
-    return rows
+    """共用有界布局还原器；异常表格返回空 payload，原 HTML 另行保留。"""
+    return restore_html_table(table).rows
 
 
 def _extract_atomic_units(content: str) -> list[tuple[str, str]]:
@@ -830,7 +919,6 @@ class SemanticChunker(HierarchicalChunker):
     def __init__(
         self,
         max_tokens: int = DOCLING_CHUNK_MAX_TOKENS,
-        parent_max_tokens: int = PARENT_MAX_TOKENS,
         overlap: int = CHILD_OVERLAP_TOKENS,
         *,
         break_threshold: float = SEMANTIC_BREAK_THRESHOLD,
@@ -840,7 +928,6 @@ class SemanticChunker(HierarchicalChunker):
     ) -> None:
         super().__init__(
             max_tokens=max_tokens,
-            parent_max_tokens=parent_max_tokens,
             overlap=overlap,
         )
         self.break_threshold = break_threshold
@@ -860,11 +947,12 @@ class SemanticChunker(HierarchicalChunker):
     def _split_parent_into_blocks(self, content: str) -> list[BlockPiece]:
         """语义分块不走原子单元循环，这里按语义块补齐类型标记。
 
-        表格仍由 :func:`_extract_atomic_units` 识别，索引文本仍是摘要；
-        但语义路径不保证表格独占一块（与历史行为一致，避免改变既有切块结果）。
+        表格仍由 :func:`_extract_atomic_units` 识别，索引文本仍是
+        「表头 + 摘要」（无章节版本）；但语义路径不保证表格独占一块
+        （与历史行为一致，避免改变既有切块结果）。
         """
         summaries = {
-            _table_summary(text)
+            _table_index_text(text)
             for kind, text in _extract_atomic_units(content)
             if kind == "table"
         }
@@ -882,14 +970,14 @@ class SemanticChunker(HierarchicalChunker):
         pieces: list[str] = []
         for kind, text in units:
             if kind == "table":
-                summary = _table_summary(text)
+                summary = _table_index_text(text)
                 if summary:
                     pieces.append(summary)
             else:
                 pieces.extend(self._semantic_split(text))
 
         # 与小尺寸父子切块相同的合并逻辑：小片段合并，超长截断保护
-        max_chars = self.max_tokens * 4
+        max_chars = int(self.max_tokens * _CHARS_PER_TOKEN)
         chunks: list[str] = []
         current = ""
         for piece in pieces:

@@ -1,0 +1,272 @@
+{
+  "completed": 28,
+  "dataset_source": "F:\\python project\\finance-rag-retrieval\\finance_rag\\src\\eval\\data\\research_report_interview30.jsonl",
+  "failed": 0,
+  "include_silver": false,
+  "independent_positive": {
+    "metrics": {
+      "mrr": 0.296294,
+      "precision_at_5": 0.088889,
+      "recall_at_5": 0.296294
+    },
+    "n": 18,
+    "note": "不含 vague 配对题，也不含负样本",
+    "parent_restore": {
+      "hits": 8,
+      "lookup_failed": 0,
+      "missing": 0,
+      "no_parent": 0,
+      "not_replaced": 1,
+      "rate": 0.875,
+      "restored": 7
+    }
+  },
+  "metadata": {},
+  "metric_coverage": {
+    "mrr": 1.0,
+    "precision_at_5": 1.0,
+    "recall_at_5": 1.0
+  },
+  "metrics": {
+    "mrr": 0.270832,
+    "precision_at_5": 0.085714,
+    "recall_at_5": 0.333332
+  },
+  "mode": "retrieval",
+  "n": 28,
+  "parent_restore": {
+    "hits": 12,
+    "lookup_failed": 0,
+    "missing": 0,
+    "no_parent": 0,
+    "not_replaced": 2,
+    "rate": 0.8333,
+    "restored": 10
+  },
+  "strata": {
+    "cross_doc": {
+      "metrics": {
+        "mrr": 0.28333,
+        "precision_at_5": 0.1,
+        "recall_at_5": 0.23333
+      },
+      "n": 10,
+      "parent_restore": {
+        "hits": 5,
+        "lookup_failed": 0,
+        "missing": 0,
+        "no_parent": 0,
+        "not_replaced": 1,
+        "rate": 0.8,
+        "restored": 4
+      }
+    },
+    "explicit": {
+      "metrics": {
+        "mrr": 0.3125,
+        "precision_at_5": 0.075,
+        "recall_at_5": 0.375
+      },
+      "n": 8,
+      "parent_restore": {
+        "hits": 3,
+        "lookup_failed": 0,
+        "missing": 0,
+        "no_parent": 0,
+        "not_replaced": 0,
+        "rate": 1.0,
+        "restored": 3
+      }
+    },
+    "vague": {
+      "metrics": {
+        "mrr": 0.225,
+        "precision_at_5": 0.08,
+        "recall_at_5": 0.4
+      },
+      "n": 10,
+      "parent_restore": {
+        "hits": 4,
+        "lookup_failed": 0,
+        "missing": 0,
+        "no_parent": 0,
+        "not_replaced": 1,
+        "rate": 0.75,
+        "restored": 3
+      }
+    }
+  },
+  "strategy": "L3",
+  "strategy_config": {
+    "cliff_detection": false,
+    "k": 20,
+    "name": "混合检索 + BGE",
+    "top_k": 5,
+    "use_dense_only": false,
+    "use_rerank": true
+  },
+  "tiers": {
+    "gold": {
+      "metrics": {
+        "mrr": 0.270832,
+        "precision_at_5": 0.085714,
+        "recall_at_5": 0.333332
+      },
+      "n": 28
+    },
+    "silver": {
+      "metrics": {},
+      "n": 0
+    }
+  },
+  "vague_pairs": {
+    "mean_delta": {
+      "mrr": -0.025,
+      "recall_at_5": 0.1
+    },
+    "n": 10,
+    "note": "这 10 题与原题共享证据，差值不能并进独立正例的 Recall",
+    "pairs": [
+      {
+        "case_id": "rr-vague-001",
+        "mrr": {
+          "delta": -0.25,
+          "pair": 0.5,
+          "vague": 0.25
+        },
+        "paired_case_id": "rr-single-001",
+        "recall_at_5": {
+          "delta": 0.0,
+          "pair": 1.0,
+          "vague": 1.0
+        }
+      },
+      {
+        "case_id": "rr-vague-002",
+        "mrr": {
+          "delta": -0.5,
+          "pair": 1.0,
+          "vague": 0.5
+        },
+        "paired_case_id": "rr-single-002",
+        "recall_at_5": {
+          "delta": 0.0,
+          "pair": 1.0,
+          "vague": 1.0
+        }
+      },
+      {
+        "case_id": "rr-vague-003",
+        "mrr": {
+          "delta": -0.5,
+          "pair": 1.0,
+          "vague": 0.5
+        },
+        "paired_case_id": "rr-single-003",
+        "recall_at_5": {
+          "delta": 0.0,
+          "pair": 1.0,
+          "vague": 1.0
+        }
+      },
+      {
+        "case_id": "rr-vague-004",
+        "mrr": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        },
+        "paired_case_id": "rr-single-004",
+        "recall_at_5": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        }
+      },
+      {
+        "case_id": "rr-vague-005",
+        "mrr": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        },
+        "paired_case_id": "rr-single-005",
+        "recall_at_5": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        }
+      },
+      {
+        "case_id": "rr-vague-006",
+        "mrr": {
+          "delta": 1.0,
+          "pair": 0.0,
+          "vague": 1.0
+        },
+        "paired_case_id": "rr-single-006",
+        "recall_at_5": {
+          "delta": 1.0,
+          "pair": 0.0,
+          "vague": 1.0
+        }
+      },
+      {
+        "case_id": "rr-vague-007",
+        "mrr": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        },
+        "paired_case_id": "rr-single-007",
+        "recall_at_5": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        }
+      },
+      {
+        "case_id": "rr-vague-008",
+        "mrr": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        },
+        "paired_case_id": "rr-single-008",
+        "recall_at_5": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        }
+      },
+      {
+        "case_id": "rr-vague-009",
+        "mrr": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        },
+        "paired_case_id": "rr-multi-004",
+        "recall_at_5": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        }
+      },
+      {
+        "case_id": "rr-vague-010",
+        "mrr": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        },
+        "paired_case_id": "rr-multi-009",
+        "recall_at_5": {
+          "delta": 0.0,
+          "pair": 0.0,
+          "vague": 0.0
+        }
+      }
+    ]
+  }
+}

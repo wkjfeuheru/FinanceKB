@@ -106,11 +106,6 @@ AB_EXPERIMENTS: tuple[ABExperiment, ...] = (
         _arm("rerank_on", "开启重排序", env={"ENABLE_RERANKER": "true"}),
     ),
     ABExperiment(
-        "dynamic_k_on_off", "动态 K",
-        _arm("dynamic_k_off", "固定 K", env={"DYNAMIC_K": "false"}),
-        _arm("dynamic_k_on", "动态 K", env={"DYNAMIC_K": "true"}),
-    ),
-    ABExperiment(
         "hyde_on_off", "HyDE 检索增强",
         _arm("hyde_off", "关闭 HyDE", env={"ENABLE_HYDE": "false"}),
         _arm("hyde_on", "开启 HyDE", env={"ENABLE_HYDE": "true"}),
@@ -124,6 +119,42 @@ AB_EXPERIMENTS: tuple[ABExperiment, ...] = (
         "query_rewrite_on_off", "查询改写 + 多路子查询",
         _arm("rewrite_off", "关闭改写", env={"CHAT_ENABLE_QUERY_REWRITE": "false"}),
         _arm("rewrite_on", "开启改写", env={"CHAT_ENABLE_QUERY_REWRITE": "true"}),
+    ),
+    ABExperiment(
+        "agentic_on_off", "Agentic：改写分解 + 元数据路由 + 反思",
+        _arm("standard", "标准检索", strategy={
+            "rewrite": False, "route": False, "reflect": False,
+        }),
+        _arm("agentic", "改写+路由+反思", strategy={
+            "rewrite": True, "route": True, "reflect": True,
+        }),
+    ),
+    ABExperiment(
+        "route_on_off", "元数据自动路由",
+        _arm("route_off", "关闭路由", strategy={
+            "rewrite": False, "route": False, "reflect": False, "retrieval_only": True,
+        }),
+        _arm("route_on", "开启路由", strategy={
+            "rewrite": False, "route": True, "reflect": False, "retrieval_only": True,
+        }),
+    ),
+    ABExperiment(
+        "rewrite_on_off", "查询改写与分解（只比检索）",
+        _arm("component_rewrite_off", "关闭改写", strategy={
+            "rewrite": False, "route": False, "reflect": False, "retrieval_only": True,
+        }),
+        _arm("component_rewrite_on", "开启改写", strategy={
+            "rewrite": True, "route": False, "reflect": False, "retrieval_only": True,
+        }),
+    ),
+    ABExperiment(
+        "reflect_on_off", "反思重检索（只比检索）",
+        _arm("reflect_off", "关闭反思", strategy={
+            "rewrite": False, "route": False, "reflect": False, "retrieval_only": True,
+        }),
+        _arm("reflect_on", "开启反思", strategy={
+            "rewrite": False, "route": False, "reflect": True, "retrieval_only": True,
+        }),
     ),
     ABExperiment(
         "semantic_chunk_on_off", "语义切块（语义+层级 vs 仅层级）",

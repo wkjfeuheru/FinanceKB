@@ -10,8 +10,8 @@
 
 from __future__ import annotations
 
-import json
 import logging
+import math
 import os
 from pathlib import Path
 from typing import Any
@@ -67,6 +67,17 @@ def env_positive_float(name: str, default: float) -> float:
     return value
 
 
+def normalize_fusion_weights(dense_weight: float, sparse_weight: float) -> tuple[float, float]:
+    """校验有限的 [0,1] 权重，并按正和归一化。"""
+    weights = (float(dense_weight), float(sparse_weight))
+    if any(not math.isfinite(weight) or not 0 <= weight <= 1 for weight in weights):
+        raise ValueError("融合权重必须为有限数，且每项在 [0,1] 范围内")
+    total = sum(weights)
+    if total <= 0:
+        raise ValueError("融合权重至少一项必须大于 0")
+    return weights[0] / total, weights[1] / total
+
+
 load_project_env()
 
 # 运行环境配置
@@ -80,8 +91,18 @@ LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "1"))
 LLM_TEMPERATURE = float(os.getenv("LLM_TEMPERATURE", "0.1"))
 
 # 嵌入服务与向量数据库
-EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-large-zh-v1.5")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
 EMBEDDING_DIM = int(os.getenv("EMBEDDING_DIM", "1024"))
+EMBEDDING_POOLING = os.getenv("EMBEDDING_POOLING", "cls").strip().lower()
+# 嵌入模型的输入窗口（token）。bge-m3 本体支持 8192，但 CPU 上长序列开销超线性
+# （实测 512→1369 token 单条推理 0.41s→6.2s，约 15×），检索用小窗口更划算，
+# 因此这里保持 512——子块的字符预算由 chunker 的 _CHARS_PER_TOKEN 对齐到这个窗口。
+EMBEDDING_MAX_TOKENS = max(1, int(os.getenv("EMBEDDING_MAX_TOKENS", "512")))
+if EMBEDDING_POOLING not in {"cls", "mean"}:
+    raise ValueError(
+        "Environment variable EMBEDDING_POOLING must be one of: cls, mean; "
+        f"got {EMBEDDING_POOLING!r}"
+    )
 MODEL_CACHE_DIR = os.getenv(
     "MODEL_CACHE_DIR", str(Path.home() / ".cache" / "finance_rag" / "models")
 )
@@ -134,8 +155,8 @@ MINERU_SUPPORTED_EXTENSIONS = tuple(
         "MINERU_SUPPORTED_EXTENSIONS", ".pdf,.docx,.pptx,.xlsx,.xls,.md,.txt"
     ).split(",") if item.strip()
 )
-CLEANER_RULES_VERSION = os.getenv("CLEANER_RULES_VERSION", "mineru-cleaner-v1")
-CHUNK_RULES_VERSION = os.getenv("CHUNK_RULES_VERSION", "hierarchical-v2")
+CLEANER_RULES_VERSION = os.getenv("CLEANER_RULES_VERSION", "mineru-cleaner-v2-preserve")
+CHUNK_RULES_VERSION = os.getenv("CHUNK_RULES_VERSION", "hierarchical-v3-preserve")
 EMBEDDING_VERSION = os.getenv("EMBEDDING_VERSION", EMBEDDING_MODEL)
 OBJECT_EVENT_SECRET = os.getenv("OBJECT_EVENT_SECRET", "")
 OBJECT_EVENT_PREFIX = os.getenv("OBJECT_EVENT_PREFIX", "docs/")
@@ -143,10 +164,12 @@ OBJECT_EVENT_MAX_RETRIES = max(0, int(os.getenv("OBJECT_EVENT_MAX_RETRIES", "5")
 VERSION_RETENTION_DAYS = max(0, int(os.getenv("VERSION_RETENTION_DAYS", "0")))
 
 # 文档切块配置
-CHUNK_TOKENIZER = os.getenv("CHUNK_TOKENIZER", "BAAI/bge-large-zh-v1.5")
-DOCLING_CHUNK_MAX_TOKENS = int(os.getenv("DOCLING_CHUNK_MAX_TOKENS", "512"))
-PARENT_MAX_TOKENS = int(os.getenv("PARENT_MAX_TOKENS", "2000"))
-CHILD_OVERLAP_TOKENS = int(os.getenv("CHILD_OVERLAP_TOKENS", "50"))
+# 下面两项是「子块 token 预算」，chunker 按 _CHARS_PER_TOKEN=1.4 折算成字符上限
+# （256 → 358 字符、25 → 35 字符），是「检索单元」的粒度上限，必须明显小于
+# EMBEDDING_MAX_TOKENS：上限太大等于没在管粒度（512 token/716 字符时只有 23% 的
+# 父块被切开），太小则退化成碎片（128 token 时 99% 的子块 <200 字符）。
+DOCLING_CHUNK_MAX_TOKENS = int(os.getenv("DOCLING_CHUNK_MAX_TOKENS", "256"))
+CHILD_OVERLAP_TOKENS = int(os.getenv("CHILD_OVERLAP_TOKENS", "25"))
 ENABLE_SEMANTIC_CHUNKER = env_bool("ENABLE_SEMANTIC_CHUNKER", False)
 SEMANTIC_BREAK_THRESHOLD = float(os.getenv("SEMANTIC_BREAK_THRESHOLD", "0.45"))
 SEMANTIC_MIN_TOKENS = int(os.getenv("SEMANTIC_MIN_TOKENS", "100"))
@@ -155,25 +178,17 @@ SEMANTIC_DEVICE = os.getenv("SEMANTIC_DEVICE", "cpu")
 ENABLE_VERSIONING = env_bool("ENABLE_VERSIONING", False)
 MAX_VERSIONS_PER_DOC = int(os.getenv("MAX_VERSIONS_PER_DOC", "0"))
 
-
-def _parse_dynamic_k_map() -> dict[str, dict[str, int]]:
-    """解析动态 K 档位配置（JSON），非法时回退默认档位。"""
-    raw = os.getenv("DYNAMIC_K_MAP", '{"simple": {"k": 3, "rerank_top_n": 2}, "normal": {"k": 8, "rerank_top_n": 4}, "complex": {"k": 20, "rerank_top_n": 6}}')
-    fallback = {"simple": {"k": 3, "rerank_top_n": 2}, "normal": {"k": 8, "rerank_top_n": 4}, "complex": {"k": 20, "rerank_top_n": 6}}
-    try:
-        parsed = json.loads(raw)
-        if isinstance(parsed, dict) and all(isinstance(v, dict) and "k" in v for v in parsed.values()):
-            return {k: {"k": int(v["k"]), "rerank_top_n": int(v.get("rerank_top_n", v["k"]))} for k, v in parsed.items()}
-    except (json.JSONDecodeError, ValueError, TypeError):
-        pass
-    return fallback
-
-
-DYNAMIC_K = env_bool("DYNAMIC_K", False)
-DYNAMIC_K_MAP = _parse_dynamic_k_map()
 ENABLE_HYDE = env_bool("ENABLE_HYDE", False)
 HYDE_WEIGHT = float(os.getenv("HYDE_WEIGHT", "0.5"))
 RRF_K = int(os.getenv("RRF_K", "60"))
+RETRIEVAL_FUSION_MODE = os.getenv("RETRIEVAL_FUSION_MODE", "weighted")
+RETRIEVAL_DENSE_WEIGHT, RETRIEVAL_SPARSE_WEIGHT = normalize_fusion_weights(
+    float(os.getenv("RETRIEVAL_DENSE_WEIGHT", "0.8")),
+    float(os.getenv("RETRIEVAL_SPARSE_WEIGHT", "0.2")),
+)
+RETRIEVAL_CANDIDATE_SOURCE_LIMIT = max(1, int(os.getenv("RETRIEVAL_CANDIDATE_SOURCE_LIMIT", "8")))
+RETRIEVAL_CANDIDATE_MAX_PER_SOURCE = max(1, int(os.getenv("RETRIEVAL_CANDIDATE_MAX_PER_SOURCE", "10")))
+ENABLE_CLIFF_DETECTION = env_bool("ENABLE_CLIFF_DETECTION", False)
 RUNTIME_STATE_DIR = PROJECT_ROOT / "assets" / "state"
 ENABLE_RERANKER = env_bool("ENABLE_RERANKER", True)
 # 启动预热：true 时在后台线程预热「重依赖导入 + 嵌入/重排序模型」，
@@ -182,19 +197,38 @@ ENABLE_RERANKER = env_bool("ENABLE_RERANKER", True)
 WARMUP_ENABLED = env_bool("WARMUP_ENABLED", True)
 RERANKER_MODEL = os.getenv("RERANKER_MODEL", "BAAI/bge-reranker-v2-m3")
 RERANKER_DEVICE = os.getenv("RERANKER_DEVICE", "cpu")
-RERANKER_CLIFF_THRESHOLD = float(os.getenv("RERANKER_CLIFF_THRESHOLD", "0.35"))
-# 断崖截断的下限：检测到断崖时**至少保留**这么多条送进重排序。
+# 断崖检测的三条约束（详见 hybrid_retriever._apply_cliff_detection）：
 #
-# 判据是「相邻粗排分数相对落差 > threshold」才截断。阈值 0.35 最初按重排分数
-# 的陡落差标定（首条 0.947、末条 0.005）。粗排分（RRF / 稠密）相邻落差通常更小，
-# 只有头部和尾部明显拉开时才会触发。下限取 3，避免一次截到只剩 1 条候选。
-RERANKER_CLIFF_MIN_RESULTS = max(1, int(os.getenv("RERANKER_CLIFF_MIN_RESULTS", "3")))
+# 1) 绝对差距：相邻粗排分差 >= RERANKER_CLIFF_ABS_THRESHOLD 即判为断崖。
+#    注意分数尺度——稠密/COSINE 分落在 [-1, 1]，0.8 才是可达的强断层信号；
+#    RRF 融合分上界约 2/61≈0.033（1/(60+rank) 两路求和），该规则在这种模式下
+#    永不可达，真正生效的是相对跌幅规则。
+# 2) 相对跌幅：相邻跌幅 (s[i]-s[i+1])/s[i] >= RERANKER_CLIFF_REL_THRESHOLD。
+#    分数 <=1 时，绝对规则被判据 2 蕴含（gap>=0.8 ⟹ gap/s[i]>=0.8>0.40），
+#    保留它是为了显式表达「绝对断层」意图，并在未来分数尺度 >1 时才有独立意义。
+# 3) 兜底下限：命中断崖也**至少保留** RERANKER_CLIFF_MIN_TOP_K 条送进重排序，
+#    避免一次截到只剩 1 条候选、上下文完全失去兜底。
+#
+# 规则级禁用：对应阈值 <= 0 即关闭该条规则；两条都 <= 0 则整体禁用（不截断）。
+RERANKER_CLIFF_ABS_THRESHOLD = float(os.getenv("RERANKER_CLIFF_ABS_THRESHOLD", "0.8"))
+RERANKER_CLIFF_REL_THRESHOLD = float(os.getenv("RERANKER_CLIFF_REL_THRESHOLD", "0.40"))
+RERANKER_CLIFF_MIN_TOP_K = max(1, int(os.getenv("RERANKER_CLIFF_MIN_TOP_K", "5")))
+# 重排后最终选取的多样性配额（gold20 复盘：表格占满 top-5、单文档霸榜挤掉
+# 跨文档证据——见 docs/interview-qa-rag.md 问题 2/3）。0 = 关闭该配额。
+# 每篇文档（source）最多贡献 RERANK_MAX_PER_SOURCE 条最终结果；
+# 表格/图片块合计最多 RERANK_MAX_NON_TEXT_BLOCKS 条。
+# 配额只影响最终 top_n 的选取顺序，候选池与断崖检测不变；配额把候选耗尽时
+# 按重排序顺位回填，保证永远返回足量结果。
+RERANK_MAX_PER_SOURCE = max(0, int(os.getenv("RERANK_MAX_PER_SOURCE", "2")))
+RERANK_MAX_NON_TEXT_BLOCKS = max(0, int(os.getenv("RERANK_MAX_NON_TEXT_BLOCKS", "2")))
 MILVUS_FINGERPRINT_PATH = os.getenv("MILVUS_FINGERPRINT_PATH", str(RUNTIME_STATE_DIR / ".milvus_fingerprint"))
-CHAT_TOP_K = int(os.getenv("CHAT_TOP_K", "5"))
-CHAT_RERANK_TOP_K = int(os.getenv("CHAT_RERANK_TOP_K", "3"))
+CHAT_TOP_K = int(os.getenv("CHAT_TOP_K", "50"))
+CHAT_RERANK_TOP_K = int(os.getenv("CHAT_RERANK_TOP_K", "5"))
 CHAT_ENABLE_QUERY_REWRITE = env_bool("CHAT_ENABLE_QUERY_REWRITE", False)
 ENABLE_LANGGRAPH = env_bool("ENABLE_LANGGRAPH", False)
-LANGGRAPH_MAX_REFLECT_ROUNDS = min(3, max(1, int(os.getenv("LANGGRAPH_MAX_REFLECT_ROUNDS", "2"))))
+LANGGRAPH_MAX_REFLECT_ROUNDS = min(2, max(0, int(os.getenv("LANGGRAPH_MAX_REFLECT_ROUNDS", "2"))))
+# 兼容旧配置名：该值表示初检之后实际执行的最大补检批次数。
+AGENT_MAX_SUBPROBLEMS = min(3, max(1, int(os.getenv("AGENT_MAX_SUBPROBLEMS", "3"))))
 TENANT_ID = os.getenv("TENANT_ID", "default")
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", str(PROJECT_ROOT / "files"))
 MAX_UPLOAD_SIZE_MB = int(os.getenv("MAX_UPLOAD_SIZE_MB", "20"))
@@ -293,7 +327,7 @@ def resolve_write_concurrency() -> int:
 ENABLE_METADATA_LLM = env_bool("ENABLE_METADATA_LLM", True)
 # 原文页渲染分辨率：72dpi 读研报太糊，默认 144dpi
 PAGE_RENDER_DPI = int(os.getenv("PAGE_RENDER_DPI", "144"))
-ENABLE_CITATION_VALIDATION = env_bool("ENABLE_CITATION_VALIDATION", False)
+ENABLE_CITATION_VALIDATION = env_bool("ENABLE_CITATION_VALIDATION", True)
 CITATION_SIMILARITY_THRESHOLD = float(os.getenv("CITATION_SIMILARITY_THRESHOLD", "0.4"))
 ENABLE_REFUSAL = env_bool("ENABLE_REFUSAL", True)
 REFUSAL_SCORE_THRESHOLD = float(os.getenv("REFUSAL_SCORE_THRESHOLD", "0.5"))
@@ -314,6 +348,37 @@ QUERY_REWRITE_BASE_URL = os.getenv("QUERY_REWRITE_BASE_URL", "https://dashscope.
 QUERY_REWRITE_MODEL = os.getenv("QUERY_REWRITE_MODEL", "qwen-turbo")
 QUERY_REWRITE_API_KEY = os.getenv("QUERY_REWRITE_API_KEY", "") or DASHSCOPE_API_KEY
 QUERY_REWRITE_TIMEOUT_SECONDS = float(os.getenv("QUERY_REWRITE_TIMEOUT_SECONDS", "15"))
+
+# ---------------------------------------------------------------------------
+# 评测裁判与校准（LLM-as-Judge 偏差防护 / 锚点漂移 / 人工标注）
+# ---------------------------------------------------------------------------
+# 主裁判默认复用主模型；第二裁判默认复用查询改写用的轻量模型（不同模型族），
+# 因此只要配置了 DASHSCOPE_API_KEY 就能做「自我强化偏差」的跨模型交叉校验。
+EVAL_JUDGE_MODEL = os.getenv("EVAL_JUDGE_MODEL", "").strip()
+EVAL_JUDGE_BASE_URL = os.getenv("EVAL_JUDGE_BASE_URL", "").strip()
+EVAL_JUDGE_API_KEY = os.getenv("EVAL_JUDGE_API_KEY", "").strip()
+EVAL_JUDGE_SECONDARY_MODEL = os.getenv("EVAL_JUDGE_SECONDARY_MODEL", "").strip() or (
+    QUERY_REWRITE_MODEL if QUERY_REWRITE_API_KEY else ""
+)
+EVAL_JUDGE_SECONDARY_BASE_URL = (
+    os.getenv("EVAL_JUDGE_SECONDARY_BASE_URL", "").strip() or QUERY_REWRITE_BASE_URL
+)
+EVAL_JUDGE_SECONDARY_API_KEY = (
+    os.getenv("EVAL_JUDGE_SECONDARY_API_KEY", "").strip() or QUERY_REWRITE_API_KEY
+)
+_EVAL_DATA_DIR = Path(__file__).resolve().parents[1] / "eval" / "data"
+EVAL_ANCHORS_PATH = os.getenv("EVAL_ANCHORS_PATH", "").strip() or str(
+    _EVAL_DATA_DIR / "eval_anchors.jsonl"
+)
+EVAL_ANCHOR_STRICT = env_bool("EVAL_ANCHOR_STRICT", False)
+EVAL_ANCHOR_BAND_SLACK = float(os.getenv("EVAL_ANCHOR_BAND_SLACK", "0.1"))
+EVAL_PAIRWISE_SAMPLE = max(0, int(os.getenv("EVAL_PAIRWISE_SAMPLE", "20")))
+EVAL_CROSSCHECK_SAMPLE = max(0, int(os.getenv("EVAL_CROSSCHECK_SAMPLE", "0")))
+EVAL_HUMAN_SAMPLE_SIZE = max(0, int(os.getenv("EVAL_HUMAN_SAMPLE_SIZE", "60")))
+EVAL_POSITION_FLIP_THRESHOLD = float(os.getenv("EVAL_POSITION_FLIP_THRESHOLD", "0.3"))
+EVAL_LENGTH_CORR_THRESHOLD = float(os.getenv("EVAL_LENGTH_CORR_THRESHOLD", "0.3"))
+EVAL_LENGTH_MATCH_RATIO = float(os.getenv("EVAL_LENGTH_MATCH_RATIO", "1.25"))
+EVAL_JUDGE_BIAS_THRESHOLD = float(os.getenv("EVAL_JUDGE_BIAS_THRESHOLD", "0.1"))
 
 STORAGE_BACKEND = os.getenv("STORAGE_BACKEND", "oss")
 OSS_ENDPOINT = os.getenv("OSS_ENDPOINT", "https://oss-cn-hangzhou.aliyuncs.com")
@@ -413,3 +478,112 @@ def get_rewrite_model() -> Any:
             except Exception as exc:
                 logger.warning("查询改写轻量模型初始化失败，将回退到主模型/规则改写：%s", exc)
     return _rewrite_model
+
+
+# ---------------------------------------------------------------------------
+# 评测裁判（主裁判 / 第二裁判族）与自评检测
+# ---------------------------------------------------------------------------
+
+_judge_model: Any = None
+_judge_model_initialized = False
+_secondary_judge_model: Any = None
+_secondary_judge_model_initialized = False
+
+#: 模型标识 → 模型族。用于判断「生成模型与裁判模型是否同族」（自我强化偏差）。
+_MODEL_FAMILY_NEEDLES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("deepseek", ("deepseek",)),
+    ("qwen", ("qwen", "dashscope")),
+    ("claude", ("claude", "anthropic")),
+    ("gemini", ("gemini", "google")),
+    ("openai", ("gpt", "openai", "o1-", "o3-", "chatgpt")),
+)
+
+
+def model_family(spec: str) -> str:
+    """从模型标识里推断模型族（``deepseek`` / ``qwen`` / ``openai`` ...）。
+
+    先按已知家族关键字匹配，再退回 ``provider:model`` 的 provider 段；
+    无法判断时返回 ``"unknown"``。空字符串返回空串（表示未配置）。
+    """
+    value = str(spec or "").strip().lower()
+    if not value:
+        return ""
+    for family, needles in _MODEL_FAMILY_NEEDLES:
+        if any(needle in value for needle in needles):
+            return family
+    return value.split(":")[0] if ":" in value else "unknown"
+
+
+def primary_judge_spec() -> str:
+    """主裁判模型标识（未单独配置时为生成模型本身）。"""
+    return EVAL_JUDGE_MODEL or DEEPSEEK_MODEL
+
+
+def generator_spec() -> str:
+    """生成答案所用模型标识。"""
+    return DEEPSEEK_MODEL
+
+
+def get_judge_model() -> Any:
+    """惰性获取主裁判模型；未配置 ``EVAL_JUDGE_MODEL`` 时复用主模型。"""
+    global _judge_model, _judge_model_initialized
+    if not EVAL_JUDGE_MODEL:
+        return get_model()
+    if not _judge_model_initialized:
+        _judge_model_initialized = True
+        api_key = EVAL_JUDGE_API_KEY or DEEPSEEK_API_KEY
+        if not api_key:
+            logger.warning("EVAL_JUDGE_MODEL 已配置但缺少 EVAL_JUDGE_API_KEY/DEEPSEEK_API_KEY，裁判不可用")
+            return None
+        try:
+            from langchain.chat_models import init_chat_model
+
+            _judge_model = init_chat_model(
+                EVAL_JUDGE_MODEL,
+                api_key=api_key,
+                **({"base_url": EVAL_JUDGE_BASE_URL} if EVAL_JUDGE_BASE_URL else {}),
+                timeout=LLM_TIMEOUT_SECONDS,
+                max_retries=LLM_MAX_RETRIES,
+                temperature=0.1,
+            )
+        except Exception as exc:
+            logger.warning("裁判模型初始化失败：%s", exc)
+    return _judge_model
+
+
+def get_secondary_judge_model() -> Any:
+    """惰性获取第二裁判模型（跨模型交叉校验用）；未配置或与主裁判同族时返回 ``None``。
+
+    与主裁判同族时返回 ``None``：用同一个模型校验它自己无法发现自我强化偏差，
+    属于无效校验；此时报告会写明「自我强化偏差未校验」而不是给出假结论。
+    """
+    global _secondary_judge_model, _secondary_judge_model_initialized
+    if not EVAL_JUDGE_SECONDARY_MODEL or not EVAL_JUDGE_SECONDARY_API_KEY:
+        return None
+    if model_family(EVAL_JUDGE_SECONDARY_MODEL) == model_family(primary_judge_spec()):
+        logger.warning(
+            "第二裁判（%s）与主裁判（%s）同族，跨模型校验无意义，已跳过",
+            EVAL_JUDGE_SECONDARY_MODEL, primary_judge_spec(),
+        )
+        return None
+    if not _secondary_judge_model_initialized:
+        _secondary_judge_model_initialized = True
+        spec = (
+            EVAL_JUDGE_SECONDARY_MODEL
+            if ":" in EVAL_JUDGE_SECONDARY_MODEL
+            else f"openai:{EVAL_JUDGE_SECONDARY_MODEL}"
+        )
+        try:
+            from langchain.chat_models import init_chat_model
+
+            _secondary_judge_model = init_chat_model(
+                spec,
+                api_key=EVAL_JUDGE_SECONDARY_API_KEY,
+                base_url=EVAL_JUDGE_SECONDARY_BASE_URL,
+                timeout=LLM_TIMEOUT_SECONDS,
+                max_retries=1,
+                temperature=0.1,
+            )
+        except Exception as exc:
+            logger.warning("第二裁判模型初始化失败：%s", exc)
+    return _secondary_judge_model

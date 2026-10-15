@@ -1,0 +1,131 @@
+{
+  "completed": 18,
+  "dataset_source": "finance_rag\\src\\eval\\data\\research_report_gold20.jsonl",
+  "failed": 0,
+  "generation_metrics": {},
+  "include_silver": false,
+  "independent_positive": {
+    "metrics": {
+      "mrr": 0.125,
+      "precision_at_5": 0.044444,
+      "recall_at_5": 0.157406
+    },
+    "n": 18,
+    "note": "不含 vague 配对题，也不含负样本",
+    "parent_restore": {
+      "hits": 4,
+      "lookup_failed": 0,
+      "missing": 0,
+      "no_parent": 0,
+      "not_replaced": 1,
+      "rate": 0.75,
+      "restored": 3
+    }
+  },
+  "metadata": {
+    "comparable": true,
+    "dataset_version": "research_report_gold20",
+    "execution_order": 2,
+    "execution_plan": [
+      "L0",
+      "L1",
+      "L2",
+      "L3",
+      "L5"
+    ],
+    "expected_kb_fingerprint": null,
+    "kb_fingerprint": "51dcd38ffbbc3004f2690ded7c7010d035e849b7ea17cff917347f19eec71d1c",
+    "seed": 7
+  },
+  "metric_coverage": {
+    "mrr": 1.0,
+    "precision_at_5": 1.0,
+    "recall_at_5": 1.0
+  },
+  "metrics": {
+    "mrr": 0.125,
+    "precision_at_5": 0.044444,
+    "recall_at_5": 0.157406
+  },
+  "mode": "retrieval",
+  "n": 18,
+  "parent_restore": {
+    "hits": 4,
+    "lookup_failed": 0,
+    "missing": 0,
+    "no_parent": 0,
+    "not_replaced": 1,
+    "rate": 0.75,
+    "restored": 3
+  },
+  "retrieval_metrics": {
+    "mrr": 0.125,
+    "precision_at_5": 0.044444,
+    "recall_at_5": 0.157406
+  },
+  "strata": {
+    "cross_doc": {
+      "metrics": {
+        "mrr": 0.15,
+        "precision_at_5": 0.04,
+        "recall_at_5": 0.08333
+      },
+      "n": 10,
+      "parent_restore": {
+        "hits": 2,
+        "lookup_failed": 0,
+        "missing": 0,
+        "no_parent": 0,
+        "not_replaced": 1,
+        "rate": 0.5,
+        "restored": 1
+      }
+    },
+    "explicit": {
+      "metrics": {
+        "mrr": 0.09375,
+        "precision_at_5": 0.05,
+        "recall_at_5": 0.25
+      },
+      "n": 8,
+      "parent_restore": {
+        "hits": 2,
+        "lookup_failed": 0,
+        "missing": 0,
+        "no_parent": 0,
+        "not_replaced": 0,
+        "rate": 1.0,
+        "restored": 2
+      }
+    }
+  },
+  "strategy": "L1",
+  "strategy_config": {
+    "cliff_detection": false,
+    "k": 50,
+    "name": "混合检索(RRF)",
+    "top_k": 5,
+    "use_dense_only": false,
+    "use_rerank": false
+  },
+  "tiers": {
+    "gold": {
+      "metrics": {
+        "mrr": 0.125,
+        "precision_at_5": 0.044444,
+        "recall_at_5": 0.157406
+      },
+      "n": 18
+    },
+    "silver": {
+      "metrics": {},
+      "n": 0
+    }
+  },
+  "vague_pairs": {
+    "mean_delta": {},
+    "n": 0,
+    "note": "这 10 题与原题共享证据，差值不能并进独立正例的 Recall",
+    "pairs": []
+  }
+}

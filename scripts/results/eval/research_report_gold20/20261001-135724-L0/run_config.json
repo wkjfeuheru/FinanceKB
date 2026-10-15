@@ -1,0 +1,28 @@
+{
+  "dataset_fingerprint": "3fe3ac6664c5df04286efb955c6dda88f82111857acaad6aa211e83c3af77d4e",
+  "metadata": {
+    "comparable": true,
+    "dataset_version": "research_report_gold20",
+    "execution_order": 1,
+    "execution_plan": [
+      "L0",
+      "L1",
+      "L2",
+      "L3",
+      "L5"
+    ],
+    "expected_kb_fingerprint": null,
+    "kb_fingerprint": "51dcd38ffbbc3004f2690ded7c7010d035e849b7ea17cff917347f19eec71d1c",
+    "seed": 7
+  },
+  "mode": "retrieval",
+  "strategy": "L0",
+  "strategy_config": {
+    "cliff_detection": false,
+    "k": 50,
+    "name": "纯稠密检索",
+    "top_k": 5,
+    "use_dense_only": true,
+    "use_rerank": false
+  }
+}

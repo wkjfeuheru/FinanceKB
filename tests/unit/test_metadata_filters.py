@@ -19,24 +19,8 @@ def _payload(**fields) -> str:
     return json.dumps({"metadata": fields}, ensure_ascii=False)
 
 
-def test_security_code_must_be_a_share_code():
-    assert _parse_filters_output(_payload(security_code="600519")) == {
-        "security_code": ["600519"]
-    }
-    # 首位 2 不可能是 A 股代码：挡住把日期片段当成代码
-    assert _parse_filters_output(_payload(security_code="202608")) == {}
-    assert _parse_filters_output(_payload(security_code="60051")) == {}
-
-
-def test_multiple_security_codes_are_dropped_entirely():
-    """问题里出现多只票时不能只过滤其中之一，否则另外几只静默消失。"""
-    assert _parse_filters_output(_payload(security_code=["600519", "000858"])) == {}
-
-
-def test_same_security_code_repeated_is_still_applied():
-    assert _parse_filters_output(_payload(security_code=["600519", "600519"])) == {
-        "security_code": ["600519"]
-    }
+def test_unknown_stock_identifier_is_dropped():
+    assert _parse_filters_output(_payload(stock_identifier="600519")) == {}
 
 
 def test_industry_must_be_in_sw_taxonomy():
@@ -102,10 +86,7 @@ def test_normalize_metadata_filters_revalidates_api_input():
     统一返回列表形式：Milvus 侧 `in [...]` 对单值字段同样成立，
     两条路径形状一致可以少一类分支。
     """
-    assert normalize_metadata_filters({"security_code": "600519"}) == {
-        "security_code": ["600519"]
-    }
-    assert normalize_metadata_filters({"security_code": "600519 or 1==1"}) == {}
+    assert normalize_metadata_filters({"stock_identifier": "600519"}) == {}
     assert normalize_metadata_filters({"industry_l1": "白酒"}) == {}
     assert normalize_metadata_filters({"tenant_id": "other"}) == {}
     assert normalize_metadata_filters({"report_type": "个股"}) == {
@@ -114,3 +95,11 @@ def test_normalize_metadata_filters_revalidates_api_input():
     assert normalize_metadata_filters({"date": {"gte": "2024"}}) == {
         "date": {"gte": "2024-01-01"}
     }
+
+
+def test_exact_publication_days_use_scalar_in_condition():
+    from finance_rag.src.rag.retrieval.hybrid_retriever import HybridRetriever
+
+    assert HybridRetriever._build_filter({"date": ["2026-09-24", "2026-09-27"]}) == (
+        'date in ["2026-09-24", "2026-09-27"]'
+    )

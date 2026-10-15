@@ -1,0 +1,281 @@
+{
+  "collection_name": "finance_kb",
+  "auto_id": false,
+  "num_shards": 1,
+  "description": "",
+  "fields": [
+    {
+      "field_id": 100,
+      "name": "id",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 64
+      },
+      "is_primary": true
+    },
+    {
+      "field_id": 101,
+      "name": "content",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 8192,
+        "enable_analyzer": "true"
+      }
+    },
+    {
+      "field_id": 102,
+      "name": "source",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 512
+      }
+    },
+    {
+      "field_id": 103,
+      "name": "title",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 128
+      }
+    },
+    {
+      "field_id": 104,
+      "name": "chunk",
+      "description": "",
+      "type": 5,
+      "params": {}
+    },
+    {
+      "field_id": 105,
+      "name": "parent_id",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 64
+      }
+    },
+    {
+      "field_id": 106,
+      "name": "chunk_key",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 64
+      }
+    },
+    {
+      "field_id": 107,
+      "name": "content_hash",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 64
+      }
+    },
+    {
+      "field_id": 108,
+      "name": "heading_path",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 1024
+      }
+    },
+    {
+      "field_id": 109,
+      "name": "tenant_id",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 64
+      }
+    },
+    {
+      "field_id": 110,
+      "name": "category",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 64
+      }
+    },
+    {
+      "field_id": 111,
+      "name": "date",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 32
+      }
+    },
+    {
+      "field_id": 112,
+      "name": "version",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 32
+      }
+    },
+    {
+      "field_id": 113,
+      "name": "ingested_at",
+      "description": "",
+      "type": 5,
+      "params": {}
+    },
+    {
+      "field_id": 114,
+      "name": "is_current",
+      "description": "",
+      "type": 1,
+      "params": {}
+    },
+    {
+      "field_id": 115,
+      "name": "is_deleted",
+      "description": "",
+      "type": 1,
+      "params": {}
+    },
+    {
+      "field_id": 116,
+      "name": "security_name",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 64
+      }
+    },
+    {
+      "field_id": 117,
+      "name": "industry_l1",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 32
+      }
+    },
+    {
+      "field_id": 118,
+      "name": "industry_l2",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 32
+      }
+    },
+    {
+      "field_id": 119,
+      "name": "report_type",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 16
+      }
+    },
+    {
+      "field_id": 120,
+      "name": "broker",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 64
+      }
+    },
+    {
+      "field_id": 121,
+      "name": "meta_source",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 16
+      }
+    },
+    {
+      "field_id": 122,
+      "name": "block_type",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 16
+      }
+    },
+    {
+      "field_id": 123,
+      "name": "start_page",
+      "description": "",
+      "type": 5,
+      "params": {}
+    },
+    {
+      "field_id": 124,
+      "name": "end_page",
+      "description": "",
+      "type": 5,
+      "params": {}
+    },
+    {
+      "field_id": 125,
+      "name": "image_key",
+      "description": "",
+      "type": 21,
+      "params": {
+        "max_length": 256
+      }
+    },
+    {
+      "field_id": 126,
+      "name": "needs_review",
+      "description": "",
+      "type": 1,
+      "params": {}
+    },
+    {
+      "field_id": 127,
+      "name": "dense_vector",
+      "description": "",
+      "type": 101,
+      "params": {
+        "dim": 1024
+      }
+    },
+    {
+      "field_id": 128,
+      "name": "sparse_vector",
+      "description": "",
+      "type": 104,
+      "params": {},
+      "is_function_output": true
+    }
+  ],
+  "functions": [
+    {
+      "name": "bm25_fn",
+      "id": 100,
+      "description": "",
+      "type": 1,
+      "params": {},
+      "input_field_names": "['content']",
+      "input_field_ids": "[101]",
+      "output_field_names": "['sparse_vector']",
+      "output_field_ids": "[128]"
+    }
+  ],
+  "aliases": [],
+  "collection_id": 469464942358320373,
+  "consistency_level": 0,
+  "consistency_level_name": "Strong",
+  "properties": {
+    "timezone": "UTC"
+  },
+  "num_partitions": 1,
+  "enable_dynamic_field": false,
+  "enable_namespace": false,
+  "created_timestamp": 469465979875754001,
+  "update_timestamp": 469465979875754001
+}

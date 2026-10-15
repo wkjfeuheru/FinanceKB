@@ -18,12 +18,15 @@ from pathlib import Path
 
 import pytest
 
+from finance_rag.src.core.config import CHILD_OVERLAP_TOKENS, DOCLING_CHUNK_MAX_TOKENS
+from finance_rag.src.rag.ingestion.chunker import _CHARS_PER_TOKEN
 from finance_rag.src.rag.ingestion.recursive_splitter import RecursiveCharacterTextSplitter
 
-# 生产配置：DOCLING_CHUNK_MAX_TOKENS=512、CHILD_OVERLAP_TOKENS=50，按 *4 换算为字符
+# 生产配置：DOCLING_CHUNK_MAX_TOKENS=512、CHILD_OVERLAP_TOKENS=50，
+# 由 chunker._CHARS_PER_TOKEN(1.4) 折算为字符（716 / 70），与生产中同一套换算。
 _PROD_SEPARATORS = ["\n\n", "\n", "。", "！", "？", "；", "，", " ", ""]
-_PROD_CHUNK_SIZE = 512 * 4
-_PROD_OVERLAP = 50 * 4
+_PROD_CHUNK_SIZE = int(DOCLING_CHUNK_MAX_TOKENS * _CHARS_PER_TOKEN)
+_PROD_OVERLAP = int(CHILD_OVERLAP_TOKENS * _CHARS_PER_TOKEN)
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -123,7 +126,7 @@ def test_chinese_punctuation_separators_used_by_production_config():
 _CORPUS = [
     _REPO_ROOT / "README.md",
     _REPO_ROOT / "finance_rag" / "src" / "eval" / "data" / "evaluation_qa_generated.md",
-    _REPO_ROOT / "docs" / "superpowers" / "specs" / "2026-09-26-research-report-qa-design.md",
+    _REPO_ROOT / "docs" / "interview-qa-rag.md",
     _REPO_ROOT / "finance_rag" / "src" / "rag" / "ingestion" / "chunker.py",
 ]
 
@@ -197,8 +200,14 @@ def test_matches_langchain_on_edge_cases(chunk_size: int, overlap: int):
 
 
 @pytest.mark.slow
-def test_matches_langchain_for_production_chunker_output():
-    """端到端：父块 → 子块 的结果与改用 langchain 时完全一致。"""
+def test_production_chunker_output_matches_langchain_splitter(monkeypatch):
+    """端到端等价：只把生产切块器内部的「递归切分器」换成 langchain，结果必须逐段一致。
+
+    比对走的是**同一条生产代码路径**（标题栈父块 → 原子单元 → ``flush_pending`` 合并
+    → 递归切分），只替换分隔器这一个组件。这样才真正等价于"用 langchain 替掉自研
+    分隔器"；如果在测试里把生产逻辑重写一遍，就变成两套实现的对照，容易给出
+    与参数相关的假绿（历史版本在 max_tokens=8 → 11 字符时即露馅）。
+    """
     Reference = _load_langchain_splitter()
     from finance_rag.src.rag.ingestion import chunker as chunker_module
 
@@ -211,31 +220,14 @@ def test_matches_langchain_for_production_chunker_output():
         + "正文段落，包含足够长度以便触发递归切分。" * 30
     )
 
-    hierarchical = chunker_module.HierarchicalChunker(max_tokens=8, parent_max_tokens=1, overlap=2)
-    parents = hierarchical._split_into_parents(markdown, "doc.md", "doc")
-    ours = [hierarchical._split_parent_into_children(parent.content) for parent in parents]
+    def run() -> list[list[str]]:
+        chunker = chunker_module.HierarchicalChunker(max_tokens=8, overlap=2)
+        parents = chunker._split_into_parents(markdown, "doc.md", "doc")
+        return [chunker._split_parent_into_children(parent.content) for parent in parents]
 
-    class _Patched(chunker_module.HierarchicalChunker):
-        def _split_parent_into_children(self, content: str) -> list[str]:
-            del content
-            raise NotImplementedError
-
-    reference_splitter = Reference(
-        chunk_size=8 * 4,
-        chunk_overlap=2 * 4,
-        separators=_PROD_SEPARATORS,
-    )
-    theirs = []
-    for parent in parents:
-        pieces: list[str] = []
-        for kind, text in chunker_module._extract_atomic_units(parent.content):
-            if kind == "table":
-                summary = chunker_module._table_summary(text)
-                if summary:
-                    pieces.append(summary)
-            else:
-                pieces.extend(piece for piece in reference_splitter.split_text(text) if piece.strip())
-        theirs.append(pieces)
+    ours = run()
+    monkeypatch.setattr(chunker_module, "RecursiveCharacterTextSplitter", Reference)
+    theirs = run()
 
     assert ours == theirs
 

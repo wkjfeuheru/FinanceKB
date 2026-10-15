@@ -55,7 +55,7 @@ if str(ROOT) not in sys.path:
 # 研报维度与证据字段（与 KnowledgeBase._REPORT_FIELD_SPECS 保持一致）。
 # 旧集合没有这些列，搬运时按下面的默认值补齐。
 REPORT_FIELDS = (
-    "security_code", "security_name", "industry_l1", "industry_l2",
+    "security_name", "industry_l1", "industry_l2",
     "report_type", "broker", "meta_source", "block_type",
     "start_page", "end_page", "image_key", "needs_review",
 )
@@ -101,7 +101,7 @@ def _derive_missing(row: dict[str, Any]) -> dict[str, Any]:
         "content_hash": digest,
         "heading_path": "",
         "is_deleted": False,
-        # 旧数据没有研报元数据：给非空默认值，避免新集合插入报缺字段
+        # 旧行同样完整校验；缺少类型必填字段时拒绝迁移，不伪造默认类型。
         **{
             key: value
             for key, value in _report_scalars(row, row).items()

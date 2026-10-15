@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from contextlib import contextmanager
+import json
 from typing import Any
 
-from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, Text, create_engine, insert, select, update
+from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, Text, create_engine, insert, inspect, select, update
 
 from finance_rag.src.core.config import DATABASE_URL
 
@@ -57,6 +59,55 @@ class DocumentManifestRepository:
 
     def ensure_schema(self) -> None:
         metadata.create_all(self._engine, tables=[documents, document_versions, document_chunks])
+
+    @contextmanager
+    def metadata_date_transaction(self, tenant_id: str, source: str, date: str | None, *, expected: dict | None = None):
+        """仅已有 manifest，锁定精确来源；调用者失败时回滚，不建表或插入。"""
+        with self._engine.begin() as connection:
+            if not inspect(connection).has_table("documents"):
+                if expected is not None and expected != {"status": "skipped_missing_table", "rows": []}:
+                    raise ValueError("manifest table drift")
+                yield {"status": "skipped_missing_table", "before": []}
+                return
+            condition = (documents.c.tenant_id == tenant_id) & (documents.c.source == source)
+            before = [dict(row) for row in connection.execute(
+                select(documents).where(condition).with_for_update()).mappings()]
+            actual = {"status": "present" if before else "skipped_missing_document", "rows": before}
+            if expected is not None and json.dumps(actual, sort_keys=True, default=str) != json.dumps(expected, sort_keys=True, default=str):
+                raise ValueError("manifest before rows drift")
+            result = {"status": "updated" if before and date is not None else
+                      "unchanged" if before else "skipped_missing_document", "before": before}
+            if before and date is not None:
+                connection.execute(update(documents).where(condition).values(date=date))
+            yield result
+
+    def restore_metadata_dates(self, tenant_id: str, source: str, before: list[dict], written_date: str) -> str:
+        """精确补偿日期，遇到第三方新值拒绝覆盖；同样不建表。"""
+        with self._engine.begin() as connection:
+            if not inspect(connection).has_table("documents"):
+                if before:
+                    raise ValueError("manifest disappeared during compensation")
+                return "skipped_missing_table"
+            condition = (documents.c.tenant_id == tenant_id) & (documents.c.source == source)
+            current = [dict(row) for row in connection.execute(select(documents).where(condition).with_for_update()).mappings()]
+            old = {row["document_id"]: row for row in before}
+            if {row["document_id"] for row in current} != set(old):
+                raise ValueError("manifest rows changed during compensation")
+            for row in current:
+                if row["date"] not in {old[row["document_id"]]["date"], written_date}:
+                    raise ValueError("manifest date changed during compensation")
+            for row in current:
+                connection.execute(update(documents).where(condition & (documents.c.document_id == row["document_id"])).values(date=old[row["document_id"]]["date"]))
+            return "restored" if before else "skipped_missing_document"
+
+    def read_metadata_dates(self, tenant_id: str, source: str) -> dict[str, Any]:
+        """只读诊断，不以连接错误冒充缺表。"""
+        with self._engine.connect() as connection:
+            if not inspect(connection).has_table("documents"):
+                return {"status": "skipped_missing_table", "rows": []}
+            rows = [dict(row) for row in connection.execute(select(documents).where(
+                (documents.c.tenant_id == tenant_id) & (documents.c.source == source))).mappings()]
+            return {"status": "present" if rows else "skipped_missing_document", "rows": rows}
 
     def get_document(self, document_id: str) -> dict[str, Any] | None:
         self.ensure_schema()

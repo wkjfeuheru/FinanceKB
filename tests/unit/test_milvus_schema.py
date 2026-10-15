@@ -27,7 +27,6 @@ def test_report_fields_cover_metadata_and_evidence_columns():
 
     names = [name for name, _ in schema.fields]
     assert names == [
-        "security_code",
         "security_name",
         "industry_l1",
         "industry_l2",
@@ -41,7 +40,6 @@ def test_report_fields_cover_metadata_and_evidence_columns():
         "needs_review",
     ]
     limits = dict(schema.fields)
-    assert limits["security_code"] == 32
     assert limits["report_type"] == 16
     assert limits["image_key"] == 256
     assert limits["needs_review"] is None  # BOOL 无长度
@@ -58,9 +56,9 @@ def test_report_field_specs_declare_varchar_lengths():
 
 
 def test_scalars_default_to_non_null_values():
-    scalars = _report_scalars({}, {})
+    scalars = _report_scalars({"report_type": "宏观"}, {})
 
-    assert scalars["security_code"] == ""
+    assert scalars["security_name"] == ""
     assert scalars["industry_l1"] == ""
     assert scalars["block_type"] == "text"      # 缺省视为普通文本块
     assert scalars["start_page"] == 0           # 页码缺失就是 0，不猜
@@ -72,44 +70,40 @@ def test_scalars_default_to_non_null_values():
 def test_scalars_read_document_and_chunk_level_sources():
     scalars = _report_scalars(
         {
-            "security_code": "600519",
             "security_name": "贵州茅台",
             "industry_l1": "食品饮料",
-            "industry_l2": "白酒",
-            "report_type": "个股",
+            "industry_l2": "白酒Ⅱ",
+            "report_type": "行业",
             "broker": "中信证券",
             "meta_source": "regex",
         },
         {"block_type": "table", "start_page": 4, "end_page": 5, "image_key": "images/a/4-0.png"},
     )
 
-    assert scalars["security_code"] == "600519"
-    assert scalars["industry_l2"] == "白酒"
+    assert scalars["security_name"] == ""
+    assert scalars["industry_l2"] == "白酒Ⅱ"
     assert scalars["block_type"] == "table"
     assert (scalars["start_page"], scalars["end_page"]) == (4, 5)
     assert scalars["image_key"] == "images/a/4-0.png"
 
 
-def test_scalars_clip_overlong_values_instead_of_raising():
+def test_scalars_clip_chunk_fields_but_require_valid_document_metadata():
     scalars = _report_scalars(
         {
-            "security_code": "6" * 100,
-            "security_name": "名" * 100,
+            "security_name": "杰瑞股份",
             "industry_l1": "行" * 100,
             "industry_l2": "业" * 100,
-            "report_type": "类" * 100,
-            "broker": "商" * 200,
+            "report_type": "个股",
+            "broker": "东吴证券",
             "meta_source": "s" * 100,
         },
         {"block_type": "t" * 100, "image_key": "k" * 500},
     )
 
-    assert len(scalars["security_code"]) == 32
-    assert len(scalars["security_name"]) == 64
-    assert len(scalars["industry_l1"]) == 32
-    assert len(scalars["industry_l2"]) == 32
-    assert len(scalars["report_type"]) == 16
-    assert len(scalars["broker"]) == 64
+    assert scalars["security_name"] == "杰瑞股份"
+    assert scalars["industry_l1"] == scalars["industry_l2"] == ""
+    assert scalars["report_type"] == "个股"
+    assert scalars["broker"] == "东吴证券"
     assert len(scalars["meta_source"]) == 16
     assert len(scalars["block_type"]) == 16
     assert len(scalars["image_key"]) == 256
@@ -117,11 +111,11 @@ def test_scalars_clip_overlong_values_instead_of_raising():
 
 def test_scalars_tolerate_none_values():
     scalars = _report_scalars(
-        {"security_code": None, "needs_review": None},
+        {"report_type": "宏观", "needs_review": None},
         {"start_page": None, "block_type": None},
     )
 
-    assert scalars["security_code"] == ""
+    assert scalars["security_name"] == ""
     assert scalars["block_type"] == "text"
     assert scalars["start_page"] == 0
     assert scalars["needs_review"] is False
@@ -131,7 +125,7 @@ def test_migration_defaults_cover_every_report_field():
     """旧集合搬运时，新集合要求的每一列都必须有默认值，否则整批插入失败。"""
     from scripts.migrate_kb_schema import REPORT_FIELDS, _derive_missing
 
-    derived = _derive_missing({"content": "正文", "parent_id": "p1"})
+    derived = _derive_missing({"content": "正文", "parent_id": "p1", "report_type": "宏观"})
 
     for field in REPORT_FIELDS:
         assert field in derived, field
@@ -150,5 +144,11 @@ def test_migration_only_copies_columns_present_in_backup():
 
     assert "category" in fields
     assert "id" in fields
-    assert "security_code" not in fields
+    assert "security_name" not in fields
     assert "block_type" not in fields
+def test_storage_clip_respects_utf8_byte_budget():
+    from finance_rag.src.infrastructure.vector_store.milvus_kb import _clip
+
+    value = _clip("中文标题" * 30, 128)
+    assert len(value.encode("utf-8")) <= 128
+    assert value == ("中文标题" * 30)[:42]

@@ -1,0 +1,13 @@
+{
+  "embedding_model": "BAAI/bge-m3",
+  "pooling": "cls",
+  "dimension": 1024,
+  "l2_norm": 1.0000000336554427,
+  "providers": ["CPUExecutionProvider"],
+  "cache_reload": "existing INT8 ONNX reused in independent smoke and migration processes",
+  "reranker_model": "BAAI/bge-reranker-v2-m3",
+  "reranker_device": "cuda",
+  "reranker_score": 0.9601507782936096,
+  "note": "reranker uses the existing project device configuration; no new CUDA dependency added",
+  "runtime_environment": {"MODEL_OFFLINE": "true", "HF_HUB_OFFLINE": "1", "TRANSFORMERS_OFFLINE": "1"}
+}

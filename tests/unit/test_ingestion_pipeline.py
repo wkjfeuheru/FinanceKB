@@ -79,9 +79,9 @@ def _make_parsed(source: str, markdown: str) -> ParsedDocument:
     return ParsedDocument(
         path=Path(source),
         source=source,
-        title=Path(source).stem,
+        title=f"宏观 {Path(source).stem}",
         chunks=DoclingChunks(markdown=markdown),
-        metadata={"category": ""},
+        metadata={"category": "", "report_type": "宏观"},
     )
 
 
@@ -988,7 +988,16 @@ def _prepare_kb(monkeypatch, client: _FakeMilvusClient) -> KnowledgeBase:
     monkeypatch.setattr(kb, "_mark_old_versions_inactive", lambda c, s: None)
     monkeypatch.setattr(kb, "_delete_by_source", lambda c, s, version=None: 0)
     monkeypatch.setattr(kb, "_check_duplicate_document", lambda s, t: None)
-    monkeypatch.setattr(kb, "_get_parent_store", lambda: type("PS", (), {"store_batch": lambda self, x: None})())
+    class Store:
+        def store_batch(self, rows):
+            pass
+
+        def delete_by_source(self, source):
+            pass
+
+    # 所有持久化边界都使用替身，避免派生表清理读取真实.env连接PostgreSQL。
+    monkeypatch.setattr(kb, "_get_parent_store", Store)
+    monkeypatch.setattr(kb, "_get_table_store", Store)
     monkeypatch.setattr(kb, "_get_fingerprint_store", lambda: type("FS", (), {"update": lambda self, **kw: None})())
     return kb
 
@@ -1021,7 +1030,7 @@ def _chunked_document(source: str, texts: list[str]) -> ParsedDocument:
         source=source,
         title=source,
         chunks=DoclingChunks(chunks=docs, markdown=None, parents=[]),
-        metadata={"category": ""},
+        metadata={"category": "", "report_type": "宏观"},
     )
 
 

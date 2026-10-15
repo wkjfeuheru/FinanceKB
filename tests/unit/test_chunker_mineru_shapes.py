@@ -10,8 +10,8 @@
 from finance_rag.src.rag.ingestion.chunker import (
     HierarchicalChunker,
     _extract_atomic_units,
+    _table_index_text,
     _table_payload,
-    _table_summary,
 )
 from finance_rag.src.rag.ingestion.pdf_assets import ContentBlock
 
@@ -24,7 +24,7 @@ _HTML_TABLE = (
 
 
 def _chunk(text: str, block_text: str, page: int = 3):
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
     return chunker.chunk_markdown(
         text, source="s.pdf", blocks=(ContentBlock(text=block_text, page=page),)
     )
@@ -72,26 +72,28 @@ def test_markdown_and_html_tables_can_coexist():
 def test_html_table_payload_and_summary():
     rows = _table_payload(_HTML_TABLE)
 
-    # 空单元格被丢弃，标题行保留可见文字
-    assert rows[0] == ["资产负债表(亿)"]
-    assert ["货币资金", "33.22", "41.10"] in rows
-    summary = _table_summary(_HTML_TABLE)
-    # 摘要要带真实数字：单格大标题行被跳过，取「年份表头 + 首行数据」
-    assert "货币资金" in summary
-    assert "33.22" in summary
-    assert "资本公积" not in summary
+    # colspan 标题仅左上保留文字，空单元格和六列布局均保留。
+    assert rows[0] == ["资产负债表(亿)", "", "", "", "", ""]
+    assert ["货币资金", "33.22", "41.10", "", "", ""] in rows
+    text = _table_index_text(_HTML_TABLE)
+    # 索引文本 = 表题 + 表头 + 行标签预览：语义信号齐全，数据数字不进
+    assert "资产负债表(亿)" in text
+    assert "2024A" in text
+    assert "货币资金" in text
+    assert "资本公积" in text          # 行标签覆盖到表体深处的科目
+    assert "33.22" not in text         # 数字不进索引
 
 
 def test_html_table_is_not_split_across_chunks():
-    chunker = HierarchicalChunker(max_tokens=8, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=8)
     result = chunker.chunk_markdown(
         f"## 财务指标\n\n{_HTML_TABLE}\n", source="s.pdf", title="t"
     )
 
     table_children = [c for c in result.chunks if c.metadata["block_type"] == "table"]
     assert len(table_children) == 1
-    assert "货币资金" in table_children[0].page_content      # 索引里有首行数据
-    assert "资本公积" not in table_children[0].page_content   # 表体不进索引
+    assert "货币资金" in table_children[0].page_content      # 行标签进索引
+    assert "33.22" not in table_children[0].page_content     # 数据数字不进索引
     assert "<td" not in table_children[0].page_content        # 不是 HTML 碎片
 
     assert len(result.tables) == 1
@@ -103,7 +105,7 @@ def test_html_table_is_not_split_across_chunks():
 
 def test_no_html_fragments_leak_into_text_chunks():
     """回归：表体曾被切成 ``colspan=`` 之类的碎片混进正文块。"""
-    chunker = HierarchicalChunker(max_tokens=8, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=8)
     result = chunker.chunk_markdown(
         f"## 财务指标\n\n{_HTML_TABLE}\n\n## 风险提示\n\n宏观经济风险。\n",
         source="s.pdf",

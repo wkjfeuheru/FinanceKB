@@ -4,6 +4,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { listDocuments, deleteDocument, uploadDocuments, getTaskStatus, getKbStats, listKnowledgeBases, patchDocumentMetadata } from '../api'
 import { categoryLabel } from '../constants/categories'
+import { buildMetadataPatch } from '../utils/metadata'
 
 const documents = ref([])
 const stats = ref({ document_count: 0, chunk_count: 0, exists: false })
@@ -22,7 +23,6 @@ const metadataDialog = reactive({
   source: '',
   title: '',
   form: {
-    security_code: '',
     security_name: '',
     industry_l1: '',
     industry_l2: '',
@@ -37,7 +37,6 @@ function openMetadataDialog(row) {
   metadataDialog.source = row.source
   metadataDialog.title = row.title || row.source
   metadataDialog.form = {
-    security_code: row.security_code || '',
     security_name: row.security_name || '',
     industry_l1: row.industry_l1 || '',
     industry_l2: row.industry_l2 || '',
@@ -50,7 +49,7 @@ function openMetadataDialog(row) {
 async function saveMetadata() {
   metadataDialog.saving = true
   try {
-    await patchDocumentMetadata(metadataDialog.source, metadataDialog.form)
+    await patchDocumentMetadata(metadataDialog.source, buildMetadataPatch(metadataDialog.form))
     ElMessage.success('元数据已更新（未重新嵌入，检索立即可用）')
     metadataDialog.visible = false
     await loadDocuments()
@@ -65,7 +64,7 @@ async function saveMetadata() {
 
 function isPlainDocument(row) {
   // 非研报文档（如内部制度）没有标的/行业，不显示「待确认」
-  return !row.report_type && !row.security_code && !row.industry_l1
+  return !row.report_type && !row.security_name && !row.industry_l1
 }
 
 // 分类选项（类别值 -> 显示名），供上传选择与列表筛选使用
@@ -378,7 +377,7 @@ onMounted(() => {
         <el-table-column label="研报元数据" min-width="200">
           <template #default="{ row }">
             <div class="meta-cell">
-              <el-tag v-if="row.security_code" size="small" type="info">{{ row.security_code }}</el-tag>
+              <el-tag v-if="row.security_name" size="small" type="info">{{ row.security_name }}</el-tag>
               <el-tag v-if="row.industry_l1" size="small" type="info">{{ row.industry_l1 }}</el-tag>
               <el-tag v-if="row.report_type" size="small" type="info">{{ row.report_type }}</el-tag>
               <el-tag v-if="row.needs_review" size="small" type="warning">待确认</el-tag>
@@ -409,20 +408,17 @@ onMounted(() => {
     <!-- 研报元数据人工修正 -->
     <el-dialog v-model="metadataDialog.visible" :title="`修正元数据 — ${metadataDialog.title}`" width="560px">
       <el-form label-width="96px">
-        <el-form-item label="证券代码">
-          <el-input v-model="metadataDialog.form.security_code" placeholder="6 位 A 股代码，如 600519" />
-        </el-form-item>
-        <el-form-item label="证券简称">
+        <el-form-item v-if="metadataDialog.form.report_type === '个股'" label="证券简称">
           <el-input v-model="metadataDialog.form.security_name" placeholder="如 贵州茅台" />
         </el-form-item>
-        <el-form-item label="申万一级">
+        <el-form-item v-if="metadataDialog.form.report_type === '行业'" label="申万一级">
           <el-input v-model="metadataDialog.form.industry_l1" placeholder="必须用申万标准名，如 食品饮料" />
         </el-form-item>
-        <el-form-item label="申万二级">
+        <el-form-item v-if="metadataDialog.form.report_type === '行业'" label="申万二级">
           <el-input v-model="metadataDialog.form.industry_l2" placeholder="必须属于所选一级，如 白酒Ⅱ" />
         </el-form-item>
         <el-form-item label="报告类型">
-          <el-select v-model="metadataDialog.form.report_type" clearable placeholder="未设置">
+          <el-select v-model="metadataDialog.form.report_type" placeholder="请选择报告类型">
             <el-option v-for="t in REPORT_TYPES" :key="t" :label="t" :value="t" />
           </el-select>
         </el-form-item>
@@ -432,7 +428,7 @@ onMounted(() => {
       </el-form>
       <div class="meta-hint">
         行业名必须是申万标准名（如「白酒Ⅱ」而不是「白酒」），否则该文档无法被行业维度检索到。
-        留空表示清空该字段。
+        个股必须填写证券简称，行业必须提供一级或合法二级行业；发布机构与二级行业可留空。
       </div>
       <template #footer>
         <el-button @click="metadataDialog.visible = false">取消</el-button>

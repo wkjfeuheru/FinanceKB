@@ -1,0 +1,15 @@
+{
+  "run_id": "20260929-160413",
+  "dataset": "finance_rag/src/eval/data/research_report_interview30.jsonl",
+  "commands": [
+    "python scripts/build_interview30.py",
+    "python scripts/evaluate.py dataset validate --dataset finance_rag/src/eval/data/research_report_interview30.jsonl --online",
+    "python scripts/run_interview30.py"
+  ],
+  "layers": [],
+  "ablations": [],
+  "note": "数字来自这次运行。简历里的 Recall@5=90%、MRR@5=1.0、上下文精确率 +14.1% 不是这套 18 篇研报、30 题协议的结果。",
+  "retrieval_error": "VectorStoreUnavailableError: 向量数据库客户端初始化失败（uri=http://localhost:19530）：<MilvusException: (code=2, message=Fail connecting to server on localhost:19530, illegal connection params or server unavailable)>",
+  "agentic_error": "VectorStoreUnavailableError: 向量数据库客户端初始化失败（uri=http://localhost:19530）：<MilvusException: (code=2, message=Fail connecting to server on localhost:19530, illegal connection params or server unavailable)>",
+  "ablation_error": "VectorStoreUnavailableError: 向量数据库客户端初始化失败（uri=http://localhost:19530）：<MilvusException: (code=2, message=Fail connecting to server on localhost:19530, illegal connection params or server unavailable)>"
+}

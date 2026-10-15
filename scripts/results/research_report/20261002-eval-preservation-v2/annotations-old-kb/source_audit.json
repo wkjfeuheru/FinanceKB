@@ -1,0 +1,7 @@
+{
+  "valid": true,
+  "cases": 24,
+  "checked_evidence": 103,
+  "review_method": "whole-PDF offsets/SHA + stored-container exact offsets + self-coverage=1",
+  "human_approved": false
+}

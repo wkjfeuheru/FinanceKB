@@ -1,0 +1,9 @@
+{
+  "status": "aborted_environment_failure",
+  "reason": "Hugging Face SSL EOF during cached embedding model load",
+  "details_log": "migration.log",
+  "collection_rebuilt": true,
+  "accepted_as_success": false,
+  "next_action": "verify complete offline embedding cache before retrying the verified migration",
+  "backup": "backup/manifest.json"
+}

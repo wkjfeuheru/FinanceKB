@@ -1,0 +1,25 @@
+{
+  "dataset_fingerprint": "7dc10e8ab2be1c470c33f240455aa44bc61282d837202a184c34da2d80b28066",
+  "metadata": {
+    "comparable": true,
+    "dataset_version": "research_report_interview30",
+    "execution_order": 1,
+    "execution_plan": [
+      "L3",
+      "L5"
+    ],
+    "expected_kb_fingerprint": null,
+    "kb_fingerprint": "b305f941236f0d03e19e1e88936b08dd624fe3b188ab81bfd7e0aa3fb1ccaa1c",
+    "seed": 7
+  },
+  "mode": "retrieval",
+  "strategy": "L3",
+  "strategy_config": {
+    "cliff_detection": false,
+    "k": 20,
+    "name": "混合检索 + BGE",
+    "top_k": 5,
+    "use_dense_only": false,
+    "use_rerank": true
+  }
+}

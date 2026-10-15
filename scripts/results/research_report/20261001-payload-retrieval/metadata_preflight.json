@@ -1,0 +1,198 @@
+[
+  {
+    "source": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf",
+    "metadata": {
+      "report_type": "个股",
+      "broker": "东吴证券",
+      "meta_source": "llm",
+      "needs_review": false,
+      "security_name": "杰瑞股份"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609201829669604_1.pdf",
+    "metadata": {
+      "report_type": "个股",
+      "broker": "中航证券",
+      "meta_source": "llm",
+      "needs_review": false,
+      "security_name": "信科移动"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609211829713285_1.pdf",
+    "metadata": {
+      "report_type": "宏观",
+      "broker": "诚通证券",
+      "meta_source": "regex",
+      "needs_review": false
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609231829798847_1.pdf",
+    "metadata": {
+      "report_type": "个股",
+      "broker": "华鑫证券",
+      "meta_source": "regex",
+      "needs_review": false,
+      "security_name": "百普赛斯"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609241829833777_1.pdf",
+    "metadata": {
+      "report_type": "个股",
+      "broker": "华鑫证券",
+      "meta_source": "llm",
+      "needs_review": false,
+      "security_name": "新锐股份"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609241829864267_1.pdf",
+    "metadata": {
+      "report_type": "宏观",
+      "broker": "格林大华期货",
+      "meta_source": "llm",
+      "needs_review": false
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609251829896818_1.pdf",
+    "metadata": {
+      "report_type": "宏观",
+      "broker": "南华期货",
+      "meta_source": "llm",
+      "needs_review": false
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609261829925702_1.pdf",
+    "metadata": {
+      "report_type": "个股",
+      "broker": "太平洋证券",
+      "meta_source": "regex",
+      "needs_review": false,
+      "security_name": "国机汽车"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609261829929547_1.pdf",
+    "metadata": {
+      "report_type": "行业",
+      "broker": "",
+      "meta_source": "llm",
+      "needs_review": false,
+      "industry_l1": "医药生物",
+      "industry_l2": "医疗器械"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609261829929869_1.pdf",
+    "metadata": {
+      "report_type": "行业",
+      "broker": "",
+      "meta_source": "llm",
+      "needs_review": false,
+      "industry_l1": "电子"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609261829929943_1.pdf",
+    "metadata": {
+      "report_type": "行业",
+      "broker": "",
+      "meta_source": "llm",
+      "needs_review": false,
+      "industry_l1": "电子",
+      "industry_l2": "消费电子"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609261829930314_1.pdf",
+    "metadata": {
+      "report_type": "行业",
+      "broker": "易观分析",
+      "meta_source": "llm",
+      "needs_review": false,
+      "industry_l1": "传媒"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609271829935298_1.pdf",
+    "metadata": {
+      "report_type": "行业",
+      "broker": "中信科移动",
+      "meta_source": "llm",
+      "needs_review": false,
+      "industry_l1": "通信"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609271829939976_1.pdf",
+    "metadata": {
+      "report_type": "宏观",
+      "broker": "国信证券",
+      "meta_source": "regex",
+      "needs_review": false
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609271829940631_1.pdf",
+    "metadata": {
+      "report_type": "个股",
+      "broker": "东吴证券",
+      "meta_source": "llm",
+      "needs_review": false,
+      "security_name": "中国通号"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609281829951050_1.pdf",
+    "metadata": {
+      "report_type": "个股",
+      "broker": "开源证券",
+      "meta_source": "regex",
+      "needs_review": false,
+      "security_name": "横店东磁"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609281829951153_1.pdf",
+    "metadata": {
+      "report_type": "行业",
+      "broker": "国金证券",
+      "meta_source": "llm",
+      "needs_review": false,
+      "industry_l1": "电力设备"
+    },
+    "success": true
+  },
+  {
+    "source": "H3_AP202609281829953173_1.pdf",
+    "metadata": {
+      "report_type": "行业",
+      "broker": "源达信息证券研究所",
+      "meta_source": "llm",
+      "needs_review": false,
+      "industry_l1": "电子"
+    },
+    "success": true
+  }
+]

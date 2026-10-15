@@ -12,7 +12,8 @@
 ## 核心特性
 
 - **混合检索**：稠密向量（ONNX INT8 本地嵌入）+ 稀疏向量（BM25），RRF 融合排序
-- **本地重排序**：BGE Reranker 本地推理，断崖检测自动截断低质结果；截断下限 `RERANKER_CLIFF_MIN_RESULTS=3`，保证极端断崖下仍留有兜底上下文
+- **本地重排序**：BGE Reranker 本地推理，断崖检测自动截断低质结果；三条约束 = 绝对差距 `RERANKER_CLIFF_ABS_THRESHOLD=0.8` 或相对跌幅 `RERANKER_CLIFF_REL_THRESHOLD=0.40`，兜底至少保留 `RERANKER_CLIFF_MIN_TOP_K=5` 条送进重排序
+- **召回/精排分离**：粗排深度 `CHAT_TOP_K=50`（过采样后向 Milvus 请求 150 条），精排 `CHAT_RERANK_TOP_K=5` 决定最终进入 LLM 上下文的证据数
 - **层级切块**：父子块结构，子块存 Milvus 精确检索，父块存 PostgreSQL 全文还原
 - **语义分块**：可选，本地句子嵌入检测语义断点按主题切分（开关控制）
 - **内容清洗与去重**：正则过滤页码/版权/导航噪声；SimHash 段落级去重 + 文档间疑似重复拦截
@@ -21,7 +22,7 @@
 - **元数据过滤**：检索时叠加结构化条件（分类多选 `in`、日期范围 `gte/lte`、部门精确匹配等）
 - **Agentic RAG**：查询改写 -> 多查询检索 -> 关键词增强 -> 可选 LangGraph 反思循环
 - **HyDE 检索增强**：可选，先让 LLM 生成假设性回答，用其向量扩大召回
-- **动态 K**：可选，按问题复杂度（规则分类）自动调整召回深度
+- **召回/精排分离**：粗排深度固定 50（`CHAT_TOP_K`），精排 5（`CHAT_RERANK_TOP_K`）决定进入上下文的证据数
 - **增量更新与版本**：元数据（mtime/size/version）+ SHA256 混合检测；可选版本保留模式（历史版本可追溯，检索仅命中最新版本）
 - **引用验证**：自动校验 LLM 回答中的 `[N]` 引用标记与来源文档的匹配度
 - **拒答机制**：检索为空或引用校验低分时拒绝回答（流式路径尾部追加警示）
@@ -32,7 +33,7 @@
 - **两阶段写库**：写锁只包住向量库「删旧行 + 插新行」原子区（含文档间 SimHash 去重的"先查再插"），**存储上传等网络 IO 移出锁外并支持多消费者并行**
 - **集合级写锁落在资源侧**：`KnowledgeBase` 按 collection 自持写锁，入库流水线、对象存储事件回调、删除/管理路径共用同一串行点，不再依赖各调用方自行持锁
 - **本地 MinerU 文档解析**：统一解析支持格式，配置 exclude 去除页眉、页脚和页码，随后执行规则清洗与 SimHash 去重
-- **策略评估**：Ragas 指标（faithfulness / answer_relevancy / context_precision 等 6 项）+ 检索指标（Hit Rate / MRR / NDCG），A/B 实验统一入口 `scripts/ab_rag.py`（配置开关驱动，无 HTTP API）
+- **策略评估**：RAGAS 四指标（faithfulness / answer_relevancy / context_precision / context_recall）+ 检索指标（Hit Rate / MRR / NDCG / Recall@5），并带 LLM-Judge 偏差防护（位置/长度/自我强化）、锚点漂移与人工标注校准；A/B 实验统一入口 `scripts/ab_rag.py`（配置开关驱动，无 HTTP API）
 - **JWT 鉴权**：单用户登录，开发模式可免密
 
 ---
@@ -82,7 +83,7 @@ finance-rag-retrieval/
 │   │   ├── exceptions.py                # 异常分类 + 友好文案
 │   │   └── logger.py                    # 日志
 │   ├── services/                        # 应用服务层
-│   │   ├── chat_service.py              # 问答链（改写/动态K/HyDE/引用验证）
+│   │   ├── chat_service.py              # 问答链（改写/HyDE/引用验证）
 │   │   ├── document_service.py          # 文档管理（异步上传）
 │   │   ├── ingestion_pipeline.py        # 入库流水线（解析/切块/嵌入/写库 三阶段）
 │   │   ├── knowledge_base_service.py    # 知识库类别注册表（PostgreSQL）
@@ -91,8 +92,7 @@ finance-rag-retrieval/
 │   ├── agent/                           # Agent 组件
 │   │   ├── prompts/                     # Prompt 模板
 │   │   ├── state/                       # Agent 状态模型
-│   │   ├── tools/                       # 检索工具
-│   │   └── query_classifier.py          # 查询复杂度分类（动态 K）
+│   │   └── tools/                       # 检索工具
 │   ├── orchestration/                   # LangGraph 编排（graph / state / nodes）
 │   ├── rag/                             # RAG 核心
 │   │   ├── ingestion/                   # 切块（纯标准库递归切分）/ MinerU解析 / 清洗去重 / 图片描述 / 切块进程池 worker
@@ -145,9 +145,17 @@ cp .env.example .env
 ```ini
 DEEPSEEK_API_KEY=sk-xxx          # 必填：DeepSeek API Key
 JWT_ADMIN_PASSWORD=your-password  # 必填：登录密码
+EMBEDDING_MODEL=BAAI/bge-m3       # 本地 dense embedding 模型
+EMBEDDING_DIM=1024                # 必须与 Milvus dense_vector 维度一致
+EMBEDDING_POOLING=cls             # 可选 cls|mean；bge-m3 默认并推荐 cls
 # 查询改写默认复用 DASHSCOPE_API_KEY 走 qwen-turbo 轻量模型（大幅降低改写延迟），
 # 未配置时回退 DeepSeek 主模型，再回退纯规则改写；可经 QUERY_REWRITE_MODEL 等覆盖
 ```
+
+`bge-m3` 首次运行需要在 `MODEL_OFFLINE=false` 下下载模型、导出 ONNX 并完成
+INT8 动态量化；确认缓存可重复加载后，生产环境再切换为离线模式。`mean` pooling
+仅作为其他模型的兼容入口。模型、向量维度或 pooling 任一项变化后，旧向量均不可
+复用，必须重建 Milvus collection 并全量重新入库。
 
 ### 3. 启动 Milvus（Docker Compose）
 
@@ -201,19 +209,29 @@ python main.py
 category in ["compliance_risk", "investment_research"] and date >= "2024-01-01"
 ```
 
-API 调用时通过 `filters.metadata` 传入：
+API 调用时通过顶层 `filters` 传入：
 
 ```json
 {
   "query": "...",
   "filters": {
-    "metadata": {
-      "category": ["compliance_risk"],
-      "date": {"gte": "2024-01-01"}
-    }
+    "category": ["compliance_risk"],
+    "date": {"gte": "2024-01-01"}
   }
 }
 ```
+
+`date` 表示原文报告发布日期，`ingested_at` 独立表示入库时间；缺少可确认发布日期时保持 unknown，不从文件名或上传时间补齐。财务期间（如 2026H1）不等同于发布日期。公共研报元数据以已确认原文为依据，人工值与冲突需要审查。
+
+显式 `filters` 和问题中已确认的自然语言范围是硬约束；未经确认的自动条件先作为候选条件，优先查询后仍在硬范围内检索。无结果时可在同范围改用稠密检索，基础设施错误会显式报告。`infer_filters: false` 关闭自动过滤推断；`filters: {}` 明确清空，非法字段、日期、枚举或层级关系返回校验错误。
+
+元数据修正后的固定旧条件诊断，可只读消费原 PRODUCTION 产物和同一份标注集：
+
+```powershell
+.venv/Scripts/python.exe scripts/replay_metadata_baseline.py --baseline-run-dir DIR --dataset FILE --outdir DIR --run-id ID
+```
+
+回放名为 `METADATA_REPLAY`，只执行正例，逐题固定原 `case_id`、问句和过滤条件，调用生产检索入口时使用 `infer_filters=False`、粗排 50、精排 5。它复用生产父块/整表展开、上下文预算与原评测指标，保存原 records SHA、逐题过滤 SHA、新库/代码/数据集指纹以及 `replay_controls.json` 中的实际控制条件。不可回放的题目保留为失败并返回非零退出码；负例由正式 PRODUCTION 评测验证。该诊断仅作逐题描述性对照，策略、代码或标量库指纹不同不得直接做显著性比较，数据集 manifest 漂移门禁仍生效。生产查询改写仍按原配置执行，实际改写问句保存在 diagnostics；模型波动和标量 upsert 对 ANN 布局的影响意味着回放不能单独证明纯元数据因果效应。
 
 ### Docker Compose 全栈启动
 
@@ -236,7 +254,7 @@ docker-compose up -d    # 启动 etcd + minio + milvus + app
 | POST | `/api/chat` | 非流式问答，含引用验证 + 拒答策略（响应含 `citation_validation` / `answer_rejected` / `low_confidence`） |
 | POST | `/api/chat/stream` | SSE 流式问答（`done` 事件同样携带上述字段） |
 
-请求体可选参数：`k` / `rerank_top_n`（不传时用默认值；开启动态 K 后按问题复杂度自动调整）、`use_rerank`、`filters`、`strategy`。
+请求体可选参数：`k` / `rerank_top_n`（不传时用默认值：粗排 50 / 精排 5）、`use_rerank`、`filters`、`strategy`。
 
 ### 知识库管理（类别）
 | 方法 | 路径 | 说明 |
@@ -300,7 +318,7 @@ docker-compose up -d    # 启动 etcd + minio + milvus + app
 | 增量与版本 | 变更检测模式 + 版本保留开关 |
 | 混合检索 | RRF 融合 + BM25 |
 | 重排序 | BGE Reranker |
-| 问答链路 | Top-K、查询改写、动态 K、HyDE |
+| 问答链路 | Top-K、查询改写、HyDE |
 | Ragas 评估 | 超时、重试、并行度 |
 | 幻觉治理 | 引用验证 + 拒答阈值 |
 | 安全配置 | CORS + JWT |
@@ -407,11 +425,10 @@ A/B 子进程、切块进程池 worker 全都在白付这笔开销。
 |------|-------------|------|
 | 语义分块 | `ENABLE_SEMANTIC_CHUNKER=false` | 本地句子嵌入检测语义断点按主题切分（首次使用需下载小模型） |
 | 版本保留 | `ENABLE_VERSIONING=false` | 历史版本共存、检索仅命中最新版（旧集合需先重建 schema） |
-| 动态 K | `DYNAMIC_K=false` | 按问题复杂度（规则分类）调整召回深度，档位见 `DYNAMIC_K_MAP` |
 | HyDE | `ENABLE_HYDE=false` | LLM 生成假设回答增强召回（每次额外 1 次 LLM 调用） |
 | 拒答机制 | `ENABLE_REFUSAL=true` | 检索为空 / 来源相关性不足 / 引用校验低分时拒答（流式追加警示） |
 | 生成温度 | `LLM_TEMPERATURE=0.1` | 较低温度降低随机性、减少幻觉 |
-| 研报元数据 LLM 抽取 | `ENABLE_METADATA_LLM=true` | 关闭后入库只走正则（行业留空并标记待确认），用于离线/批量重跑省掉每篇一次的模型调用 |
+| 研报元数据 LLM 抽取 | `ENABLE_METADATA_LLM=true` | 关闭后入库只走正则；类型或类型必填字段缺失时拒绝文档 |
 | 原文页渲染分辨率 | `PAGE_RENDER_DPI=144` | `GET /documents/{source}/page/{page}` 的渲染 dpi；72 读研报太糊 |
 
 ### 研报元数据与证据链路
@@ -419,10 +436,9 @@ A/B 子进程、切块进程池 worker 全都在白付这笔开销。
 把语料换成研报后，检索不再只靠全文语义，还叠加了「个股 / 行业 / 宏观」维度与
 页码级证据定位。三个设计点值得注意：
 
-1. **`security_code` 是单值字段**。一篇行业研报覆盖 N 只股票，没有合法单值代码，
-   因此行业研报留空该字段、靠 `industry_l1/l2` 召回；个股研报两个维度都填。
-   过滤时若问题里出现多只不同股票，`security_code` 条件会**整条丢弃**——
-   只过滤其中一只会让其它股票静默消失。
+1. **报告类型决定元数据契约**。`report_type` 必填且仅允许个股、行业、宏观。
+   个股必须有 `security_name`；行业必须有合法的 `industry_l1`（仅有合法二级时反推一级）；
+   宏观不含标的和行业字段。抽取残留的异类字段丢弃，人工 PATCH 显式提交异类字段拒绝。
 2. **行业取值必须落在申万 2021 版词表内**（`assets/taxonomy/sw_industry.json`，
    31 个一级 / 134 个二级），并校验「二级属于所选一级」。过滤走精确匹配，
    把「白酒」写成「白酒Ⅱ」之外的自由文本会让该文档**静默漏召**。
@@ -448,20 +464,27 @@ python scripts/ab_rag.py --list
 # 基于当前知识库自动生成分层测试集（约 7:2:1，人工抽查后作为评测基准）
 python scripts/ab_rag.py --generate-testset --count 40
 
-# 跑单个实验（fast = 3 项核心指标；--full = 6 项）
+# 跑单个实验（生成侧固定 RAGAS 四指标；--fast/--full 仅为兼容开关）
 python scripts/ab_rag.py --experiment hyde_on_off --fast --sample 5
 
 # 跑多个 / 全部实验
-python scripts/ab_rag.py --experiment dynamic_k_on_off hyde_on_off --fast
+python scripts/ab_rag.py --experiment rerank_on_off hyde_on_off --fast
 python scripts/ab_rag.py --all --fast --sample 5
 
 # 自定义测试集 / 抽样种子
 python scripts/ab_rag.py --experiment hyde_on_off \
     --testset path/to/qa.md --sample 10 --seed 7
+
+# 偏差防护与校准（详见下面的「LLM-as-Judge 偏差与校准」）
+python scripts/ab_rag.py --experiment rerank_on_off --fast --sample 10 \
+    --pairwise 10 --cross-check 10 --export-human-sample 60
 ```
 
 结果落盘 `scripts/results/ab/<实验名>/<时间戳>/`：`report.json`（指标对比）
-/ `report.md` / `per_query.csv`（逐题明细）/ 各臂 `<arm>.json`。
+/ `report.md` / `per_query.csv`（逐题明细）/ 各臂 `<arm>.json`；
+开启偏差防护/校准时另有 `pairwise.jsonl`、`judge_bias.json`、
+`judge_crosscheck.json`、`anchor_report.json`、`human_sample.csv`。
+
 
 ### 内置实验目录
 
@@ -469,7 +492,6 @@ python scripts/ab_rag.py --experiment hyde_on_off \
 |---|---|---|
 | `hybrid_vs_dense` | 稠密检索 vs RRF 混合检索 | 运行时 |
 | `rerank_on_off` | BGE 重排序开/关 | 运行时 |
-| `dynamic_k_on_off` | 动态 K 开/关 | 运行时 |
 | `hyde_on_off` | HyDE 检索增强开/关 | 运行时 |
 | `langgraph_on_off` | 标准 RAG vs Agentic RAG | 运行时 |
 | `refusal_on_off` | 拒答机制开/关 | 运行时 |
@@ -480,15 +502,27 @@ python scripts/ab_rag.py --experiment hyde_on_off \
 不设 A/B 实验；内容清洗与 SimHash 去重已固化为入库固定流程（非开关），
 同样不设 A/B 实验。*
 
-### Ragas 指标
+### RAGAS 指标（生成侧固定四项）
 
-| 模式 | 指标 |
-|---|---|
-| `--fast`（默认） | faithfulness（忠实度）、answer_relevancy（回答相关性）、context_precision（上下文精确率） |
-| `--full` | 上述 3 项 + context_recall（上下文召回率）、answer_correctness（答案正确性）、context_entity_recall（实体召回） |
+生成侧**恒为 RAGAS 四指标**，覆盖 RAG 的两条链路，`--fast` / `--full` 不再改变指标集：
+
+| 链路 | 指标 | 回答什么问题 |
+|---|---|---|
+| 检索链路 | `context_precision`（上下文精确率） | 检索噪音：10 个 chunk 只有 2 个有用 → 精确率低 |
+| 检索链路 | `context_recall`（上下文召回率） | 知识盲区：关键信息压根没被检索到 |
+| 生成链路 | `faithfulness`（忠实度） | 防幻觉：陈述有多少比例被 Context 支撑 |
+| 生成链路 | `answer_relevancy`（回答相关性） | 防跑偏：反向生成问题与原问题的相似度 |
+
+> 口径变更：历史版本还输出 `answer_correctness` 与 `context_entity_recall`
+> （fast/full 两档），现已下线——四指标之外的口径会让同一份报告读两个标准。
+> 旧运行产物仍可读，但这两列不可与新运行比较；`_METRIC_LABELS` 保留旧标签用于渲染历史报告。
+
+**检索侧客观指标（与上面并排看）**：按测试集标注的证据 chunk id 精确匹配计算，
+是检索能力的**地面真值**，也是生成侧 A/B 的护栏（回退即判 fail）。
 
 **文档级本地检索指标**：hit_rate@5（至少命中一篇）、MRR@5、NDCG@5、
 `doc_coverage`（覆盖比例，多跳取 0/0.5/1.0）、`doc_recall`（全部命中）。
+
 
 **块级证据指标**（按测试集标注的证据 chunk id 计算）：
 `evidence_hit`（top-5 是否含任一证据块）、`evidence_coverage`（证据块覆盖比例）、
@@ -515,6 +549,54 @@ python scripts/ab_rag.py --experiment hyde_on_off \
   （那才是重排序问题）→ 最后才调检索参数。
 - **`--sample N` 按 `question_type` 分层抽样**：保证 N 不小于类型数时每类至少 1 题，
   避免小样本下整类缺失或同一题重复入集。
+- **报告里同时给配对 Bootstrap 判定**（`statistics.compare_runs`）：主指标 95% CI
+  不跨 0 才算 `improvement`，护栏（检索侧 `recall_at_5` / `mrr`）回退直接判 `fail`，
+  三态判定 `pass` / `fail` / `inconclusive`，`inconclusive` 不硬下结论。
+
+
+### LLM-as-Judge 偏差与校准
+
+RAGAS 四指标是**绝对打分**，LLM 裁判自带三类典型偏差。这里对每一类都给了机制、
+可观测指标与开关（默认只开"不花钱"的部分）：
+
+| 偏差 | 机制 | 检测指标 | 开关 |
+|---|---|---|---|
+| **位置偏差** | 裁判偏好先出现（或后出现）的候选 | 换序翻转率 `order_flip_rate`、先出现者获胜率、呈现顺序平衡 | `--pairwise [N]`（默认 20，`0`=关） |
+| **长度偏差** | 裁判倾向给更长的回答更高分 | 每臂回答字数、分数~长度 Spearman、长度匹配子集 Δ、方向翻转告警 | 长度遥测**恒开**；Prompt 内含"简洁准确优于详细冗长" |
+| **自我强化偏差** | 生成模型与裁判模型同族时系统性给自己加分 | 第二裁判族的平均绝对差、偏置、Spearman、A/B 方向一致性 | `--cross-check N`（默认 0=关，需第二裁判模型） |
+
+- **位置偏差**：成对裁判对同一题评两次（A 在前 / B 在前），顺序由
+  `Random(f"{seed}:{case_id}")` 决定。两次结论一致才采纳，冲突判 `tie` 并记
+  `order_flip`——翻转率本身就是位置偏差的量化值；逐条记录落盘 `pairwise.jsonl`。
+- **长度偏差**：`per_query.csv` 增加 `answer_chars`；报告给出长度匹配对照
+  （两臂字数比 ≤ 1.25 的子集重算 Δ），若原始 Δ 与匹配后 Δ 方向相反 →
+  `sign_flip` 告警（`length_confounded_metrics`）。
+- **自我强化偏差**：当前生成与主裁判都是 DeepSeek，属于**自评**场景，报告恒标
+  `self_judged=true`。第二裁判（默认 qwen-turbo，`EVAL_JUDGE_SECONDARY_MODEL` 可改）
+  在同一批 case_id 上重跑四指标，给出偏置与"A/B 方向是否一致"；第二裁判不可用时
+  报告写 `self_preference_unverified`，**不给假结论**。
+- **锚点漂移（工程校准第一条）**：`finance_rag/src/eval/data/eval_anchors.jsonl`
+  是一组人工构造、期望分数区间已知的黄金用例（如"有据的短回答 faithfulness ≥ 0.9"、
+  "无据陈述 faithfulness ≤ 0.3"、"5 条上下文只 1 条相关 context_precision ≤ 0.4"）。
+  每批评估独立跑一次，输出 `anchor_report.json`；默认只报告，
+  `--anchor-strict` / `EVAL_ANCHOR_STRICT=true` 才在越界时判本次实验失败。
+- **人工标注校准（工程校准第二条）**：每周抽 50–100 条人工打分，与 judge 分对齐。
+  标注与评估解耦，可对**已落盘的历史运行**补做：
+
+```bash
+# 1) 从运行目录抽样导出（不花 LLM 成本；支持没有 case_id 的历史产物）
+python scripts/evaluate.py calibration export \
+    --run-dir scripts/results/ab/rerank_on_off/20260825-201550 --arm rerank_on \
+    --n 60 --out human_sample.csv
+# 2) 人工填写 human_faithfulness / human_answer_relevancy /
+#    human_context_precision / human_context_recall（0~1，空=未评）
+# 3) 回填并输出一致性报告（MAE / 偏置 / Spearman / ≤0.2 一致率 / 建议偏移）
+python scripts/evaluate.py calibration import \
+    --run-dir scripts/results/ab/rerank_on_off/20260825-201550 --csv human_sample.csv
+```
+
+判定口径：偏置 ≤ 0.1 且 Spearman ≥ 0.5 → `aligned`；偏置 > 0.2 或 Spearman < 0.2 →
+`divergent`；其余 `offset`（报告给 `recommended_offset`，judge 分加上它即对齐人类均值）。
 
 
 ### 测试集
@@ -541,8 +623,19 @@ python scripts/ab_rag.py --experiment hyde_on_off \
 
 ### 成本参考
 
-fast 模式每题每臂约 5-7 次 LLM 调用（改写/HyDE + 生成 + 3 项 judge），
-full 模式约 8-12 次。`--sample 5` 单实验约 10-25 分钟。
+生成侧每题每臂 4 次 judge 调用（RAGAS 四指标）+ 改写/HyDE/生成等，
+`--sample 5` 单实验约 10-25 分钟。
+
+偏差防护与校准的额外成本：
+
+| 阶段 | 额外 LLM 调用 | 默认 |
+|---|---|---|
+| 长度偏差（遥测 + 长度匹配对照） | 0 | 恒开 |
+| 锚点样本 | 约 6 条样本 × 4 指标 | 开（文件不存在则跳过，`--no-anchors` 关） |
+| 成对裁判 `--pairwise N` | 2 × N（换序两次） | 关（`N=20` → 约 40 次） |
+| 跨模型校验 `--cross-check N` | 2 × N × 4 指标（两臂各 N 题） | 关 |
+| 人工标注导出/回填 | 0 | 关（`--export-human-sample N`） |
+
 
 ---
 
@@ -553,9 +646,9 @@ full 模式约 8-12 次。`--sample 5` 单实验约 10-25 分钟。
 | 后端框架 | FastAPI + Uvicorn |
 | 向量数据库 | Milvus 2.4+（标量过滤 + BM25 Function 稀疏向量） |
 | LLM | DeepSeek (langchain-deepseek) |
-| 嵌入模型 | BAAI/bge-small-zh-v1.5（ONNX INT8 量化） |
+| 嵌入模型 | BAAI/bge-m3（1024 维 CLS pooling，ONNX INT8 量化） |
 | 重排序 | BAAI/bge-reranker-v2-m3 |
-| 文档解析 | 本地 MinerU + Python 规则清洗 + SimHash 去重 |
+| 文档解析 | 本地 MinerU + 保守规则清洗（段落 SimHash 仅诊断，文档间去重保留） |
 | 去重 | SimHash（纯标准库，字符 n-gram + md5 投票） |
 | 评估框架 | Ragas 0.4.3 |
 | 前端 | Vue 3 + Element Plus + Vite |
@@ -567,12 +660,14 @@ full 模式约 8-12 次。`--sample 5` 单实验约 10-25 分钟。
 
 ## 开发
 
+研报 schema 2 标注、事实证据组指标、PRODUCTION 评测及安全重建步骤见 [评测与内容保留说明](docs/evaluation-preservation-v2.md)。核心20、派生 interview30 和独立回归4分别报告；自动审核样本不等同于人工 Gold。
+
 ```bash
 # 安装开发依赖
 pip install -r requirements.txt
 pip install pytest pytest-asyncio httpx
 
-# 运行测试（覆盖清洗/去重/增量/版本/动态K/拒答/类别注册表/入库流水线/集合写锁/断崖检测/A-B 框架等 162 个用例）
+# 运行测试（覆盖清洗/去重/增量/版本/拒答/类别注册表/入库流水线/集合写锁/断崖检测/A-B 框架等）
 python -m pytest tests/ -v
 
 # 前端开发

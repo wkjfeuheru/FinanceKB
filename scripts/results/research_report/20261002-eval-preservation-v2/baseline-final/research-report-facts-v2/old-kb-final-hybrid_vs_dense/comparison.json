@@ -1,0 +1,513 @@
+{
+  "bootstrap_samples": 10000,
+  "comparability_reasons": [],
+  "comparability_status": "verified",
+  "comparable": true,
+  "decision": "no_decision",
+  "experiment": "hybrid_vs_dense",
+  "guardrail_failures": [],
+  "guardrails": [
+    "precision_at_5",
+    "mrr"
+  ],
+  "insufficient_coverage": [
+    "recall_at_5",
+    "precision_at_5",
+    "mrr"
+  ],
+  "minimum_gold_coverage": 0.95,
+  "primary_metric": "recall_at_5",
+  "seed": 7,
+  "tiers": {
+    "gold": {
+      "metrics": {},
+      "n": 0
+    },
+    "silver": {
+      "metrics": {
+        "all_required_documents_at_5": {
+          "baseline": 0.7222,
+          "candidate": 0.7222,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": 0.0,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 0,
+          "n": 18,
+          "ties": 18,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "document_recall_at_5": {
+          "baseline": 0.8704,
+          "candidate": 0.8704,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": 0.0,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 0,
+          "n": 18,
+          "ties": 18,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "evidence_group_recall_at_5": {
+          "baseline": 0.338,
+          "candidate": 0.3102,
+          "ci95": [
+            -0.0833,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": -0.0278,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-004",
+              "delta": -0.5
+            },
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 1,
+          "n": 18,
+          "ties": 17,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "exact_candidate_recall_at_20": {
+          "baseline": 0.6537,
+          "candidate": 0.6537,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": 0.0,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 0,
+          "n": 18,
+          "ties": 18,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "exact_candidate_recall_at_50": {
+          "baseline": 0.8065,
+          "candidate": 0.8065,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": 0.0,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 0,
+          "n": 18,
+          "ties": 18,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "exact_candidate_recall_at_actual_depth": {
+          "baseline": 0.9444,
+          "candidate": 0.9444,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": 0.0,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 0,
+          "n": 18,
+          "ties": 18,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "fact_mrr": {
+          "baseline": 0.2107,
+          "candidate": 0.1829,
+          "ci95": [
+            -0.0833,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": -0.0278,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-004",
+              "delta": -0.5
+            },
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 1,
+          "n": 18,
+          "ties": 17,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "mrr": {
+          "baseline": 0.3565,
+          "candidate": 0.3009,
+          "ci95": [
+            -0.1667,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": -0.0556,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-004",
+              "delta": -1.0
+            },
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 1,
+          "n": 18,
+          "ties": 17,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "precision_at_5": {
+          "baseline": 0.1889,
+          "candidate": 0.1667,
+          "ci95": [
+            -0.0667,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": -0.0222,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-004",
+              "delta": -0.4
+            },
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 1,
+          "n": 18,
+          "ties": 17,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "quote_coverage_at_5": {
+          "baseline": 0.3541,
+          "candidate": 0.3207,
+          "ci95": [
+            -0.1,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": -0.0333,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-004",
+              "delta": -0.6
+            },
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 1,
+          "n": 18,
+          "ties": 17,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "recall_at_5": {
+          "baseline": 0.3509,
+          "candidate": 0.3139,
+          "ci95": [
+            -0.1111,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": -0.037,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-004",
+              "delta": -0.6667
+            },
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 1,
+          "n": 18,
+          "ties": 17,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "required_fact_coverage_at_5": {
+          "baseline": 0.0,
+          "candidate": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": 0.0,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 0,
+          "n": 18,
+          "ties": 18,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "structured_required_fact_coverage_at_5": {
+          "baseline": 0.3009,
+          "candidate": 0.2731,
+          "ci95": [
+            -0.0833,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": -0.0278,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-004",
+              "delta": -0.5
+            },
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 1,
+          "n": 18,
+          "ties": 17,
+          "verdict": "inconclusive",
+          "wins": 0
+        }
+      },
+      "n": 18
+    }
+  }
+}

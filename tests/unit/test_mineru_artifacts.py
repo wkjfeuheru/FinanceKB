@@ -9,6 +9,7 @@ from pathlib import Path
 
 from finance_rag.src.rag.ingestion.mineru_parser import (
     _blocks_from_content_list,
+    _figure_captions_from_content_list,
     _find_content_list,
 )
 
@@ -60,3 +61,37 @@ def test_chart_caption_counts_as_block_text():
     blocks = _blocks_from_content_list(payload)
 
     assert [(b.text, b.page) for b in blocks] == [("图表1 盈利预测", 3), ("正文", 1)]
+
+
+# --- 原文图注抽取（图片块索引文本的语义来源） -------------------------------
+
+def test_figure_captions_extracted_per_page():
+    """图注按页聚合（1-based 页码）：图片块组装时做页级对齐。"""
+    payload = [
+        {"type": "image", "img_caption": ["图1 燃机订单结构"], "page_idx": 2},
+        {"type": "chart", "chart_caption": ["图表2 盈利预测"], "page_idx": 2},
+        {"type": "text", "text": "正文", "page_idx": 0},
+    ]
+
+    captions = _figure_captions_from_content_list(payload)
+
+    assert captions == {3: ["图1 燃机订单结构", "图表2 盈利预测"]}
+
+
+def test_figure_captions_skip_invalid_entries():
+    """空图注 / 空白字符串 / 非法页码 / 非字典条目一律跳过，不抛异常。"""
+    payload = [
+        {"type": "image", "img_caption": []},                       # 空列表
+        {"type": "image", "img_caption": "  "},                     # 空白字符串
+        {"type": "image", "img_caption": ["图3"], "page_idx": -1},  # 页码非法
+        "not-a-dict",
+    ]
+
+    assert _figure_captions_from_content_list(payload) == {}
+
+
+def test_figure_captions_accept_plain_string_value():
+    """部分产物的图注字段是纯字符串而非列表，同样要能用。"""
+    payload = [{"type": "image", "img_caption": "图4 产能布局", "page_idx": 5}]
+
+    assert _figure_captions_from_content_list(payload) == {6: ["图4 产能布局"]}

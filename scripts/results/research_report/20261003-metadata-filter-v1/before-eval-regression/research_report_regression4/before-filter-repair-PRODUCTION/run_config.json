@@ -1,0 +1,47 @@
+{
+  "annotation_schema_versions": [
+    "2.0"
+  ],
+  "chunk_content_fingerprint": "ac243d4db9ed2611751f06d22c49d8bdc052ee2d7c08c0333cce31747ff34ed8",
+  "chunk_max_tokens": 256,
+  "chunk_overlap_tokens": 25,
+  "code_diff_sha256": "810d8bd979ad6cd92992099ab7c1a7e84314283f189bdad22678eed3cc18470d",
+  "code_worktree_sha256": "34701a428552175c4137ba39a26a4d32e72b1e1d17f0ce0d6fe408db6de46639",
+  "dataset_fingerprint": "bb6a3e9eea03229a4f8e694382908de9970ac33e793d6ad08a35190a80ecb324",
+  "dense_weight": 0.8,
+  "embedding_dim": 1024,
+  "embedding_model": "BAAI/bge-m3",
+  "embedding_pooling": "cls",
+  "embedding_version": "BAAI/bge-m3",
+  "fusion_mode": "weighted",
+  "git_dirty": true,
+  "git_head": "41ca0191f9f014535ecd3c452bb85c66a6f206f2",
+  "kb_fingerprint": "e1421cd54105de5e02d69ef234a3b0087a15fc5fef9b301be3230c5282e6e545",
+  "metadata": {
+    "chunk_content_count": 1559,
+    "chunk_content_fingerprint": "ac243d4db9ed2611751f06d22c49d8bdc052ee2d7c08c0333cce31747ff34ed8",
+    "comparable": true,
+    "dataset_version": "research_report_regression4",
+    "execution_order": 1,
+    "execution_plan": [
+      "PRODUCTION"
+    ],
+    "expected_kb_fingerprint": null,
+    "kb_fingerprint": "e1421cd54105de5e02d69ef234a3b0087a15fc5fef9b301be3230c5282e6e545",
+    "pdf_set_fingerprint": "ddc1e68c63656b46110cd06179ac3e674a0986d37c9f4871a81973104927740b",
+    "seed": 7
+  },
+  "metrics_version": "2.0",
+  "mode": "retrieval",
+  "parser_clean_chunk_rules": "11184507f70129696792593fcdd360dee8dea7849bb350bc2f1a53fa82bbd406",
+  "pdf_set_fingerprint": "ddc1e68c63656b46110cd06179ac3e674a0986d37c9f4871a81973104927740b",
+  "sparse_weight": 0.2,
+  "strategy": "PRODUCTION",
+  "strategy_config": {
+    "embedding_model": "BAAI/bge-m3",
+    "k": 50,
+    "production_path": "chat_service.retrieve_documents",
+    "top_k": 5,
+    "use_rerank": true
+  }
+}

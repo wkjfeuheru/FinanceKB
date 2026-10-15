@@ -12,6 +12,8 @@
 from __future__ import annotations
 
 import logging
+import copy
+from contextlib import nullcontext
 import math
 import threading
 import time
@@ -38,8 +40,14 @@ def get_milvus_client() -> MilvusClient:
     return MilvusClient(**kwargs)
 
 from finance_rag.src.rag.ingestion.chunker import DoclingChunks, get_chunker
+from finance_rag.src.rag.context_injection import embed_text_for_chunk
 from finance_rag.src.rag.models.document_category import merge_category_into_metadata
 from finance_rag.src.rag.models.document_version import extract_document_version
+from finance_rag.src.rag.ingestion.metadata_extractor import (
+    build_canonical_metadata,
+    merge_metadata_patch,
+    resolve_report_title,
+)
 from finance_rag.src.core.config import (
     EMBEDDING_DIM,
     EMBED_BATCH_SIZE,
@@ -53,6 +61,13 @@ from finance_rag.src.core.config import (
     MILVUS_TOKEN,
     MILVUS_URI,
     RRF_K,
+    ENABLE_CLIFF_DETECTION,
+    RETRIEVAL_FUSION_MODE,
+    RETRIEVAL_DENSE_WEIGHT,
+    RETRIEVAL_SPARSE_WEIGHT,
+    RETRIEVAL_CANDIDATE_SOURCE_LIMIT,
+    RETRIEVAL_CANDIDATE_MAX_PER_SOURCE,
+    normalize_fusion_weights,
     TENANT_ID,
 )
 from .onnx_embedder import OnnxEmbedder
@@ -73,7 +88,6 @@ logger = logging.getLogger(__name__)
 # 单独抽出来是为了让「集合该有哪些字段」这件事可以直接被单测锁住，
 # 而不是只能靠连一个真实 Milvus 才能验证。
 _REPORT_FIELD_SPECS: tuple[tuple[str, Any, int | None], ...] = (
-    ("security_code", DataType.VARCHAR, 32),
     ("security_name", DataType.VARCHAR, 64),
     ("industry_l1", DataType.VARCHAR, 32),
     ("industry_l2", DataType.VARCHAR, 32),
@@ -94,7 +108,7 @@ _REPORT_FIELD_SENTINEL = "block_type"
 # 文档级研报字段：可在不重新嵌入的前提下原地更新。
 # 其余研报字段（block_type / 页码 / image_key）是块级信息，文档级更新不得覆盖。
 _DOCUMENT_LEVEL_REPORT_FIELDS = frozenset({
-    "security_code", "security_name", "industry_l1", "industry_l2",
+    "security_name", "industry_l1", "industry_l2",
     "report_type", "broker", "meta_source", "needs_review",
 })
 
@@ -110,18 +124,18 @@ def _add_report_fields(schema: Any) -> None:
 
 def _clip(value: Any, limit: int) -> str:
     """VARCHAR 超长会让整篇文档入库失败，这里一律截断而不是抛错。"""
-    return str(value or "")[:limit]
+    return str(value or "").encode("utf-8")[:limit].decode("utf-8", errors="ignore")
 
 
 def _report_scalars(meta: dict[str, Any], chunk_meta: dict[str, Any]) -> dict[str, Any]:
     """构造研报标量字段值。
 
-    文档级元数据（security_code / industry_* / report_type / broker / meta_source）
+    文档级元数据（security_name / industry_* / report_type / broker / meta_source）
     来自入库时的抽取结果；块级字段（block_type / 页码 / image_key）来自切块结果。
     Milvus 标量不接受 ``None``，缺失一律给非空默认值。
     """
+    meta = build_canonical_metadata(meta)
     return {
-        "security_code": _clip(meta.get("security_code"), 32),
         "security_name": _clip(meta.get("security_name"), 64),
         "industry_l1": _clip(meta.get("industry_l1"), 32),
         "industry_l2": _clip(meta.get("industry_l2"), 32),
@@ -418,7 +432,7 @@ class KnowledgeBase:
             raise FileNotFoundError(f"文件不存在：{path}")
 
         source = source or path.name
-        title = title or Path(source).stem
+        title = title or resolve_report_title(path, source)
         chunks = self._chunker.parse_and_chunk(
             path,
             source=source,
@@ -489,12 +503,21 @@ class KnowledgeBase:
             本方法为**同步**写操作且**不自行加锁**，调用方必须通过
             :meth:`add_parsed_document` 进入（由它保证同一 collection 串行）。
         """
+        canonical_meta = build_canonical_metadata(parsed.metadata or {})
         source = parsed.source
         title = parsed.title
         chunks = parsed.chunks
 
-        # Hybrid chunks 可直接用于嵌入和检索
+        # Hybrid chunks 可直接用于检索；SimHash 文档去重必须用原文
         texts = [chunk.page_content for chunk in chunks.chunks]
+
+        # 嵌入输入带上下文注入（公司简称 + 章节路径）：短标题块靠块外元数据
+        # 才能拿到查询词对齐信号；content 本体不变，content_hash / 块 id 不受影响。
+        # 已有向量按 content_hash 复用不追溯，强制重嵌后才全量生效。
+        doc_meta = canonical_meta
+        embed_texts = [
+            embed_text_for_chunk(chunk, doc_meta) for chunk in chunks.chunks
+        ]
 
         # 文档间 SimHash 去重：与已入库文档比对，疑似重复则拒绝入库
         doc_simhash = self._check_duplicate_document(source, texts)
@@ -515,7 +538,7 @@ class KnowledgeBase:
                 if str(chunk.metadata.get("content_hash", "")) not in existing_vectors
             ]
             new_vectors = self._embed_documents(
-                [texts[index] for index in missing_indexes]
+                [embed_texts[index] for index in missing_indexes]
             )
             resolved_vectors = [
                 existing_vectors.get(str(chunk.metadata.get("content_hash", "")), [])
@@ -526,7 +549,7 @@ class KnowledgeBase:
         dense_vectors = resolved_vectors
 
         # 从文档级元数据中拆出分类/日期/版本，写入独立标量字段
-        meta = parsed.metadata or {}
+        meta = canonical_meta
         doc_category = str(meta.get("category", "") or "")
         doc_date = str(meta.get("date", "") or "")
         doc_version = extract_document_version(source, meta)
@@ -557,7 +580,7 @@ class KnowledgeBase:
                 "id": chunk_id,
                 "content": chunk.page_content,
                 "source": source,
-                "title": title,
+                "title": _clip(title, 128),
                 "chunk": int(chunk.metadata.get("chunk", 0)),
                 "parent_id": parent_id,
                 "chunk_key": str(chunk.metadata.get("chunk_key", chunk_id)),
@@ -654,6 +677,7 @@ class KnowledgeBase:
             chunk_count=len(rows),
             simhash=doc_simhash,
             version=doc_version,
+            metadata=canonical_meta,
         )
 
         logger.info(
@@ -757,7 +781,8 @@ class KnowledgeBase:
             return {"source": source, "deleted_count": len(rows), "soft_deleted": True}
 
     def update_document_metadata(
-        self, source: str, metadata: dict[str, Any]
+        self, source: str, metadata: dict[str, Any], *, update_source: str = "manual",
+        metadata_audit: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """只更新文档级研报元数据（**不重新嵌入、不改向量、不动块级字段**）。
 
@@ -770,8 +795,11 @@ class KnowledgeBase:
         内部持有集合级写锁（同 collection 串行）。
         """
         with self._write_lock:
+            if update_source not in {"manual", "public_metadata"}:
+                raise ValueError("未知 update_source")
+            if update_source == "manual" and metadata_audit is not None:
+                raise ValueError("人工 PATCH 不接受外部审核载荷")
             client = self._get_client()
-            self.ensure_collection()
             if not self._collection_has_field(client, _REPORT_FIELD_SENTINEL):
                 raise RuntimeError(
                     "集合缺少研报元数据字段，请先执行 rebuild_collection() 重建集合"
@@ -787,17 +815,127 @@ class KnowledgeBase:
             if not rows:
                 return {"source": source, "updated_count": 0, "missing": True}
 
-            scalars = {
-                key: value
-                for key, value in _report_scalars(metadata, {}).items()
-                if key in _DOCUMENT_LEVEL_REPORT_FIELDS
-            }
-            for row in rows:
+            if len(rows) >= 16384:
+                raise ValueError("来源行数达到查询上限，不能确认已读取全部行")
+            store = self._get_fingerprint_store()
+            fingerprint_before = store.get(source)
+            trusted = {key: value for key, value in (fingerprint_before or {}).items()
+                       if key in {"public_metadata_audit", "type_metadata_audit"}}
+            from finance_rag.src.rag.ingestion.public_metadata import (
+                resolve_public_metadata, validate_public_metadata_audit, public_audit_needs_review,
+            )
+            old_public_audit = trusted.get("public_metadata_audit")
+            if old_public_audit:
+                old_public_audit = validate_public_metadata_audit(old_public_audit)
+            tracked_review = bool(trusted.get("type_metadata_audit")) or bool(
+                old_public_audit and public_audit_needs_review(old_public_audit))
+            untracked_review = any(row.get("needs_review") for row in rows) and not tracked_review
+            if update_source == "public_metadata":
+                if set(metadata) != {"date", "broker"}:
+                    raise ValueError("公共迁移仅接受 date/broker")
+                audit = validate_public_metadata_audit(metadata_audit)
+                if audit["source"] != source or not fingerprint_before or audit["pdf_sha256"] != fingerprint_before.get("sha256"):
+                    raise ValueError("公共审核 source/PDF SHA 与可信指纹不符")
+                for field in ("date", "broker"):
+                    item = audit["fields"][field]
+                    if item["status"] in {"manual", "conflict"} or item["value"] != metadata[field]:
+                        raise ValueError("公共审核冲突或值不匹配")
+                old_audit = trusted.get("public_metadata_audit", {})
+                if any(row.get("meta_source") == "manual" for row in rows) or any(
+                    value.get("status") == "manual" for value in old_audit.get("fields", {}).values()
+                ):
+                    raise ValueError("人工审核值必须逐源人工审查，不可自动覆盖")
+                payloads = []
+                for row in rows:
+                    current = {**row, **trusted}
+                    untracked = bool(row.get("needs_review")) and not tracked_review
+                    current.update(metadata, public_metadata_audit=audit, meta_source="public",
+                                   needs_review=untracked or bool(trusted.get("type_metadata_audit")) or public_audit_needs_review(audit))
+                    payload = build_canonical_metadata(current)
+                    # canonical 仅用于校验和保守 review；公共修正无权重写旧类型载荷或审核。
+                    for key in ("report_type", "security_name", "industry_l1", "industry_l2"):
+                        if key in row:
+                            payload[key] = row[key]
+                        else:
+                            payload.pop(key, None)
+                    if "type_metadata_audit" in trusted:
+                        payload["type_metadata_audit"] = copy.deepcopy(trusted["type_metadata_audit"])
+                    else:
+                        payload.pop("type_metadata_audit", None)
+                    payloads.append(payload)
+            else:
+                # 首次人工修正也建立审核载荷，但未提交字段仍保留 unknown 状态。
+                if "public_metadata_audit" not in trusted and set(metadata) & {"date", "broker"}:
+                    trusted["public_metadata_audit"] = resolve_public_metadata(source).audit
+                    trusted["public_metadata_audit"]["pdf_sha256"] = (fingerprint_before or {}).get("sha256", "")
+                    for field in ("date", "broker"):
+                        trusted["public_metadata_audit"]["fields"][field].update(
+                            value=str(rows[0].get(field) or ""), status="unknown", evidence=[],
+                            reasons=["legacy_value_unverified"])
+                payloads = [merge_metadata_patch({**row, **trusted}, metadata) for row in rows]
+                if untracked_review:
+                    for payload in payloads:
+                        payload["needs_review"] = True
+            before = copy.deepcopy(rows)
+            for row, payload in zip(rows, payloads, strict=True):
+                if update_source == "public_metadata":
+                    scalars = {key: payload[key] for key in ("broker", "meta_source", "needs_review")}
+                else:
+                    scalars = {
+                        key: value for key, value in _report_scalars(payload, {}).items()
+                        if key in _DOCUMENT_LEVEL_REPORT_FIELDS
+                    }
                 row.update(scalars)
-            client.upsert(collection_name=self.collection_name, data=rows)
-            client.flush(self.collection_name)
+                for key in (("date",) if update_source == "public_metadata" else ("category", "date")):
+                    if key in payload:
+                        row[key] = payload[key]
+            manifest = {"status": "not_applicable", "before": []}
+            # documents 当前不包含 collection；仅默认集合拥有该来源映射。
+            transaction = self._get_manifest_repository().metadata_date_transaction(
+                TENANT_ID, source, payloads[0]["date"],
+                expected=(metadata_audit or {}).get("migration_manifest_before"),
+            ) if "date" in metadata and self.collection_name == KB_COLLECTION_NAME else nullcontext(manifest)
+            attempted = False
+            try:
+                with transaction as manifest:
+                    attempted = True
+                    client.upsert(collection_name=self.collection_name, data=rows)
+                    client.flush(self.collection_name)
+                    store.update_metadata(source, payloads[0])
+            except Exception as exc:
+                compensation = {}
+                if attempted:
+                    for name, restore in (
+                        ("milvus", lambda: (client.upsert(collection_name=self.collection_name, data=before), client.flush(self.collection_name))),
+                        ("fingerprint", lambda: store.restore_record(source, fingerprint_before)),
+                    ):
+                        try:
+                            restore()
+                            compensation[name] = "restored"
+                        except Exception as recovery_error:
+                            compensation[name] = "failed"
+                            compensation[name + "_error"] = str(recovery_error)
+                    if "date" in metadata and self.collection_name == KB_COLLECTION_NAME:
+                        try:
+                            compensation["manifest"] = self._get_manifest_repository().restore_metadata_dates(
+                                TENANT_ID, source, manifest["before"], payloads[0]["date"])
+                        except Exception as recovery_error:
+                            compensation["manifest"] = "failed"
+                            compensation["manifest_error"] = str(recovery_error)
+                error = RuntimeError(f"metadata update failed: {exc}")
+                error.report = {"source": source, "status": "failed", "error": str(exc),
+                                "compensation": compensation, "manifest": manifest,
+                                "before_rows": before, "before_fingerprint": fingerprint_before}
+                raise error from exc
             logger.info("研报元数据更新：%s（%d 行）", source, len(rows))
-            return {"source": source, "updated_count": len(rows), "missing": False}
+            return {"source": source, "updated_count": len(rows), "missing": False,
+                    "metadata": payloads[0], "manifest": manifest}
+
+    def _get_manifest_repository(self):
+        from finance_rag.src.infrastructure.relational_db.document_manifest import DocumentManifestRepository
+        if not hasattr(self, "_metadata_manifest_repository"):
+            self._metadata_manifest_repository = DocumentManifestRepository()
+        return self._metadata_manifest_repository
 
     def remove_document(
         self, source: str, version: str | None = None
@@ -1025,19 +1163,31 @@ class KnowledgeBase:
         filters: dict[str, Any] | None = None,
         rrf_k: int = RRF_K,
         keywords: list[str] | None = None,
+        fusion_mode: str = RETRIEVAL_FUSION_MODE,
+        dense_weight: float = RETRIEVAL_DENSE_WEIGHT,
+        sparse_weight: float = RETRIEVAL_SPARSE_WEIGHT,
+        cliff_detection: bool = ENABLE_CLIFF_DETECTION,
+        candidate_source_limit: int = RETRIEVAL_CANDIDATE_SOURCE_LIMIT,
+        candidate_max_per_source: int = RETRIEVAL_CANDIDATE_MAX_PER_SOURCE,
     ) -> list[dict[str, Any]]:
-        """稠密 + 稀疏（BM25）RRF 混合检索，可选 BGE 重排序 + 关键词增强。
+        """稠密 + 稀疏（BM25）加权检索，可选 BGE 重排序 + 关键词增强。
 
         Args:
             query: 查询文本。
             k: 返回结果数（重排序关闭时的返回数量）。
-            use_dense_only: True 时只走稠密向量检索，False 时走 RRF 混合检索。
+            use_dense_only: 兼容开关，True 强制使用 dense 模式。
             expand_parents: 是否按 parent_id 去重并替换为父块全文。
             use_rerank: 是否启用 BGE 本地重排序。
             rerank_top_n: 启用重排序时的最终返回数量。
             filters: 元数据过滤条件（需 ENABLE_METADATA_FILTER=true）。
-            rrf_k: RRF 融合常数。
+            rrf_k: 保留兼容参数，加权融合不使用它。
             keywords: 可选的关键词列表，用于过滤和重排序。
+            fusion_mode: dense、weighted 或 auto。
+            dense_weight: 稠密融合权重。
+            sparse_weight: 稀疏融合权重。
+            cliff_detection: 显式断崖开关，默认关闭。
+            candidate_source_limit: 重排前候选文档数。
+            candidate_max_per_source: 重排前每文档轮转配额。
 
         Returns:
             检索结果列表，每项含
@@ -1048,6 +1198,7 @@ class KnowledgeBase:
         Note:
             重排序失败时自动回退到 Milvus 原始排序，保证检索链路可用。
         """
+        dense_weight, sparse_weight = normalize_fusion_weights(dense_weight, sparse_weight)
         self.ensure_collection()
         retriever = self._get_retriever()
         results = retriever.search(
@@ -1060,8 +1211,15 @@ class KnowledgeBase:
             filters=filters,
             rrf_k=rrf_k,
             keywords=keywords,
+            fusion_mode=fusion_mode,
+            dense_weight=dense_weight,
+            sparse_weight=sparse_weight,
+            cliff_detection=cliff_detection,
+            candidate_source_limit=candidate_source_limit,
+            candidate_max_per_source=candidate_max_per_source,
         )
         self.last_retrieval_cliff = retriever._last_cliff
+        self.last_retrieval_diagnostics = dict(retriever._last_diagnostics)
         return results
 
     # ------------------------------------------------------------------

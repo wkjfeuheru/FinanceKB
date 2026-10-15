@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import json
 import sys
 from collections import Counter
 from pathlib import Path
@@ -32,9 +33,14 @@ DEFAULT_CATEGORY = "investment_research"
 TERMINAL_STATUSES = {"completed", "failed"}
 LINE = "=" * 78
 META_KEYS = (
-    "security_code", "security_name", "industry_l1", "industry_l2",
+    "security_name", "industry_l1", "industry_l2",
     "report_type", "broker", "meta_source", "needs_review",
 )
+
+
+def batch_exit_code(outcomes: list[dict], summary: dict) -> int:
+    return int(any(item['status'] != 'completed' for item in outcomes)
+               or any(item['chunks'] <= 0 for item in summary.values()))
 
 
 def _discover(args: argparse.Namespace) -> list[Path]:
@@ -170,7 +176,7 @@ async def _run(args: argparse.Namespace) -> int:
     print("逐篇验证（Milvus 块 / PostgreSQL 整表 / 存储）")
     print(LINE)
     header = (f"{'文件':<34}{'块':>5}{'图':>4}{'表':>4}{'页码':>7}  "
-              f"{'代码':<8}{'行业':<10}{'类型':<5}{'待确认':<7}")
+              f"{'标的':<8}{'行业':<10}{'类型':<5}{'待确认':<7}")
     print(header)
     summary: dict[str, dict] = {}
     for path in files:
@@ -180,7 +186,7 @@ async def _run(args: argparse.Namespace) -> int:
         paged_label = f"{info['paged']}/{info['chunks']}"
         print(f"{path.name[:33]:<34}{info['chunks']:>5}{info['images']:>4}"
               f"{info['tables']:>4}{paged_label:>7}  "
-              f"{str(meta.get('security_code') or '-'):<8}"
+              f"{str(meta.get('security_name') or '-'):<8}"
               f"{str(meta.get('industry_l1') or '-'):<10}"
               f"{str(meta.get('report_type') or '-'):<5}"
               f"{'是' if meta.get('needs_review') else '否':<7}")
@@ -198,16 +204,16 @@ async def _run(args: argparse.Namespace) -> int:
           f"（{total_paged / max(total_chunks, 1) * 100:.1f}%）")
     print(f"整表（PG）     = {total_tables} 张")
     print(f"图片块         = {total_images}")
-    codes = Counter(
-        i["metadata"].get("security_code") for i in summary.values()
-        if i["metadata"].get("security_code")
+    securities = Counter(
+        i["metadata"].get("security_name") for i in summary.values()
+        if i["metadata"].get("security_name")
     )
-    print(f"抽出证券代码   = {len(codes)} 个不同标的 / {len(summary)} 篇")
-    for code, count in codes.most_common():
+    print(f"抽出证券简称   = {len(securities)} 个不同标的 / {len(summary)} 篇")
+    for security, count in securities.most_common():
         if count > 1:
-            names = [n for n, i in summary.items() if i["metadata"].get("security_code") == code]
-            print(f"    {code} 有 {count} 篇 -> 可用于跨券商对比：{names}")
-    if not [c for c, n in codes.items() if n > 1]:
+            names = [n for n, i in summary.items() if i["metadata"].get("security_name") == security]
+            print(f"    {security} 有 {count} 篇 -> 可用于跨券商对比：{names}")
+    if not [security for security, n in securities.items() if n > 1]:
         print("    [!] 没有任何标的覆盖 >= 2 篇：baseline 的「跨券商对比同一指标」场景")
         print("      在当前语料上构造不出来（多跳题只能跨行业/跨主题）")
     industries = Counter(
@@ -220,7 +226,20 @@ async def _run(args: argparse.Namespace) -> int:
     sources = Counter(i["metadata"].get("meta_source") for i in summary.values())
     print(f"抽取来源分布   = {dict(sources)}")
     print(LINE)
-    return 0
+    exit_code = batch_exit_code([outcome for _, outcome in outcomes], summary)
+    if getattr(args, 'report_json', None):
+        from finance_rag.src.core import config
+        output = Path(args.report_json)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        payload = {'exit_code': exit_code, 'source_count': len(summary), 'summary': summary,
+                   'outcomes': [{'source': path.name, **outcome} for path, outcome in outcomes],
+                   'rules': {'cleaner': config.CLEANER_RULES_VERSION, 'chunk': config.CHUNK_RULES_VERSION},
+                   'embedding': {'model': config.EMBEDDING_MODEL, 'pooling': config.EMBEDDING_POOLING,
+                                 'dimension': config.EMBEDDING_DIM},
+                   'chunk_parameters': {'max_tokens': config.DOCLING_CHUNK_MAX_TOKENS,
+                                        'overlap': config.CHILD_OVERLAP_TOKENS}}
+        output.write_text(json.dumps(payload, ensure_ascii=False, indent=2, default=str), encoding='utf8')
+    return exit_code
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -242,6 +261,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--category", default=DEFAULT_CATEGORY, help="入库分类")
     parser.add_argument("--timeout", type=int, default=600, help="单篇等待上限（秒）")
     parser.add_argument("--skip-ingest", action="store_true", help="跳过入库，只出验证报告")
+    parser.add_argument('--report-json', help='保存逐文档入库结果与验证报告')
     args = parser.parse_args(argv)
     return asyncio.run(_run(args))
 

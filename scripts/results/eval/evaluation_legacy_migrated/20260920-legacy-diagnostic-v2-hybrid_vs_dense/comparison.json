@@ -1,0 +1,136 @@
+{
+  "bootstrap_samples": 10000,
+  "decision": "inconclusive",
+  "experiment": "hybrid_vs_dense",
+  "guardrail_failures": [],
+  "guardrails": [
+    "precision_at_5",
+    "mrr"
+  ],
+  "insufficient_coverage": [],
+  "minimum_gold_coverage": 0.95,
+  "primary_metric": "recall_at_5",
+  "seed": 7,
+  "tiers": {
+    "gold": {
+      "metrics": {
+        "mrr": {
+          "baseline": 0.5845,
+          "candidate": 0.5905,
+          "ci95": [
+            -0.0643,
+            0.0786
+          ],
+          "coverage": 1.0,
+          "delta": 0.006,
+          "largest_changes": [
+            {
+              "case_id": "legacy-0005",
+              "delta": 0.5
+            },
+            {
+              "case_id": "legacy-0023",
+              "delta": -0.5
+            },
+            {
+              "case_id": "legacy-0028",
+              "delta": 0.5
+            },
+            {
+              "case_id": "legacy-0027",
+              "delta": -0.3333
+            },
+            {
+              "case_id": "legacy-0014",
+              "delta": -0.3
+            }
+          ],
+          "losses": 3,
+          "n": 28,
+          "ties": 22,
+          "verdict": "inconclusive",
+          "wins": 3
+        },
+        "precision_at_5": {
+          "baseline": 0.1571,
+          "candidate": 0.1714,
+          "ci95": [
+            -0.0143,
+            0.05
+          ],
+          "coverage": 1.0,
+          "delta": 0.0143,
+          "largest_changes": [
+            {
+              "case_id": "legacy-0028",
+              "delta": 0.4
+            },
+            {
+              "case_id": "legacy-0005",
+              "delta": 0.2
+            },
+            {
+              "case_id": "legacy-0027",
+              "delta": -0.2
+            },
+            {
+              "case_id": "legacy-0001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "legacy-0002",
+              "delta": 0.0
+            }
+          ],
+          "losses": 1,
+          "n": 28,
+          "ties": 25,
+          "verdict": "inconclusive",
+          "wins": 2
+        },
+        "recall_at_5": {
+          "baseline": 0.6786,
+          "candidate": 0.7321,
+          "ci95": [
+            -0.0357,
+            0.1607
+          ],
+          "coverage": 1.0,
+          "delta": 0.0536,
+          "largest_changes": [
+            {
+              "case_id": "legacy-0005",
+              "delta": 1.0
+            },
+            {
+              "case_id": "legacy-0028",
+              "delta": 1.0
+            },
+            {
+              "case_id": "legacy-0027",
+              "delta": -0.5
+            },
+            {
+              "case_id": "legacy-0001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "legacy-0002",
+              "delta": 0.0
+            }
+          ],
+          "losses": 1,
+          "n": 28,
+          "ties": 25,
+          "verdict": "inconclusive",
+          "wins": 2
+        }
+      },
+      "n": 28
+    },
+    "silver": {
+      "metrics": {},
+      "n": 0
+    }
+  }
+}

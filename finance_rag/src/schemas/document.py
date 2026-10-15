@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class AsyncUploadResponse(BaseModel):
@@ -27,9 +27,11 @@ class DocumentMetadataPatch(BaseModel):
     取值校验在服务层统一执行，非法值会被拒绝而不是静默写空。
     """
 
-    security_code: str | None = None
+    model_config = ConfigDict(extra="forbid")
     security_name: str | None = None
     industry_l1: str | None = None
     industry_l2: str | None = None
     report_type: str | None = None
     broker: str | None = None
+    category: str | None = None
+    date: str | None = None

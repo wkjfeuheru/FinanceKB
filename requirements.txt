@@ -15,11 +15,6 @@ pydantic>=2.0.0
 sentence-transformers>=2.7.0
 python-multipart>=0.0.9
 sse-starlette>=2.1.0
-ragas==0.4.3
-datasets>=4.0.0
-llama-index>=0.11
-llama-index-readers-file>=0.1
-llama-parse>=0.5
 pymupdf>=1.24.0
 optimum>=1.20
 onnxruntime>=1.18
@@ -27,9 +22,6 @@ onnx>=1.16
 pyjwt>=2.8.0
 prometheus-fastapi-instrumentator>=7.0.0
 prometheus-client>=0.20.0
-pytest>=8.0.0
-pytest-asyncio>=0.24.0
-httpx>=0.27.0
 langgraph>=0.2.0
 oss2>=2.18.6
 mineru==3.4.5

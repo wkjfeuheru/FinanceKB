@@ -13,7 +13,9 @@ from sqlalchemy import (
     create_engine,
     delete,
     insert,
+    inspect,
     select,
+    text,
 )
 
 from finance_rag.src.core.config import DATABASE_URL
@@ -28,6 +30,8 @@ parent_chunks = Table(
     Column("id", String(64), primary_key=True),
     Column("content", Text, nullable=False),
     Column("heading", String(512), nullable=False, default=""),
+    # 顶层到本父块的标题路径（层级切块骨架），无结构时为空串
+    Column("heading_path", String(1024), nullable=False, default=""),
     Column("source", String(512), nullable=False, default=""),
 )
 
@@ -43,7 +47,28 @@ class ParentStoreRepository:
         if self._engine is None:
             self._engine = create_engine(self.database_url, pool_pre_ping=True)
             metadata.create_all(self._engine, tables=[parent_chunks])
+            self._ensure_heading_path_column()
         return self._engine
+
+    def _ensure_heading_path_column(self) -> None:
+        """为已存在的旧表补 ``heading_path`` 列（无迁移框架下的轻量兼容）。
+
+        ``metadata.create_all`` 只建新表、不会给旧表加列，因此这里显式检查并
+        ``ALTER TABLE``，避免升级后写入报「列不存在」。
+        """
+        inspector = inspect(self._engine)
+        if not inspector.has_table(parent_chunks.name):
+            return
+        columns = {column["name"] for column in inspector.get_columns(parent_chunks.name)}
+        if "heading_path" in columns:
+            return
+        with self._engine.begin() as connection:
+            connection.execute(
+                text(
+                    "ALTER TABLE parent_chunks "
+                    "ADD COLUMN heading_path VARCHAR(1024) NOT NULL DEFAULT ''"
+                )
+            )
 
     def upsert_many(self, collection: str, items: list[dict[str, Any]]) -> None:
         """批量写入/覆盖父块（等价 ``INSERT OR REPLACE``，事务内 delete+insert）。"""
@@ -56,6 +81,7 @@ class ParentStoreRepository:
                 "id": str(item["id"]),
                 "content": item["content"],
                 "heading": item.get("heading", ""),
+                "heading_path": str(item.get("heading_path", ""))[:1024],
                 "source": item.get("source", ""),
             }
             for item in items

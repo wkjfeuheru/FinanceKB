@@ -14,7 +14,7 @@ from finance_rag.src.rag.ingestion.chunker import HierarchicalChunker
 
 
 def _parent_ids(markdown: str, source: str = "s.pdf"):
-    chunker = HierarchicalChunker(max_tokens=512, parent_max_tokens=1)
+    chunker = HierarchicalChunker(max_tokens=512)
     return [parent.id for parent in chunker._build_chunks(markdown, source, "t").parents]
 
 

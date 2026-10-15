@@ -1,0 +1,33 @@
+{
+  "chunk_max_tokens": 256,
+  "chunk_overlap_tokens": 25,
+  "dataset_fingerprint": "3fe3ac6664c5df04286efb955c6dda88f82111857acaad6aa211e83c3af77d4e",
+  "dense_weight": 0.8,
+  "embedding_dim": 1024,
+  "embedding_model": "BAAI/bge-m3",
+  "embedding_pooling": "cls",
+  "embedding_version": "BAAI/bge-m3",
+  "fusion_mode": "weighted",
+  "git_dirty": true,
+  "git_head": "41ca0191f9f014535ecd3c452bb85c66a6f206f2",
+  "kb_fingerprint": "25f3f726000cf48467a663347d984133c954058dad115debe4a1395b7886d17e",
+  "metadata": {
+    "comparable": true,
+    "kb_fingerprint": "25f3f726000cf48467a663347d984133c954058dad115debe4a1395b7886d17e"
+  },
+  "mode": "retrieval",
+  "sparse_weight": 0.19999999999999996,
+  "strategy": "L3",
+  "strategy_config": {
+    "cliff_detection": false,
+    "dense_weight": 0.8,
+    "embedding_model": "BAAI/bge-m3",
+    "fusion_mode": "weighted",
+    "k": 50,
+    "name": "混合检索 + BGE",
+    "sparse_weight": 0.19999999999999996,
+    "top_k": 5,
+    "use_dense_only": false,
+    "use_rerank": true
+  }
+}

@@ -14,6 +14,11 @@ from __future__ import annotations
 import logging
 import random
 import re
+import hashlib
+import json
+import math
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -27,19 +32,35 @@ from finance_rag.src.agent.prompts.chat import (
 logger = logging.getLogger(__name__)
 
 
+def _invoke_many(chain: Any, payloads: list[dict[str, Any]], max_workers: int = 8) -> list[Any]:
+    """并发调用生成链并保持输入顺序；单项失败以异常对象返回。"""
+    def invoke(payload: dict[str, Any]) -> Any:
+        try:
+            return chain.invoke(payload)
+        except Exception as exc:  # noqa: BLE001
+            return exc
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        return list(executor.map(invoke, payloads))
+
+
 def _parse_llm_qa(raw: str) -> tuple[str, str] | None:
     """解析 LLM 输出：返回 (query, ground_truth)；格式非法返回 None。"""
     text = (raw or "").strip()
-    query_match = re.search(r"^##\s*问题\s*\n(.+?)\n", text)
     answer_marker = "### 标准答案"
     marker_idx = text.find(answer_marker)
-    if not query_match or marker_idx == -1:
+    if marker_idx == -1:
         return None
-    query = query_match.group(1).strip()
+    question_part = text[:marker_idx]
+    question_match = re.search(r"^##\s*问题\s*(.+?)\s*$", question_part, re.DOTALL)
+    if not question_match:
+        return None
+    query = question_match.group(1).strip()
     if len(query) < 4:
         return None
     answer = text[marker_idx + len(answer_marker):].strip()
-    if len(answer) < 10:
+    # 金融问答的正确答案可能是比例、期限、电话等短值，不能用长度误剔除。
+    if not answer:
         return None
     return query, answer
 
@@ -97,12 +118,12 @@ def _iter_chunk_records(
         results = client.query(
             collection_name=kb.collection_name,
             filter=f'source == "{source.replace(chr(34), chr(92) + chr(34))}"',
-            output_fields=["id", "content", "source"],
+            output_fields=["id", "content", "source", "version"],
             limit=limit,
         )
         return [
             {"id": r.get("id", ""), "content": (r.get("content") or "").strip(),
-             "source": r.get("source", "")}
+             "source": r.get("source", ""), "version": r.get("version", "") or "current"}
             for r in results
             if r.get("id") and (r.get("content") or "").strip()
         ]
@@ -136,11 +157,10 @@ def _collect_chunk_pool(kb: Any, per_doc_limit: int) -> list[dict[str, Any]]:
 def _generate_single_hop(chain: Any, chunks: list[dict[str, Any]]) -> list[tuple[dict, str]]:
     """单跳：每块生成一个事实问答，返回 [(meta, markdown_block)]。"""
     out: list[tuple[dict, str]] = []
-    for chunk in chunks:
-        try:
-            raw = chain.invoke({"context": chunk["content"][:3000]})
-        except Exception as exc:
-            logger.warning("单跳生成失败（%s）：%s", chunk["source"], exc)
+    payloads = [{"context": chunk["content"][:3000]} for chunk in chunks]
+    for chunk, raw in zip(chunks, _invoke_many(chain, payloads)):
+        if isinstance(raw, Exception):
+            logger.warning("单跳生成失败（%s）：%s", chunk["source"], raw)
             continue
         if _is_skip_output(raw):
             logger.info("单跳：LLM 判定片段不适合出题，跳过（%s）", chunk["source"])
@@ -156,6 +176,7 @@ def _generate_single_hop(chain: Any, chunks: list[dict[str, Any]]) -> list[tuple
             "related_docs": chunk["source"],
             "chunk_ids": [chunk["id"]],
             "expected_behavior": "",
+            "evidence_records": [chunk],
         }
         out.append((meta, _render_block(meta, len(out) + 1)))
     return out
@@ -163,37 +184,48 @@ def _generate_single_hop(chain: Any, chunks: list[dict[str, Any]]) -> list[tuple
 
 def _generate_multi_hop(
     chain: Any, pool: list[dict[str, Any]], count: int, seed: int,
+    candidate_multiplier: int = 3,
 ) -> list[tuple[dict, str]]:
-    """跨文档多跳：从不同 source 抽取块对生成推理问答。"""
+    """跨文档多跳：从不同 source 抽取块对生成推理问答。
+
+    抽样策略（避免"同一题刷满整个多跳子集"）：
+    * 优先枚举**不同 source 组合**并打乱，而不是反复 ``rng.sample``——旧实现
+      在 source 较少时会不断抽到同一对文档，最终产出多条完全相同的题目
+      （实测 8 条 multi_hop 里存在同一问题重复出现）；
+    * 对 (source_a, source_b, chunk_a, chunk_b) 与生成的 query 双重去重；
+    * 只有 source 组合数不足时才允许同一组合换块重抽。
+    """
     # 按 source 分组
     by_source: dict[str, list[dict[str, Any]]] = {}
     for chunk in pool:
         by_source.setdefault(chunk["source"], []).append(chunk)
-    sources = list(by_source)
+    sources = sorted(by_source)
     rng = random.Random(seed)
 
     pairs: list[tuple[dict, dict]] = []
     if len(sources) >= 2:
-        for _ in range(count * 4):  # 多抽几对以覆盖失败
-            a_src, b_src = rng.sample(sources, 2)
-            a = rng.choice(by_source[a_src])
-            b = rng.choice(by_source[b_src])
-            if a["id"] != b["id"]:
-                pairs.append((a, b))
-            if len(pairs) >= count * 2:
-                break
+        # 枚举所有跨文档块对后打乱，既覆盖文档组合又避免旧实现遇重复即提前退出。
+        pairs = [
+            (a, b)
+            for i, a_src in enumerate(sources)
+            for b_src in sources[i + 1:]
+            for a in by_source[a_src]
+            for b in by_source[b_src]
+        ]
+        rng.shuffle(pairs)
+        pairs = pairs[: count * candidate_multiplier]
 
     out: list[tuple[dict, str]] = []
-    for a, b in pairs:
+    seen_queries: set[str] = set()
+    payloads = [{
+        "source_a": a["source"], "context_a": a["content"][:2000],
+        "source_b": b["source"], "context_b": b["content"][:2000],
+    } for a, b in pairs]
+    for (a, b), raw in zip(pairs, _invoke_many(chain, payloads)):
         if len(out) >= count:
             break
-        try:
-            raw = chain.invoke({
-                "source_a": a["source"], "context_a": a["content"][:2000],
-                "source_b": b["source"], "context_b": b["content"][:2000],
-            })
-        except Exception as exc:
-            logger.warning("多跳生成失败：%s", exc)
+        if isinstance(raw, Exception):
+            logger.warning("多跳生成失败：%s", raw)
             continue
         if _is_skip_output(raw):
             logger.info("多跳：LLM 判定片段不适合出题，跳过")
@@ -202,28 +234,39 @@ def _generate_multi_hop(
         if parsed is None:
             continue
         query, answer = parsed
+        # 同一问题重复入集会稀释多跳子集的指标（n 虚高、方差变大）
+        dedup_key = query.strip()
+        if dedup_key in seen_queries:
+            logger.info("多跳：生成结果与已有问题重复，跳过（%s）", dedup_key[:30])
+            continue
+        seen_queries.add(dedup_key)
         meta = {
             "query": query, "ground_truth": answer,
             "question_type": "multi_hop",
             "related_docs": f"{a['source']}, {b['source']}",
             "chunk_ids": [a["id"], b["id"]],
             "expected_behavior": "",
+            "evidence_records": [a, b],
         }
         out.append((meta, _render_block(meta, len(out) + 1)))
     return out
 
 
 def _generate_negative(
-    chain: Any, sources: list[str], count: int,
+    chain: Any, sources: list[str], count: int, attempt_multiplier: float = 2,
 ) -> list[tuple[dict, str]]:
     """负样本陷阱：前提错误/超范围问题。"""
     out: list[tuple[dict, str]] = []
     source_list = "\n".join(f"- {s}" for s in sources[:20]) or "（知识库为空）"
-    for _ in range(count):
-        try:
-            raw = chain.invoke({"sources": source_list})
-        except Exception as exc:
-            logger.warning("负样本生成失败：%s", exc)
+    payloads = [
+        {"sources": f"{source_list}\n\n请生成互不重复的负样本变体 #{index + 1}。"}
+        for index in range(math.ceil(count * attempt_multiplier))
+    ]
+    for raw in _invoke_many(chain, payloads):
+        if len(out) >= count:
+            break
+        if isinstance(raw, Exception):
+            logger.warning("负样本生成失败：%s", raw)
             continue
         parsed = _parse_llm_qa(raw)
         if parsed is None:
@@ -357,6 +400,226 @@ def generate_testset(
     return entries, out_path
 
 
+def knowledge_base_fingerprint(kb: Any) -> str:
+    """基于当前文档清单和文件指纹计算稳定的知识库指纹。"""
+    documents = sorted(kb.list_documents(), key=lambda item: item.get("source", ""))
+    fingerprint_store = kb.get_fingerprint_store()
+    payload = []
+    for document in documents:
+        source = str(document.get("source", ""))
+        stored = fingerprint_store.get(source) or {}
+        payload.append({
+            "source": source,
+            "version": document.get("version", ""),
+            "chunk_count": document.get("chunk_count", 0),
+            "sha256": stored.get("sha256", ""),
+            "retrieval_metadata": {
+                key: document.get(key) or ""
+                for key in ("report_type", "security_name", "industry_l1", "industry_l2", "broker", "category", "date")
+            },
+        })
+    canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def build_evidence_resolver(kb: Any):
+    """构造按 chunk id 查询当前 Milvus 记录的在线证据解析器。"""
+    client = kb._get_client()
+
+    def resolve(chunk_id: str) -> dict[str, Any] | None:
+        escaped = chunk_id.replace('"', '\\"')
+        rows = client.query(
+            collection_name=kb.collection_name,
+            filter=f'id == "{escaped}"',
+            output_fields=["id", "content", "source", "version"],
+            limit=1,
+        )
+        if not rows:
+            return None
+        row = rows[0]
+        return {
+            "id": str(row.get("id", "")),
+            "content": str(row.get("content", "")),
+            "source": str(row.get("source", "")),
+            "version": str(row.get("version", "") or "current"),
+        }
+
+    return resolve
+
+
+def _required_facts(answer: str) -> list[str]:
+    parts = [part.strip() for part in re.split(r"[。！？；\n]", answer) if part.strip()]
+    return parts[:5] or [answer.strip()]
+
+
+def _candidate_tier(question_type: str, ordinal: int) -> tuple[str, str]:
+    """为候选池预留约 1.5 倍 Gold 审核余量，其余通过自动门禁进入 Silver。"""
+    from .dataset import DEFAULT_QUOTAS
+
+    gold_target = DEFAULT_QUOTAS["gold"][question_type]
+    gold_candidates = math.ceil(gold_target * 1.5)
+    return ("gold", "pending") if ordinal <= gold_candidates else ("silver", "auto_pass")
+
+
+def generate_evaluation_dataset(
+    kb: Any = None,
+    *,
+    count: int = 240,
+    seed: int = 42,
+    per_doc_limit: int = 40,
+    out_path: str | Path,
+) -> tuple["EvaluationDataset", Path]:
+    """生成权威 JSONL 候选集，并执行结构与在线证据门禁。"""
+    from .dataset import DEFAULT_QUOTAS, DatasetValidationError, EvaluationDataset
+    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+
+    kb = kb or get_knowledge_base()
+    documents = kb.list_documents()
+    if get_model() is None:
+        raise RuntimeError("LLM 未配置，无法生成评测候选集")
+    if not documents:
+        raise RuntimeError("知识库为空，无法生成评测候选集")
+    pool = _collect_chunk_pool(kb, per_doc_limit)
+    if not pool:
+        raise RuntimeError("知识库无可用切块，无法生成评测候选集")
+
+    from langchain_core.output_parsers import StrOutputParser
+    from langchain_core.prompts import ChatPromptTemplate
+
+    def chain(prompt: str):
+        return ChatPromptTemplate.from_messages([("human", prompt)]) | get_model() | StrOutputParser()
+
+    # 目标分布与冻结集 80:40:30 一致，而不是沿用旧版 7:2:1。
+    single_target = round(count * 80 / 150)
+    multi_target = round(count * 40 / 150)
+    negative_target = count - single_target - multi_target
+    rng = random.Random(seed)
+    chunks = list(pool)
+    rng.shuffle(chunks)
+    generated: list[dict[str, Any]] = []
+    single_chunks: list[dict[str, Any]] = []
+    for index in range(single_target + max(20, round(single_target * 0.15))):
+        base = chunks[index % len(chunks)]
+        variant = index // len(chunks) + 1
+        single_chunks.append({
+            **base,
+            # quote 必须源自 Milvus 原文，不能包含仅用于提示模型的变体指令。
+            "evidence_content": base["content"],
+            "content": f"{base['content']}\n\n请基于原文生成互不重复的事实题变体 #{variant}。",
+        })
+    singles = _generate_single_hop(chain(SINGLE_HOP_QA_PROMPT), single_chunks)
+    generated.extend(meta for meta, _ in singles[:single_target])
+    generated.extend(meta for meta, _ in _generate_multi_hop(
+        chain(MULTI_HOP_QA_PROMPT), pool, multi_target, seed, candidate_multiplier=2,
+    ))
+    sources = [str(item.get("source", "")) for item in documents if item.get("source")]
+    generated.extend(meta for meta, _ in _generate_negative(
+        chain(NEGATIVE_QA_PROMPT), sources, negative_target, attempt_multiplier=1.5,
+    ))
+
+    seen: set[str] = set()
+    deduped: list[dict[str, Any]] = []
+    for meta in generated:
+        key = re.sub(r"\s+", "", meta["query"])
+        if key and key not in seen:
+            seen.add(key)
+            deduped.append(meta)
+
+    counts: dict[str, int] = {}
+    for meta in deduped:
+        qtype = meta["question_type"]
+        counts[qtype] = counts.get(qtype, 0) + 1
+    required = {
+        qtype: DEFAULT_QUOTAS["gold"][qtype] + DEFAULT_QUOTAS["silver"][qtype]
+        for qtype in DEFAULT_QUOTAS["gold"]
+    }
+    short = {qtype: (counts.get(qtype, 0), expected) for qtype, expected in required.items()
+             if counts.get(qtype, 0) < expected}
+    if short:
+        raise DatasetValidationError(f"候选生成后配额不足：{short}")
+
+    fingerprint = knowledge_base_fingerprint(kb)
+    generated_at = datetime.now(timezone.utc).astimezone().isoformat()
+    model = get_model()
+    model_name = str(
+        getattr(model, "model_name", None) or getattr(model, "model", None) or type(model).__name__
+    )
+    ordinals: dict[str, int] = {}
+    rows: list[dict[str, Any]] = []
+    for index, meta in enumerate(deduped, 1):
+        qtype = meta["question_type"]
+        ordinals[qtype] = ordinals.get(qtype, 0) + 1
+        tier, status = _candidate_tier(qtype, ordinals[qtype])
+        evidence = [
+            {
+                "source": record["source"],
+                "document_version": str(record.get("version") or "current"),
+                "chunk_id": str(record["id"]),
+                "quote": str(record.get("evidence_content") or record["content"]).strip()[:800],
+            }
+            for record in meta.get("evidence_records", [])
+        ]
+        reference = "" if qtype == "negative" else meta["ground_truth"]
+        rows.append({
+            "id": f"eval-candidate-{index:04d}",
+            "query": meta["query"],
+            "question_type": qtype,
+            "difficulty": "medium",
+            "answer_type": "comparison" if qtype == "multi_hop" else "factual",
+            "reference_answer": reference,
+            "required_facts": [] if qtype == "negative" else _required_facts(reference),
+            "evidence": evidence,
+            "expected_behavior": meta.get("expected_behavior", ""),
+            "tier": tier,
+            "review_status": status,
+            "reviewer": "",
+            "review_note": "",
+            "provenance": {
+                "generator_model": model_name,
+                "generated_at": generated_at,
+                "kb_fingerprint": fingerprint,
+                "seed": seed,
+            },
+        })
+    dataset = EvaluationDataset.from_dicts(rows)
+    dataset.validate(evidence_resolver=build_evidence_resolver(kb))
+    output = dataset.save(out_path)
+    return dataset, output
+
+
+def _missing_related_docs(related_docs: str, existing: set[str]) -> list[str]:
+    """找出相关文档里知识库没有的文件。
+
+    文件名本身可以含逗号（例如「不改基本面，燃机订单…」）。先按分隔符切开，
+    再把相邻片段用原分隔符拼回去，能对上已知文件名就不算缺失。
+    """
+    text = (related_docs or "").strip()
+    if not text:
+        return []
+    stems = {stem for stem in existing if stem}
+    if Path(text).stem in stems:
+        return []
+    parts = [part.strip() for part in re.split(r"[,，;；|]", text) if part.strip()]
+    missing: list[str] = []
+    index = 0
+    while index < len(parts):
+        matched_end = None
+        for end in range(len(parts), index, -1):
+            window = parts[index:end]
+            candidates = [window[0]] if end == index + 1 else []
+            for sep in ("，", ",", ";", "；", "|"):
+                candidates.append(sep.join(window))
+            if any(Path(candidate).stem in stems for candidate in candidates):
+                matched_end = end
+                break
+        if matched_end is None:
+            missing.append(parts[index])
+            index += 1
+        else:
+            index = matched_end
+    return missing
+
+
 def filter_entries_by_kb(
     entries: list[Any],
     kb: Any,
@@ -375,15 +638,7 @@ def filter_entries_by_kb(
     kept: list[Any] = []
     removed: list[tuple[Any, list[str]]] = []
     for entry in entries:
-        names = [
-            part.strip()
-            for part in re.split(r"[,，;；|]", entry.related_docs or "")
-            if part.strip()
-        ]
-        missing = [
-            name for name in names
-            if Path(name).stem not in existing
-        ]
+        missing = _missing_related_docs(entry.related_docs or "", existing)
         if missing and not allow_missing:
             removed.append((entry, missing))
             continue

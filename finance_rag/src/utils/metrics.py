@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from prometheus_client import Counter, Histogram
+from prometheus_client import Counter, Gauge, Histogram
 
 # ---------------------------------------------------------------------------
 # 自定义业务指标
@@ -25,3 +25,37 @@ document_ops = Counter(
     "Document operations",
     ["operation"],  # upload, delete, skip
 )
+
+# ---------------------------------------------------------------------------
+# 入库流水线指标
+# ---------------------------------------------------------------------------
+
+# 各阶段入口队列深度（label 为该队列的消费阶段）。
+# 持续上涨说明该阶段是瓶颈：pending→解析、chunk→切块、embed→嵌入、write→写库。
+ingest_queue_depth = Gauge(
+    "finance_rag_ingest_queue_depth",
+    "Ingestion pipeline queue depth by consuming stage",
+    ["stage"],  # pending, chunk, embed, write
+)
+
+# 阶段 worker 重启次数（>0 说明 worker 曾异常退出并被自愈重启）
+ingest_worker_restarts = Counter(
+    "finance_rag_ingest_worker_restarts_total",
+    "Ingestion pipeline stage worker restarts",
+    ["stage"],  # parse, chunk, embed, write
+)
+
+# 入库队列满导致的拒绝次数（背压触发）
+ingest_queue_rejected = Counter(
+    "finance_rag_ingest_queue_rejected_total",
+    "Documents rejected because the ingestion queue was full",
+)
+
+# 各阶段处理耗时（逐文档），用于定位入库链路的真实瓶颈
+ingest_stage_seconds = Histogram(
+    "finance_rag_ingest_stage_seconds",
+    "Per-document ingestion stage duration in seconds",
+    ["stage"],  # parse, chunk, embed, write
+    buckets=[0.05, 0.1, 0.25, 0.5, 1.0, 2.0, 5.0, 10.0, 30.0, 60.0],
+)
+

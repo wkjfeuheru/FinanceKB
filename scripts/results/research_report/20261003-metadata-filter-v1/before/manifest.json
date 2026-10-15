@@ -1,0 +1,29 @@
+{
+  "collection": "finance_kb",
+  "created_at": "2026-10-03T04:14:41.537925+00:00",
+  "source_count": 18,
+  "artifacts": {
+    "vectors.jsonl.gz": {
+      "sha256": "95e556968ca61698ce5431b6a1061e402c05873b85b48e840c635d19d41fd697",
+      "count": 1559
+    },
+    "parent_chunks.jsonl.gz": {
+      "sha256": "6dc1d973d7b520d2b920048bde9ed3a6b608ac7ac282d52b9e040813c9802fcf",
+      "count": 597
+    },
+    "table_chunks.jsonl.gz": {
+      "sha256": "e43f5261ec79a84aa0f4fee68b08f905f789bde9838b5733de96266d68d23c7a",
+      "count": 105
+    },
+    "schema.json": {
+      "sha256": "fb2584f5c829adb18dab6fbb51cf24186ccb16b8e77518f8a42177ea62cffa9c"
+    },
+    "fingerprints.json": {
+      "sha256": "207189faad296143c67e138d6fd495bc9af137d9a2d93aaeb84e489f0fc060d8"
+    },
+    "pdf_manifest.json": {
+      "sha256": "00e609bb11bbf2bd8b1afbf9c3bc0a88dd47c1a8b4e2345748680bae63f5c5b6"
+    }
+  },
+  "generated_fields": "BM25 sparse_vector is regenerated from preserved content on restore"
+}

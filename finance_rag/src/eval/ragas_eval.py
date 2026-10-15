@@ -1,13 +1,16 @@
 """策略评估模块（基于 ragas 框架）。
 
-使用 ragas 对 RAG 优化点 A/B 实验的检索与回答质量进行评估，
-输出 faithfulness、answer_relevancy、context_precision、context_recall、
-answer_correctness、context_entity_recall 等指标。
+使用 ragas 对 RAG 优化点 A/B 实验的检索与回答质量进行评估。**生成侧固定输出
+RAGAS 四指标**（覆盖 RAG 的两条链路）：
+
+* 检索链路：``context_precision``（检索噪音）、``context_recall``（知识盲区）；
+* 生成链路：``faithfulness``（防幻觉）、``answer_relevancy``（防跑偏）。
 
 核心组件：
 * :class:`RagasBatchEvaluator` — 批量评估器：一次评估一臂的全部题目
   （打包为单个 EvaluationDataset，显著降低开销与指标抖动）；
-* :func:`compute_composite_score` — 分层加权综合评分；
+* :func:`compute_composite_score` — 分层加权综合评分（历史遗留，当前无调用方，
+  权重表里引用已下线指标的键为惰性键）；
 * 本地检索指标（hit_rate / MRR / NDCG）与对抗层拒绝分数。
 """
 
@@ -52,9 +55,16 @@ from finance_rag.src.core.config import (
     RAGAS_TIMEOUT_SECONDS,
     get_model,
 )
+from finance_rag.src.eval.metrics import (
+    GENERATION_METRICS,
+    compute_chunk_retrieval_metrics,
+)
 from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
 
 logger = logging.getLogger(__name__)
+
+#: 生成侧统一使用的 RAGAS 四指标（定义在 :mod:`metrics`，避免多处副本漂移）。
+GENERATION_CHAIN_METRICS: tuple[str, ...] = GENERATION_METRICS
 
 
 class JsonExtractLangchainLLMWrapper(LangchainLLMWrapper):
@@ -168,6 +178,110 @@ def _fallback_metrics(sample: dict[str, Any]) -> dict[str, float]:
 # 本地检索指标
 # ---------------------------------------------------------------------------
 
+def _split_doc_names(related_docs: str | list[str] | tuple[str, ...] | None) -> list[str]:
+    """把「相关文档」字段拆成去重后的文档名列表（保留原始写法）。"""
+    if not isinstance(related_docs, str):
+        return list(dict.fromkeys(str(item).strip() for item in (related_docs or []) if str(item).strip()))
+    names: list[str] = []
+    for part in re.split(r"[,，;；|]", related_docs or ""):
+        name = part.strip()
+        if name and name not in names:
+            names.append(name)
+    return names
+
+
+def _compute_doc_coverage(
+    retrieved_sources: list[str],
+    related_docs: str,
+    k: int = 5,
+) -> dict[str, float | None]:
+    """文档级覆盖度：区分「命中过一篇」与「全部命中」。
+
+    ``hit_rate`` 只要求命中任意一篇，在多跳问题（相关文档 2 篇）上会饱和为 1.0，
+    无法反映覆盖程度；本函数补充 0 / 0.5 / 1.0 的梯度。
+
+    Args:
+        retrieved_sources: 检索返回的 source 列表（按 rank 排序）。
+        related_docs: 相关文档字段（逗号/分号分隔）。
+        k: 检索深度。
+
+    Returns:
+        ``{"doc_coverage", "doc_recall"}``；无相关文档标注时返回 None（n/a）。
+    """
+    names = _split_doc_names(related_docs)
+    if not names:
+        return {"doc_coverage": None, "doc_recall": None}
+
+    related_stems = {Path(name).stem.lower() for name in names}
+    retrieved_stems = {
+        Path(source).stem.lower() for source in retrieved_sources[:k] if source
+    }
+    covered = len(related_stems & retrieved_stems)
+    total = len(related_stems)
+    return {
+        "doc_coverage": round(covered / total, 4) if total else None,
+        "doc_recall": 1.0 if total and covered == total else 0.0,
+    }
+
+
+def _compute_evidence_metrics(
+    retrieved_chunk_ids: list[str],
+    evidence_chunk_ids: list[str] | tuple[str, ...] | None,
+    k: int = 5,
+) -> dict[str, float | None]:
+    """块级证据指标：标注的证据块在 top-k 里被召回了几成、排第几。
+
+    这是当前评测链路缺失的一层：``hit_rate`` 是文档级（命中一篇即 1.0），
+    ``multi_hop_hit`` 要求整份文档集合被覆盖，两者之间没有梯度，
+    也无法区分「压根没召回」与「召回了但被 rerank 截断」。
+
+    Args:
+        retrieved_chunk_ids: 检索返回的 chunk id 列表（按 rank 排序）。
+        evidence_chunk_ids: 测试集标注的证据 chunk id；为空表示该条目未标注证据。
+        k: 检索深度。
+
+    Returns:
+        ``{"evidence_hit", "evidence_coverage", "evidence_rank",
+        "evidence_all_in_topk"}``。
+
+        未标注证据（``evidence_chunk_ids`` 为空）时全部返回 ``None``，
+        即 n/a —— 这样「测试集没有证据标注」不会污染成假 0.0。
+    """
+    evidence = [str(cid) for cid in (evidence_chunk_ids or []) if cid]
+    if not evidence:
+        return {
+            "evidence_hit": None,
+            "evidence_coverage": None,
+            "evidence_rank": None,
+            "evidence_all_in_topk": None,
+        }
+
+    top_k = [str(cid) for cid in retrieved_chunk_ids[:k] if cid]
+    rank_by_id = {cid: rank for rank, cid in enumerate(top_k, 1)}
+    hits = [rank_by_id[cid] for cid in set(evidence) if cid in rank_by_id]
+
+    return {
+        "evidence_hit": 1.0 if hits else 0.0,
+        "evidence_coverage": round(len(hits) / len(set(evidence)), 4),
+        # 未命中记 k+1（而不是 0），避免与「排第 1」混淆
+        "evidence_rank": float(min(hits)) if hits else float(k + 1),
+        "evidence_all_in_topk": 1.0 if len(hits) == len(set(evidence)) else 0.0,
+    }
+
+
+def _compute_chunk_retrieval_metrics(
+    retrieved_chunk_ids: list[str],
+    evidence_chunk_ids: list[str] | tuple[str, ...] | None,
+    k: int = 5,
+) -> dict[str, float | None]:
+    """计算块级 Recall@k、Precision@k 和 MRR。
+
+    Precision 的分母固定为 ``k``，即使断崖检测使实际返回少于 ``k`` 条，
+    也不会因结果变少而虚增精确率。
+    """
+    return compute_chunk_retrieval_metrics(retrieved_chunk_ids, evidence_chunk_ids, k)
+
+
 def _compute_local_retrieval_metrics(
     retrieved_titles: list[str],
     related_docs: str,
@@ -187,11 +301,7 @@ def _compute_local_retrieval_metrics(
         return {"hit_rate": 0.0, "mrr": 0.0, "ndcg": 0.0}
 
     # 标准化：去除扩展名进行比较
-    related_set = set()
-    for doc in re.split(r"[,，;；|]", related_docs):
-        doc = doc.strip()
-        if doc:
-            related_set.add(Path(doc).stem.lower())
+    related_set = {Path(name).stem.lower() for name in _split_doc_names(related_docs)}
 
     retrieved_stems = [Path(t).stem.lower() for t in retrieved_titles[:k]]
 
@@ -240,38 +350,38 @@ def build_context_text(contexts: list[str]) -> str:
 def _get_metrics(llm=None, embeddings=None, *, fast: bool = False):
     """获取 ragas 评估指标列表。
 
-    Args:
-        fast: True 时仅返回 3 项核心指标（faithfulness/answer_relevancy/
-              context_precision），跳过 answer_correctness、context_recall、
-              context_entity_recall。完整模式约 90-180s，快速模式约 30-60s。
+    **生成侧固定为 RAGAS 四指标**，``fast`` 参数保留只为兼容既有调用方
+    （``--fast`` / ``--full`` 不再改变指标集）：
+
+    * 检索链路：``context_precision``（检索噪音）、``context_recall``（知识盲区）；
+    * 生成链路：``faithfulness``（防幻觉）、``answer_relevancy``（防跑偏）。
+
+    历史口径里的 ``answer_correctness`` / ``context_entity_recall`` 已下线：
+    四指标之外的口径会让「同一份报告读两个标准」，且这两项在既有报告里
+    与四项高度共线（历史 JSON 仍可读，只是不再产出）。
     """
     from ragas.metrics import (
-        AnswerCorrectness,
         AnswerRelevancy,
-        ContextEntityRecall,
         ContextPrecision,
         Faithfulness,
         LLMContextRecall,
     )
 
-    metrics = [
+    return [
         Faithfulness(llm=llm),
-        AnswerRelevancy(
-            llm=llm,
-            embeddings=embeddings,
-            strictness=1,
-        ),
+        AnswerRelevancy(llm=llm, embeddings=embeddings, strictness=1),
         ContextPrecision(llm=llm),
+        LLMContextRecall(llm=llm),
     ]
 
-    if not fast:
-        metrics.extend([
-            LLMContextRecall(llm=llm),
-            AnswerCorrectness(llm=llm, embeddings=embeddings),
-            ContextEntityRecall(llm=llm),
-        ])
 
-    return metrics
+def _judge_model_name(model: Any) -> str:
+    """取裁判模型标识（用于报告落盘溯源）。"""
+    for attribute in ("model_name", "model"):
+        value = getattr(model, attribute, None)
+        if isinstance(value, str) and value:
+            return value
+    return type(model).__name__
 
 
 class RagasBatchEvaluator:
@@ -290,30 +400,39 @@ class RagasBatchEvaluator:
         rows: list[dict[str, Any]],
         *,
         fast: bool = False,
+        judge_model: Any = None,
+        judge_label: str = "primary",
     ) -> dict[str, Any]:
-        """批量评估。
+        """批量评估（生成侧固定 RAGAS 四指标）。
 
         Args:
             rows: 样本列表，每项必须含 ``user_input`` / ``retrieved_contexts`` /
                   ``response`` / ``reference``（可附其它自定义字段，会原样
                   回填到 per_query 输出中）。
-            fast: True 时仅计算 3 项核心指标。
+            fast: 兼容参数，不再改变指标集（生成侧恒为四指标）。
+            judge_model: 裁判模型；``None`` 时用主模型。跨模型交叉校验时传入
+                  第二裁判族的模型（结果里会标注 ``judge_label`` 便于溯源）。
+            judge_label: 本次评估的裁判标签（``primary`` / ``secondary``）。
 
         Returns:
-            ``{"metrics": {指标名: 均值}, "per_query": [{..., "metrics": {...}}],
-            "metric_errors": {指标名: 错误信息}, "fallback_metrics": [...]}``
+            ``{"metrics": {指标名: 均值}, "per_query": [{..., "metrics": {...},
+            "answer_chars": int}], "metric_coverage": {指标名: 覆盖率},
+            "metric_errors": {指标名: 错误信息}, "fallback_metrics": [...],
+            "judge_label": str, "judge_model_name": str}``
         """
-        if get_model() is None:
+        judge = judge_model if judge_model is not None else get_model()
+        if judge is None:
             raise ValueError("LLM 未配置（缺少 DEEPSEEK_API_KEY）")
         if not rows:
             return {
-                "metrics": {}, "per_query": [],
+                "metrics": {}, "per_query": [], "metric_coverage": {},
                 "metric_errors": {}, "fallback_metrics": [],
+                "judge_label": judge_label, "judge_model_name": "",
             }
 
         from ragas import EvaluationDataset, evaluate
-        from ragas.run_config import RunConfig
         from ragas.embeddings import LangchainEmbeddingsWrapper
+        from ragas.run_config import RunConfig
 
         eval_dataset = EvaluationDataset.from_list([
             {
@@ -333,7 +452,7 @@ class RagasBatchEvaluator:
 
         # 包装 LLM（DeepSeek JSON 兼容）与本地嵌入
         evaluator_llm = JsonExtractLangchainLLMWrapper(
-            get_model(),
+            judge,
             run_config=run_config,
         )
         evaluator_embeddings = LangchainEmbeddingsWrapper(
@@ -344,8 +463,8 @@ class RagasBatchEvaluator:
             embeddings=evaluator_embeddings,
             fast=fast,
         )
-        logger.info("开始 ragas 批量评估（%d 样本），指标：%s",
-                    len(rows), [m.name for m in metrics])
+        logger.info("开始 ragas 批量评估（%d 样本，裁判=%s），指标：%s",
+                    len(rows), judge_label, [m.name for m in metrics])
 
         # 全部指标一次性并行评估；失败指标单独重试
         initial_result = evaluate(
@@ -416,21 +535,28 @@ class RagasBatchEvaluator:
             item["metrics"] = {
                 name: columns[name][i] for name in columns
             }
+            # 长度遥测：长度偏差的原始数据（不放进 metrics，避免拉高均值误读）
+            item["answer_chars"] = len(str(row.get("response") or ""))
             per_query.append(item)
 
-        # 聚合均值（仅统计有限值）
+        # 聚合均值（仅统计有限值）与覆盖率（该指标有值的样本占比）
         aggregated: dict[str, float | None] = {}
+        coverage: dict[str, float] = {}
         for name, values in columns.items():
             finite = [v for v in values if v is not None]
             aggregated[name] = (
                 round(sum(finite) / len(finite), 4) if finite else None
             )
+            coverage[name] = round(len(finite) / len(values), 4) if values else 0.0
 
         return {
             "metrics": aggregated,
             "per_query": per_query,
+            "metric_coverage": coverage,
             "metric_errors": metric_errors,
             "fallback_metrics": sorted(set(fallback_names)),
+            "judge_label": judge_label,
+            "judge_model_name": _judge_model_name(judge),
         }
 
 
@@ -438,7 +564,10 @@ class RagasBatchEvaluator:
 # 综合评分
 # ---------------------------------------------------------------------------
 
-# 默认权重（适用于 all 层级）
+# 默认权重（适用于 all 层级）。
+# 注：`answer_correctness` 已从生成侧指标集下线，此处的键因此是**惰性键**——
+# compute_composite_score 取不到值就跳过，不影响其它权重（该函数当前无调用方，
+# 保留是为了不破坏历史报告里的权重口径）。
 _DEFAULT_WEIGHTS = {
     "answer_correctness": 0.30,
     "faithfulness": 0.20,

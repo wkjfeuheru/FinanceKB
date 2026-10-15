@@ -61,19 +61,43 @@ def _normalize_evidence(item: dict[str, Any], index: int) -> dict[str, Any]:
 
     平铺字段保证下游 ``build_context`` / 来源展示能直接读取 source/title/
     category/chunk 等键，避免嵌套 ``metadata`` 造成字段丢失。
+
+    ``block_type`` / 页码 / ``image_key`` 必须透传：输出期的整表展开
+    （``expand_table_docs``）与上下文预算/标签都靠它们识别表格与图片块——
+    丢失时表格块会被当成普通文本（预算砍半、标签消失）。
     """
     return {
         "id": item.get("id") or item.get("chunk_id") or f"evidence-{index}",
+        "chunk_id": item.get("chunk_id"),
+        "child_id": item.get("child_id") or item.get("id") or item.get("chunk_id"),
+        "chunk_key": item.get("chunk_key") or item.get("id") or item.get("chunk_id"),
+        "parent_key": item.get("parent_key") or item.get("parent_id"),
+        "covered_child_ids": list(item.get("covered_child_ids") or []),
         "content": item.get("content") or "",
         "source": item.get("source", ""),
         "title": item.get("title", ""),
         "chunk": item.get("chunk"),
         "parent_id": item.get("parent_id", ""),
         "category": item.get("category", ""),
+        "collection": item.get("collection", ""),
+        "security_name": item.get("security_name", ""),
+        "industry_l1": item.get("industry_l1", ""),
+        "industry_l2": item.get("industry_l2", ""),
+        "report_type": item.get("report_type", ""),
+        "broker": item.get("broker", ""),
+        "table_id": item.get("table_id"),
+        "document_sha256": item.get("document_sha256") or None,
+        "document_version": item.get("document_version") or None,
         "date": item.get("date", ""),
         "heading": item.get("heading", ""),
+        "heading_path": item.get("heading_path", ""),
         "score": float(item.get("score") or 0.0),
         "rerank_score": item.get("rerank_score"),
+        # 块类型与证据定位字段（表格/图片块的展开、标签与页码跳转都依赖它们）
+        "block_type": item.get("block_type", "") or "text",
+        "start_page": int(item.get("start_page") or 0),
+        "end_page": int(item.get("end_page") or 0),
+        "image_key": item.get("image_key", "") or "",
     }
 
 

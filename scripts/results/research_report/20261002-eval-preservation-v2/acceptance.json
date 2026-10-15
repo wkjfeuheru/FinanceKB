@@ -1,0 +1,1074 @@
+{
+  "before": {
+    "collection": "finance_kb",
+    "created_at": "2026-10-02T01:53:16.125936+00:00",
+    "source_count": 18,
+    "artifacts": {
+      "vectors.jsonl.gz": {
+        "sha256": "1fd172e2524b7f6467b5d119195a05062e06d43b6c91df7dfed4c26b3a41c489",
+        "count": 1504
+      },
+      "parent_chunks.jsonl.gz": {
+        "sha256": "d0d55ad100636c5cd13d1a9fc29b17224069c23942221b94fa950df93e6b7af1",
+        "count": 597
+      },
+      "table_chunks.jsonl.gz": {
+        "sha256": "ab8c71d598b183b800bbd0c2f0d00b4f3117e2371a793eb10993da928b41ee4e",
+        "count": 98
+      },
+      "schema.json": {
+        "sha256": "93f75ce3fb14ecda38552ca1572333f823c1ad45717ccf8fad7552a589a9e110"
+      },
+      "fingerprints.json": {
+        "sha256": "c32ec17172e09c5316fec7ea80dab75be74b71d3ef7b02293969040d5f17b6cf"
+      },
+      "pdf_manifest.json": {
+        "sha256": "00e609bb11bbf2bd8b1afbf9c3bc0a88dd47c1a8b4e2345748680bae63f5c5b6"
+      }
+    },
+    "generated_fields": "BM25 sparse_vector is regenerated from preserved content on restore"
+  },
+  "after": {
+    "collection": "finance_kb",
+    "created_at": "2026-10-02T15:40:13.633785+00:00",
+    "source_count": 18,
+    "artifacts": {
+      "vectors.jsonl.gz": {
+        "sha256": "9d7292d1802b9b1d7805f96eb8c7a48068f5ff365a09e9041bcab2d293b512f1",
+        "count": 1559
+      },
+      "parent_chunks.jsonl.gz": {
+        "sha256": "18d5328c7d55a7b816e15f131ee01fef730381a9e2175fc1c0271b9d69b6697a",
+        "count": 597
+      },
+      "table_chunks.jsonl.gz": {
+        "sha256": "6b101a7952ccf160ac723e9229bfcc47b1ab668d7cddee694fb0101b1aac751c",
+        "count": 105
+      },
+      "schema.json": {
+        "sha256": "fb2584f5c829adb18dab6fbb51cf24186ccb16b8e77518f8a42177ea62cffa9c"
+      },
+      "fingerprints.json": {
+        "sha256": "207189faad296143c67e138d6fd495bc9af137d9a2d93aaeb84e489f0fc060d8"
+      },
+      "pdf_manifest.json": {
+        "sha256": "00e609bb11bbf2bd8b1afbf9c3bc0a88dd47c1a8b4e2345748680bae63f5c5b6"
+      }
+    },
+    "generated_fields": "BM25 sparse_vector is regenerated from preserved content on restore"
+  },
+  "migration": {
+    "exit_code": 0,
+    "source_count": 18,
+    "summary": {
+      "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf": {
+        "chunks": 26,
+        "block_types": {
+          "text": 17,
+          "image": 2,
+          "table": 7
+        },
+        "paged": 24,
+        "images": 2,
+        "tables": 7,
+        "table_data_rows": 83,
+        "metadata": {
+          "security_name": "杰瑞股份",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "个股",
+          "broker": "",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609201829669604_1.pdf": {
+        "chunks": 53,
+        "block_types": {
+          "text": 40,
+          "image": 8,
+          "table": 5
+        },
+        "paged": 52,
+        "images": 8,
+        "tables": 5,
+        "table_data_rows": 85,
+        "metadata": {
+          "security_name": "信科移动",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "个股",
+          "broker": "中信证券",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609211829713285_1.pdf": {
+        "chunks": 127,
+        "block_types": {
+          "table": 6,
+          "text": 86,
+          "image": 35
+        },
+        "paged": 115,
+        "images": 35,
+        "tables": 6,
+        "table_data_rows": 101,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "宏观",
+          "broker": "诚通证券",
+          "meta_source": "regex",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609231829798847_1.pdf": {
+        "chunks": 33,
+        "block_types": {
+          "image": 2,
+          "text": 23,
+          "table": 8
+        },
+        "paged": 27,
+        "images": 2,
+        "tables": 8,
+        "table_data_rows": 94,
+        "metadata": {
+          "security_name": "百普赛斯",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "个股",
+          "broker": "华鑫证券",
+          "meta_source": "regex",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609241829833777_1.pdf": {
+        "chunks": 37,
+        "block_types": {
+          "text": 25,
+          "table": 8,
+          "image": 4
+        },
+        "paged": 28,
+        "images": 4,
+        "tables": 8,
+        "table_data_rows": 94,
+        "metadata": {
+          "security_name": "新锐股份",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "个股",
+          "broker": "华鑫证券",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609241829864267_1.pdf": {
+        "chunks": 100,
+        "block_types": {
+          "text": 59,
+          "image": 33,
+          "table": 8
+        },
+        "paged": 92,
+        "images": 33,
+        "tables": 8,
+        "table_data_rows": 247,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "宏观",
+          "broker": "格林大华期货",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609251829896818_1.pdf": {
+        "chunks": 48,
+        "block_types": {
+          "text": 39,
+          "image": 6,
+          "table": 3
+        },
+        "paged": 37,
+        "images": 6,
+        "tables": 3,
+        "table_data_rows": 42,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "宏观",
+          "broker": "南华期货",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609261829925702_1.pdf": {
+        "chunks": 23,
+        "block_types": {
+          "table": 5,
+          "text": 16,
+          "image": 2
+        },
+        "paged": 21,
+        "images": 2,
+        "tables": 5,
+        "table_data_rows": 67,
+        "metadata": {
+          "security_name": "国机汽车",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "个股",
+          "broker": "太平洋证券",
+          "meta_source": "regex",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609261829929547_1.pdf": {
+        "chunks": 47,
+        "block_types": {
+          "text": 37,
+          "image": 9,
+          "table": 1
+        },
+        "paged": 41,
+        "images": 9,
+        "tables": 1,
+        "table_data_rows": 0,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "医药生物",
+          "industry_l2": "",
+          "report_type": "行业",
+          "broker": "Alleima",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609261829929869_1.pdf": {
+        "chunks": 104,
+        "block_types": {
+          "image": 29,
+          "text": 71,
+          "table": 4
+        },
+        "paged": 98,
+        "images": 29,
+        "tables": 4,
+        "table_data_rows": 21,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "电子",
+          "industry_l2": "半导体",
+          "report_type": "行业",
+          "broker": "",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609261829929943_1.pdf": {
+        "chunks": 179,
+        "block_types": {
+          "text": 174,
+          "image": 2,
+          "table": 3
+        },
+        "paged": 153,
+        "images": 2,
+        "tables": 3,
+        "table_data_rows": 8,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "电子",
+          "industry_l2": "消费电子",
+          "report_type": "行业",
+          "broker": "",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609261829930314_1.pdf": {
+        "chunks": 231,
+        "block_types": {
+          "text": 146,
+          "image": 78,
+          "table": 7
+        },
+        "paged": 207,
+        "images": 78,
+        "tables": 7,
+        "table_data_rows": 47,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "传媒",
+          "industry_l2": "",
+          "report_type": "行业",
+          "broker": "易观分析",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609271829935298_1.pdf": {
+        "chunks": 116,
+        "block_types": {
+          "text": 99,
+          "image": 15,
+          "table": 2
+        },
+        "paged": 109,
+        "images": 15,
+        "tables": 2,
+        "table_data_rows": 14,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "通信",
+          "industry_l2": "",
+          "report_type": "行业",
+          "broker": "中信科移动通信技术股份有限公司",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609271829939976_1.pdf": {
+        "chunks": 77,
+        "block_types": {
+          "text": 46,
+          "image": 29,
+          "table": 2
+        },
+        "paged": 76,
+        "images": 29,
+        "tables": 2,
+        "table_data_rows": 10,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "宏观",
+          "broker": "国信证券",
+          "meta_source": "regex",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609271829940631_1.pdf": {
+        "chunks": 22,
+        "block_types": {
+          "table": 7,
+          "text": 13,
+          "image": 2
+        },
+        "paged": 21,
+        "images": 2,
+        "tables": 7,
+        "table_data_rows": 83,
+        "metadata": {
+          "security_name": "中国通号",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "个股",
+          "broker": "中信证券",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609281829951050_1.pdf": {
+        "chunks": 171,
+        "block_types": {
+          "text": 109,
+          "table": 20,
+          "image": 42
+        },
+        "paged": 166,
+        "images": 42,
+        "tables": 20,
+        "table_data_rows": 253,
+        "metadata": {
+          "security_name": "横店东磁",
+          "industry_l1": "",
+          "industry_l2": "",
+          "report_type": "个股",
+          "broker": "开源证券",
+          "meta_source": "regex",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609281829951153_1.pdf": {
+        "chunks": 100,
+        "block_types": {
+          "text": 79,
+          "image": 20,
+          "table": 1
+        },
+        "paged": 97,
+        "images": 20,
+        "tables": 1,
+        "table_data_rows": 7,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "电力设备",
+          "industry_l2": "",
+          "report_type": "行业",
+          "broker": "国金证券",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      },
+      "H3_AP202609281829953173_1.pdf": {
+        "chunks": 65,
+        "block_types": {
+          "text": 49,
+          "table": 8,
+          "image": 8
+        },
+        "paged": 52,
+        "images": 8,
+        "tables": 8,
+        "table_data_rows": 70,
+        "metadata": {
+          "security_name": "",
+          "industry_l1": "电子",
+          "industry_l2": "",
+          "report_type": "行业",
+          "broker": "源达信息证券研究所",
+          "meta_source": "llm",
+          "needs_review": false
+        }
+      }
+    },
+    "outcomes": [
+      {
+        "source": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf",
+          "source": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf",
+          "title": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间",
+          "chunk_count": 26,
+          "parent_count": 9
+        },
+        "error": null,
+        "size_mb": 0.48639869689941406
+      },
+      {
+        "source": "H3_AP202609201829669604_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609201829669604_1.pdf",
+          "source": "H3_AP202609201829669604_1.pdf",
+          "title": "H3_AP202609201829669604_1",
+          "chunk_count": 53,
+          "parent_count": 26
+        },
+        "error": null,
+        "size_mb": 24.480300903320312
+      },
+      {
+        "source": "H3_AP202609211829713285_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609211829713285_1.pdf",
+          "source": "H3_AP202609211829713285_1.pdf",
+          "title": "诚通证券-宏观与大类资产周报：我国存量政策效果显现，美联储如期加息-260919.pdf",
+          "chunk_count": 127,
+          "parent_count": 35
+        },
+        "error": null,
+        "size_mb": 3.401632308959961
+      },
+      {
+        "source": "H3_AP202609231829798847_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609231829798847_1.pdf",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "title": "华鑫证券-百普赛斯(301080)公司事件点评报告：加速赋能AI新药研发-260922.pdf",
+          "chunk_count": 33,
+          "parent_count": 17
+        },
+        "error": null,
+        "size_mb": 0.4496288299560547
+      },
+      {
+        "source": "H3_AP202609241829833777_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609241829833777_1.pdf",
+          "source": "H3_AP202609241829833777_1.pdf",
+          "title": "华鑫证券-新锐股份(688257)公司动态研究报告：产能扩张与全球布局共振，硬质合金工具龙头成长路径清晰-260923.pdf",
+          "chunk_count": 37,
+          "parent_count": 16
+        },
+        "error": null,
+        "size_mb": 0.553370475769043
+      },
+      {
+        "source": "H3_AP202609241829864267_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609241829864267_1.pdf",
+          "source": "H3_AP202609241829864267_1.pdf",
+          "title": "格林大华期货-全球经济和大类资产周报：Muse智能体爆火-260924.pdf",
+          "chunk_count": 100,
+          "parent_count": 31
+        },
+        "error": null,
+        "size_mb": 4.193184852600098
+      },
+      {
+        "source": "H3_AP202609251829896818_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609251829896818_1.pdf",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "title": "南华期货-宏观周报：美国通胀超预期，加息已“箭在弦上”-260912.pdf",
+          "chunk_count": 48,
+          "parent_count": 15
+        },
+        "error": null,
+        "size_mb": 5.018933296203613
+      },
+      {
+        "source": "H3_AP202609261829925702_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609261829925702_1.pdf",
+          "source": "H3_AP202609261829925702_1.pdf",
+          "title": "太平洋证券-国机汽车(600335)2026年H1点评：利润增速同比超20%-260924.pdf",
+          "chunk_count": 23,
+          "parent_count": 12
+        },
+        "error": null,
+        "size_mb": 0.37679481506347656
+      },
+      {
+        "source": "H3_AP202609261829929547_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609261829929547_1.pdf",
+          "source": "H3_AP202609261829929547_1.pdf",
+          "title": "Alleima-2026年的医疗科技(Medtech)：为商业成功应优先关注什么-260921.pdf",
+          "chunk_count": 47,
+          "parent_count": 13
+        },
+        "error": null,
+        "size_mb": 2.2467899322509766
+      },
+      {
+        "source": "H3_AP202609261829929869_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609261829929869_1.pdf",
+          "source": "H3_AP202609261829929869_1.pdf",
+          "title": "全球计算联盟-人工智能行业：2026新一代AIDC定义与实践研究报告-260923.pdf",
+          "chunk_count": 104,
+          "parent_count": 31
+        },
+        "error": null,
+        "size_mb": 6.71136474609375
+      },
+      {
+        "source": "H3_AP202609261829929943_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609261829929943_1.pdf",
+          "source": "H3_AP202609261829929943_1.pdf",
+          "title": "IDC&浪潮信息-人工智能行业：2026年中国人工智能计算力发展评估报告-260924.pdf",
+          "chunk_count": 179,
+          "parent_count": 88
+        },
+        "error": null,
+        "size_mb": 3.5056228637695312
+      },
+      {
+        "source": "H3_AP202609261829930314_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609261829930314_1.pdf",
+          "source": "H3_AP202609261829930314_1.pdf",
+          "title": "易观分析-GEO行业品牌GEO营销实战白皮书——AI搜索时代品牌营销新机遇-260910.pdf",
+          "chunk_count": 231,
+          "parent_count": 134
+        },
+        "error": null,
+        "size_mb": 10.615743637084961
+      },
+      {
+        "source": "H3_AP202609271829935298_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609271829935298_1.pdf",
+          "source": "H3_AP202609271829935298_1.pdf",
+          "title": "中国信科-通信行业：Auto-RAN，意图驱动的6G无线自智网络，基于北极星领航通信大模型的Auto-RAN技术白皮书-260925.pdf",
+          "chunk_count": 116,
+          "parent_count": 48
+        },
+        "error": null,
+        "size_mb": 4.310647010803223
+      },
+      {
+        "source": "H3_AP202609271829939976_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609271829939976_1.pdf",
+          "source": "H3_AP202609271829939976_1.pdf",
+          "title": "国信证券-宏观经济周报：政策资金加速落地-260927.pdf",
+          "chunk_count": 77,
+          "parent_count": 21
+        },
+        "error": null,
+        "size_mb": 1.3552837371826172
+      },
+      {
+        "source": "H3_AP202609271829940631_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609271829940631_1.pdf",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "title": "H3_AP202609271829940631_1",
+          "chunk_count": 22,
+          "parent_count": 6
+        },
+        "error": null,
+        "size_mb": 0.6443929672241211
+      },
+      {
+        "source": "H3_AP202609281829951050_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609281829951050_1.pdf",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "title": "开源证券-横店东磁(002056)公司首次覆盖报告：磁材提质，光伏企稳，高端磁性器件打开新增量-260928.pdf",
+          "chunk_count": 171,
+          "parent_count": 43
+        },
+        "error": null,
+        "size_mb": 2.686434745788574
+      },
+      {
+        "source": "H3_AP202609281829951153_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609281829951153_1.pdf",
+          "source": "H3_AP202609281829951153_1.pdf",
+          "title": "国金证券-电力设备与新能源行业研究：SOFC及BE供应链持续推荐，板块关注点开始聚焦三季报-260927.pdf",
+          "chunk_count": 100,
+          "parent_count": 22
+        },
+        "error": null,
+        "size_mb": 1.6196775436401367
+      },
+      {
+        "source": "H3_AP202609281829953173_1.pdf",
+        "status": "completed",
+        "result": {
+          "filename": "H3_AP202609281829953173_1.pdf",
+          "source": "H3_AP202609281829953173_1.pdf",
+          "title": "H3_AP202609281829953173_1",
+          "chunk_count": 65,
+          "parent_count": 30
+        },
+        "error": null,
+        "size_mb": 0.9967222213745117
+      }
+    ],
+    "rules": {
+      "cleaner": "mineru-cleaner-v2-preserve",
+      "chunk": "hierarchical-v3-preserve"
+    },
+    "embedding": {
+      "model": "BAAI/bge-m3",
+      "pooling": "cls",
+      "dimension": 1024
+    },
+    "chunk_parameters": {
+      "max_tokens": 256,
+      "overlap": 25
+    }
+  },
+  "vector_validation": {
+    "dimensions": {
+      "1024": 1559
+    },
+    "l2_norm_min": 0.9999999196286212,
+    "l2_norm_max": 1.0000001028999894,
+    "legacy_512_count": 0
+  },
+  "offline_smoke": {
+    "embedding_model": "BAAI/bge-m3",
+    "pooling": "cls",
+    "dimension": 1024,
+    "l2_norm": 1.0000000336554427,
+    "providers": [
+      "CPUExecutionProvider"
+    ],
+    "cache_reload": "existing INT8 ONNX reused in independent smoke and migration processes",
+    "reranker_model": "BAAI/bge-reranker-v2-m3",
+    "reranker_device": "cuda",
+    "reranker_score": 0.9601507782936096,
+    "note": "reranker uses the existing project device configuration; no new CUDA dependency added",
+    "runtime_environment": {
+      "MODEL_OFFLINE": "true",
+      "HF_HUB_OFFLINE": "1",
+      "TRANSFORMERS_OFFLINE": "1"
+    }
+  },
+  "report_types": {
+    "行业": 7,
+    "个股": 7,
+    "宏观": 4
+  },
+  "security_code_in_schema": false,
+  "stored_dates": {
+    "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf": "2026-08-14",
+    "H3_AP202609201829669604_1.pdf": "2026-09-18",
+    "H3_AP202609211829713285_1.pdf": "2026-09-14",
+    "H3_AP202609231829798847_1.pdf": "2026-09-22",
+    "H3_AP202609241829833777_1.pdf": "2026-06-30",
+    "H3_AP202609241829864267_1.pdf": "2026-09-24",
+    "H3_AP202609251829896818_1.pdf": "2026-09-12",
+    "H3_AP202609261829925702_1.pdf": "2026-10-02",
+    "H3_AP202609261829929547_1.pdf": "2026-10-02",
+    "H3_AP202609261829929869_1.pdf": "2006-01-01",
+    "H3_AP202609261829929943_1.pdf": "2026-10-02",
+    "H3_AP202609261829930314_1.pdf": "2026-09-01",
+    "H3_AP202609271829935298_1.pdf": "2026-07-01",
+    "H3_AP202609271829939976_1.pdf": "2026-09-19",
+    "H3_AP202609271829940631_1.pdf": "2053-01-01",
+    "H3_AP202609281829951050_1.pdf": "2026-09-28",
+    "H3_AP202609281829951153_1.pdf": "2026-10-02",
+    "H3_AP202609281829953173_1.pdf": "2026-10-02"
+  },
+  "publication_dates_semantically_verified": false,
+  "table_column_proofs": [
+    {
+      "source": "H3_AP202609271829940631_1.pdf",
+      "table_id": "c9d9952c0c716d78347e0e242eaf2f5076cb2ada093acd811d8d223716b62dce",
+      "header": [
+        "盈利预测与估值",
+        "2024A",
+        "2025A",
+        "2026E",
+        "2027E",
+        "2028E"
+      ],
+      "row": [
+        "营业总收入（百万元）",
+        "32,644",
+        "34,677",
+        "36,342",
+        "37,897",
+        "40,097"
+      ]
+    },
+    {
+      "source": "H3_AP202609271829940631_1.pdf",
+      "table_id": "968902ee0f06e1aa004da414e48a13b44ac782c20a41d65d5f49a480794b24f3",
+      "header": [
+        "利润表（百万元）",
+        "2025A",
+        "2026E",
+        "2027E",
+        "2028E"
+      ],
+      "row": [
+        "营业总收入",
+        "34,677",
+        "36,342",
+        "37,897",
+        "40,097"
+      ]
+    },
+    {
+      "source": "H3_AP202609281829951050_1.pdf",
+      "table_id": "0db0667c64c58eb23560ff5c8d2ee5a0bf6211a88e650e639058bcc25123a525",
+      "header": [
+        "指标",
+        "2024A",
+        "2025A",
+        "2026E",
+        "2027E",
+        "2028E"
+      ],
+      "row": [
+        "营业收入(百万元)",
+        "18,559",
+        "22,586",
+        "24,924",
+        "28,017",
+        "31,359"
+      ]
+    }
+  ],
+  "risk_text_proofs": [
+    {
+      "source": "H3_AP202609271829940631_1.pdf",
+      "evidence_container_ids": [
+        "b7a5e1b1f38c6259ce197f7d08651735aee79fe73f5ade2bb2a47e4f8410e3f7",
+        "7071b38981bb1d9e0acfd86481c575b9f6043e4983372c7e40c37345c0afbffd"
+      ],
+      "phrases": [
+        "轨道交通固定资产投资不及预期",
+        "城轨市场竞争加剧",
+        "智能低空业务规模化落地不及预期"
+      ]
+    },
+    {
+      "source": "H3_AP202609261829925702_1.pdf",
+      "evidence_container_ids": [
+        "9529fd14fad1d2944e14c6fc0b1b45cb803783f8a761e9373c4796215c40eb9a",
+        "bdddb543835f3f18373b62eb50bcbe8ad6213f43e495f3b6bf2d9f377de3da9b"
+      ],
+      "phrases": [
+        "宏观经济风险",
+        "国际化经营风险",
+        "市场竞争及行业风险"
+      ]
+    }
+  ],
+  "html_fallbacks": [
+    {
+      "source": "H3_AP202609251829896818_1.pdf",
+      "error": "rowspan extends past table",
+      "preserved": true
+    }
+  ],
+  "cleaning_rules": {
+    "toc": 198,
+    "copyright": 8,
+    "excess_blank_lines": 8,
+    "edge_whitespace": 4,
+    "url": 2,
+    "ocr_garbage": 1
+  },
+  "parsed_tables": 105,
+  "fact_mapping": [
+    {
+      "case_id": "rr-single-001",
+      "fact_id": "rr-single-001-f1",
+      "statement": "国机汽车2026H1营业收入153.62亿元，同比下降8.71%。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-002",
+      "fact_id": "rr-single-002-f1",
+      "statement": "中国通号中标巴音敖包工业园铁路专用线项目，金额5.29亿元。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-002",
+      "fact_id": "rr-single-002-f2",
+      "statement": "中国通号中标温福高铁公网覆盖5G改造工程通信系统施工项目，金额2.90亿元。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-002",
+      "fact_id": "rr-single-002-f3",
+      "statement": "中国通号中标西渝高铁轨道电路设备供货项目，金额1.57亿元。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-002",
+      "fact_id": "rr-single-002-f4",
+      "statement": "中国通号2026年7月至8月中标三项铁路项目，合计9.76亿元。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-003",
+      "fact_id": "rr-single-003-f1",
+      "statement": "杰瑞股份2026H1营业收入76.5亿元，同比增长10.8%。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-004",
+      "fact_id": "rr-single-004-f1",
+      "statement": "开源证券2026年9月28日首次覆盖横店东磁，给予买入评级。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-005",
+      "fact_id": "rr-single-005-f1",
+      "statement": "华鑫证券百普赛斯2026年9月22日事件点评主题为加速赋能AI新药研发。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-006",
+      "fact_id": "rr-single-006-f1",
+      "statement": "华鑫证券新锐股份动态研究报告标题为产能扩张与全球布局共振，硬质合金工具龙头成长路径清晰。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-007",
+      "fact_id": "rr-single-007-f1",
+      "statement": "中航证券信科移动2026年中报点评认为收入企稳回升、净利润亏损幅度显著收窄。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-single-008",
+      "fact_id": "rr-single-008-f1",
+      "statement": "南华期货2026年9月12日宏观周报认为美国通胀超预期、加息已箭在弦上。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-001",
+      "fact_id": "rr-multi-001-f1",
+      "statement": "诚通证券2026年9月19日周报认为美联储如期加息，加息路径仍存不确定性。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-001",
+      "fact_id": "rr-multi-001-f2",
+      "statement": "南华期货2026年9月12日周报认为美国通胀超预期、加息已箭在弦上。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-001",
+      "fact_id": "rr-multi-001-f3",
+      "statement": "格林大华期货2026年9月24日周报认为全球进入加息周期、债市是大类资产中的金丝雀。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-002",
+      "fact_id": "rr-multi-002-f1",
+      "statement": "诚通证券2026年9月19日周报认为存量政策效果显现、经济运行总体平稳。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-002",
+      "fact_id": "rr-multi-002-f2",
+      "statement": "国信证券2026年9月27日周报称新型政策性金融工具资金已投放超1000亿元。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-003",
+      "fact_id": "rr-multi-003-f1",
+      "statement": "诚通证券2026年9月19日周报称上周上证综指、创业板指分别上涨0.6%、1.5%。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-003",
+      "fact_id": "rr-multi-003-f2",
+      "statement": "南华期货2026年9月12日周报认为大宗商品能化一枝独秀。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-004",
+      "fact_id": "rr-multi-004-f1",
+      "statement": "IDC预测全球活跃智能体从2026年的7940万个增长至2030年的22.16亿个。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-004",
+      "fact_id": "rr-multi-004-f2",
+      "statement": "全球计算联盟2026年AIDC报告认为AI算力的指数级爆发驱动数据中心深刻而全面的变革。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-005",
+      "fact_id": "rr-multi-005-f1",
+      "statement": "IDC2026年算力报告给出Token消耗总量=任务执行次数×单任务Token消耗×多智能体协同放大系数。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-005",
+      "fact_id": "rr-multi-005-f2",
+      "statement": "源达信息2026年PCB专题指出英伟达CCL平台由GB200的M4+M8升级至Rubin的M8/M9。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-006",
+      "fact_id": "rr-multi-006-f1",
+      "statement": "横店东磁光伏产品出货量由2018年1.8GW增至2025年24.9GW。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-006",
+      "fact_id": "rr-multi-006-f2",
+      "statement": "国金证券2026年9月27日周报称英伟达将BESS纳入首批DSX认证。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-007",
+      "fact_id": "rr-multi-007-f1",
+      "statement": "华鑫证券百普赛斯2026年9月22日报告描述新平台赋能AI药物发现。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-007",
+      "fact_id": "rr-multi-007-f2",
+      "statement": "IDC2026年算力报告认为医疗健康行业当前智能体成熟度相对有限，但专业化程度较高。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-008",
+      "fact_id": "rr-multi-008-f1",
+      "statement": "开源证券2026年9月28日首次覆盖横店东磁，给予买入评级。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-008",
+      "fact_id": "rr-multi-008-f2",
+      "statement": "诚通证券2026年9月19日周报称上周上证综指、创业板指分别上涨0.6%、1.5%。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-009",
+      "fact_id": "rr-multi-009-f1",
+      "statement": "华鑫证券新锐股份2026年9月23日报告认为凿岩工具龙头地位稳固，产能瓶颈突破兑现耗材持续放量。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-009",
+      "fact_id": "rr-multi-009-f2",
+      "statement": "东吴证券中国通号2026年9月27日点评称中标三项铁路项目合计9.76亿元，为后续收入提供支撑。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-010",
+      "fact_id": "rr-multi-010-f1",
+      "statement": "太平洋证券将国机汽车定位为大型汽车工程与流通全链服务商。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-010",
+      "fact_id": "rr-multi-010-f2",
+      "statement": "太平洋证券2026年9月24日维持国机汽车买入评级。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-multi-010",
+      "fact_id": "rr-multi-010-f3",
+      "statement": "东吴证券中国通号2026年9月27日报告认为专用线建设运营与高铁通信信号项目并进，轨交业务覆盖持续拓宽。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-regression-table-001",
+      "fact_id": "rr-regression-table-001-f1",
+      "statement": "中国通号盈利预测表中2026E营业总收入为36,342百万元。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-regression-table-002",
+      "fact_id": "rr-regression-table-002-f1",
+      "statement": "横店东磁财务摘要表2025A营业收入22,586百万元、2026E营业收入24,924百万元。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-regression-risk-001",
+      "fact_id": "rr-regression-risk-001-f1",
+      "statement": "中国通号2026年9月27日报告风险为轨道交通固定资产投资不及预期、城轨市场竞争加剧、智能低空业务规模化落地不及预期。",
+      "any_complete_group_mapped": true
+    },
+    {
+      "case_id": "rr-regression-risk-002",
+      "fact_id": "rr-regression-risk-002-f1",
+      "statement": "国机汽车2026年9月24日报告风险为宏观经济风险、国际化经营风险、市场竞争及行业风险。",
+      "any_complete_group_mapped": true
+    }
+  ],
+  "unmapped_facts": []
+}

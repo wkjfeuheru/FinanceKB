@@ -1,0 +1,465 @@
+{
+  "bootstrap_samples": 10000,
+  "comparability_reasons": [],
+  "comparability_status": "verified",
+  "comparable": true,
+  "decision": "no_decision",
+  "experiment": "rerank_on_off",
+  "guardrail_failures": [],
+  "guardrails": [
+    "recall_at_5",
+    "precision_at_5"
+  ],
+  "insufficient_coverage": [
+    "mrr",
+    "recall_at_5",
+    "precision_at_5"
+  ],
+  "minimum_gold_coverage": 0.95,
+  "primary_metric": "mrr",
+  "seed": 7,
+  "tiers": {
+    "gold": {
+      "metrics": {},
+      "n": 0
+    },
+    "silver": {
+      "metrics": {
+        "all_required_documents_at_5": {
+          "baseline": 0.8214,
+          "candidate": 1.0,
+          "ci95": [
+            0.0714,
+            0.3214
+          ],
+          "coverage": 1.0,
+          "delta": 0.1786,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-001",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-008",
+              "delta": 1.0
+            }
+          ],
+          "losses": 0,
+          "n": 28,
+          "ties": 23,
+          "verdict": "improvement",
+          "wins": 5
+        },
+        "document_recall_at_5": {
+          "baseline": 0.9167,
+          "candidate": 1.0,
+          "ci95": [
+            0.0179,
+            0.1548
+          ],
+          "coverage": 1.0,
+          "delta": 0.0833,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.5
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.5
+            },
+            {
+              "case_id": "rr-multi-007",
+              "delta": 0.5
+            },
+            {
+              "case_id": "rr-multi-008",
+              "delta": 0.5
+            },
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.3333
+            }
+          ],
+          "losses": 0,
+          "n": 28,
+          "ties": 23,
+          "verdict": "improvement",
+          "wins": 5
+        },
+        "evidence_group_recall_at_5": {
+          "baseline": 0.3333,
+          "candidate": 0.494,
+          "ci95": [
+            0.0179,
+            0.3036
+          ],
+          "coverage": 1.0,
+          "delta": 0.1607,
+          "largest_changes": [
+            {
+              "case_id": "rr-single-001",
+              "delta": -1.0
+            },
+            {
+              "case_id": "rr-single-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-vague-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.5
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.5
+            }
+          ],
+          "losses": 1,
+          "n": 28,
+          "ties": 18,
+          "verdict": "improvement",
+          "wins": 9
+        },
+        "exact_candidate_recall_at_20": {
+          "baseline": null,
+          "candidate": null,
+          "ci95": null,
+          "coverage": 0.0,
+          "delta": null,
+          "largest_changes": [],
+          "losses": 0,
+          "n": 0,
+          "ties": 0,
+          "verdict": "no_data",
+          "wins": 0
+        },
+        "exact_candidate_recall_at_50": {
+          "baseline": null,
+          "candidate": null,
+          "ci95": null,
+          "coverage": 0.0,
+          "delta": null,
+          "largest_changes": [],
+          "losses": 0,
+          "n": 0,
+          "ties": 0,
+          "verdict": "no_data",
+          "wins": 0
+        },
+        "exact_candidate_recall_at_actual_depth": {
+          "baseline": 0.5571,
+          "candidate": 0.9286,
+          "ci95": [
+            0.2375,
+            0.5149
+          ],
+          "coverage": 1.0,
+          "delta": 0.3714,
+          "largest_changes": [
+            {
+              "case_id": "rr-single-003",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-single-006",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-single-008",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-vague-006",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-vague-008",
+              "delta": 1.0
+            }
+          ],
+          "losses": 0,
+          "n": 28,
+          "ties": 11,
+          "verdict": "improvement",
+          "wins": 17
+        },
+        "fact_mrr": {
+          "baseline": 0.1845,
+          "candidate": 0.4018,
+          "ci95": [
+            0.0923,
+            0.3482
+          ],
+          "coverage": 1.0,
+          "delta": 0.2173,
+          "largest_changes": [
+            {
+              "case_id": "rr-single-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-vague-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.5
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.5
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.5
+            }
+          ],
+          "losses": 3,
+          "n": 28,
+          "ties": 10,
+          "verdict": "improvement",
+          "wins": 15
+        },
+        "mrr": {
+          "baseline": 0.2946,
+          "candidate": 0.6071,
+          "ci95": [
+            0.1458,
+            0.4732
+          ],
+          "coverage": 1.0,
+          "delta": 0.3125,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-002",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-single-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-vague-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.75
+            },
+            {
+              "case_id": "rr-multi-010",
+              "delta": 0.75
+            }
+          ],
+          "losses": 3,
+          "n": 28,
+          "ties": 10,
+          "verdict": "improvement",
+          "wins": 15
+        },
+        "precision_at_5": {
+          "baseline": 0.1571,
+          "candidate": 0.1929,
+          "ci95": [
+            -0.0143,
+            0.0857
+          ],
+          "coverage": 1.0,
+          "delta": 0.0357,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.4
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.2
+            },
+            {
+              "case_id": "rr-multi-007",
+              "delta": 0.2
+            },
+            {
+              "case_id": "rr-multi-008",
+              "delta": -0.2
+            },
+            {
+              "case_id": "rr-single-001",
+              "delta": -0.2
+            }
+          ],
+          "losses": 3,
+          "n": 28,
+          "ties": 18,
+          "verdict": "inconclusive",
+          "wins": 7
+        },
+        "quote_coverage_at_5": {
+          "baseline": 0.3239,
+          "candidate": 0.4381,
+          "ci95": [
+            -0.0291,
+            0.2592
+          ],
+          "coverage": 1.0,
+          "delta": 0.1143,
+          "largest_changes": [
+            {
+              "case_id": "rr-single-001",
+              "delta": -1.0
+            },
+            {
+              "case_id": "rr-single-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-vague-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.8
+            },
+            {
+              "case_id": "rr-multi-007",
+              "delta": 0.5
+            }
+          ],
+          "losses": 5,
+          "n": 28,
+          "ties": 14,
+          "verdict": "inconclusive",
+          "wins": 9
+        },
+        "recall_at_5": {
+          "baseline": 0.3149,
+          "candidate": 0.4149,
+          "ci95": [
+            -0.0369,
+            0.2429
+          ],
+          "coverage": 1.0,
+          "delta": 0.1,
+          "largest_changes": [
+            {
+              "case_id": "rr-single-001",
+              "delta": -1.0
+            },
+            {
+              "case_id": "rr-single-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-vague-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.6667
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.5
+            }
+          ],
+          "losses": 3,
+          "n": 28,
+          "ties": 18,
+          "verdict": "inconclusive",
+          "wins": 7
+        },
+        "required_fact_coverage_at_5": {
+          "baseline": 0.0,
+          "candidate": 0.0,
+          "ci95": [
+            0.0,
+            0.0
+          ],
+          "coverage": 1.0,
+          "delta": 0.0,
+          "largest_changes": [
+            {
+              "case_id": "rr-multi-001",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-004",
+              "delta": 0.0
+            },
+            {
+              "case_id": "rr-multi-005",
+              "delta": 0.0
+            }
+          ],
+          "losses": 0,
+          "n": 28,
+          "ties": 28,
+          "verdict": "inconclusive",
+          "wins": 0
+        },
+        "structured_required_fact_coverage_at_5": {
+          "baseline": 0.3095,
+          "candidate": 0.4881,
+          "ci95": [
+            0.0357,
+            0.3214
+          ],
+          "coverage": 1.0,
+          "delta": 0.1786,
+          "largest_changes": [
+            {
+              "case_id": "rr-single-001",
+              "delta": -1.0
+            },
+            {
+              "case_id": "rr-single-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-vague-007",
+              "delta": 1.0
+            },
+            {
+              "case_id": "rr-multi-002",
+              "delta": 0.5
+            },
+            {
+              "case_id": "rr-multi-003",
+              "delta": 0.5
+            }
+          ],
+          "losses": 1,
+          "n": 28,
+          "ties": 17,
+          "verdict": "improvement",
+          "wins": 10
+        }
+      },
+      "n": 28
+    }
+  }
+}

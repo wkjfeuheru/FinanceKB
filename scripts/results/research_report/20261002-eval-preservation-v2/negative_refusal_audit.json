@@ -1,0 +1,82 @@
+[
+  {
+    "dataset": "core20",
+    "phase": "old",
+    "case_id": "rr-negative-001",
+    "answer": "现有知识库中暂未检索到宁德时代2026年上半年储能电池出货量的具体GWh数据。",
+    "production_answer_rejected_flag": false,
+    "reported_negative_rejection": 0.0,
+    "answer_keyword_proxy": 1.0,
+    "note": "生产标记和答案拒答措辞分别记录；关键词代理不等同于语义人工审核，空答案不推断成功"
+  },
+  {
+    "dataset": "core20",
+    "phase": "old",
+    "case_id": "rr-negative-002",
+    "answer": "现有知识库中暂未检索到相关内容。",
+    "production_answer_rejected_flag": false,
+    "reported_negative_rejection": 0.0,
+    "answer_keyword_proxy": 1.0,
+    "note": "生产标记和答案拒答措辞分别记录；关键词代理不等同于语义人工审核，空答案不推断成功"
+  },
+  {
+    "dataset": "core20",
+    "phase": "new",
+    "case_id": "rr-negative-001",
+    "answer": "现有知识库中暂未检索到宁德时代2026年上半年储能电池出货量的具体数据。",
+    "production_answer_rejected_flag": false,
+    "reported_negative_rejection": 0.0,
+    "answer_keyword_proxy": 1.0,
+    "note": "生产标记和答案拒答措辞分别记录；关键词代理不等同于语义人工审核，空答案不推断成功"
+  },
+  {
+    "dataset": "core20",
+    "phase": "new",
+    "case_id": "rr-negative-002",
+    "answer": "现有知识库中暂未检索到相关内容。",
+    "production_answer_rejected_flag": false,
+    "reported_negative_rejection": 0.0,
+    "answer_keyword_proxy": 1.0,
+    "note": "生产标记和答案拒答措辞分别记录；关键词代理不等同于语义人工审核，空答案不推断成功"
+  },
+  {
+    "dataset": "interview30-paired",
+    "phase": "old",
+    "case_id": "rr-negative-001",
+    "answer": "现有知识库中暂未检索到宁德时代2026年上半年储能电池出货量的相关数据。",
+    "production_answer_rejected_flag": false,
+    "reported_negative_rejection": 0.0,
+    "answer_keyword_proxy": 1.0,
+    "note": "生产标记和答案拒答措辞分别记录；关键词代理不等同于语义人工审核，空答案不推断成功"
+  },
+  {
+    "dataset": "interview30-paired",
+    "phase": "old",
+    "case_id": "rr-negative-002",
+    "answer": "现有知识库中暂未检索到贵州茅台2026年中报营业总收入和归母净利润的相关内容。",
+    "production_answer_rejected_flag": false,
+    "reported_negative_rejection": 0.0,
+    "answer_keyword_proxy": 1.0,
+    "note": "生产标记和答案拒答措辞分别记录；关键词代理不等同于语义人工审核，空答案不推断成功"
+  },
+  {
+    "dataset": "interview30-paired",
+    "phase": "new",
+    "case_id": "rr-negative-001",
+    "answer": "暂未检索到宁德时代2026年上半年储能电池出货量的具体数据。检索内容中与宁德时代相关的是其近期储能电芯报价调整：280Ah（1P）、314Ah电芯起售价分别为0.470元/Wh、0.403元/Wh，较9月初分别上调1.1%、2.0%；587Ah超大容量储能电芯首次公开挂牌，起售价0.415元/Wh [4]。",
+    "production_answer_rejected_flag": false,
+    "reported_negative_rejection": 0.0,
+    "answer_keyword_proxy": 1.0,
+    "note": "生产标记和答案拒答措辞分别记录；关键词代理不等同于语义人工审核，空答案不推断成功"
+  },
+  {
+    "dataset": "interview30-paired",
+    "phase": "new",
+    "case_id": "rr-negative-002",
+    "answer": "现有知识库中暂未检索到相关内容。",
+    "production_answer_rejected_flag": false,
+    "reported_negative_rejection": 0.0,
+    "answer_keyword_proxy": 1.0,
+    "note": "生产标记和答案拒答措辞分别记录；关键词代理不等同于语义人工审核，空答案不推断成功"
+  }
+]

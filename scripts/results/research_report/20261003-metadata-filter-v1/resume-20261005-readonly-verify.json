@@ -1,0 +1,5 @@
+{
+  "status": "failed",
+  "sources": [],
+  "error": "向量数据库客户端初始化失败（uri=http://localhost:19530）：<MilvusException: (code=<bound method _InactiveRpcError.code of <_InactiveRpcError of RPC that terminated with:\n\tstatus = StatusCode.UNKNOWN\n\tdetails = \"service unavailable: internal: Milvus Proxy is not ready yet. please wait\"\n\tdebug_error_string = \"UNKNOWN:service unavailable: internal: Milvus Proxy is not ready yet. please wait\"\n>>, message=[__internal_register] Retry timeout: 15.0s, StatusCode.UNKNOWN, service unavailable: internal: Milvus Proxy is not ready yet. please wait, channel_state=READY, debug=UNKNOWN:service unavailable: internal: Milvus Proxy is not ready yet. please wait)>"
+}

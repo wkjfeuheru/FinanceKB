@@ -1,0 +1,1 @@
+{"model": "BAAI/bge-m3", "pooling": "cls", "dim": 1024, "norm": 0.9999999726262383, "int8_cache": "assets\\models\\onnx\\BAAI_bge-m3_int8.onnx", "cache_mtime": 1790770257.8834877, "load_and_infer_seconds": 7.957413399999496}

@@ -1,0 +1,2515 @@
+{
+  "experiment": "agentic_on_off",
+  "arm": {
+    "name": "standard",
+    "label": "标准检索",
+    "kind": "runtime",
+    "retrieval": "default",
+    "env_overrides": {},
+    "strategy_overrides": {
+      "rewrite": false,
+      "route": false,
+      "reflect": false
+    }
+  },
+  "collection": "finance_kb",
+  "testset": "F:\\python project\\finance-rag-retrieval\\finance_rag\\src\\eval\\data\\research_report_interview30.jsonl",
+  "fast": true,
+  "sample": 0,
+  "seed": 7,
+  "entry_count": 28,
+  "removed_entries": [
+    {
+      "query": "东吴证券 2026 中报点评中，杰瑞股份 2026H1 的营业收入和同比增速是多少？",
+      "missing": [
+        "2026中报点评：短期扰动不改基本面",
+        "燃机订单超预期+AIDC一体化打开成长空间.pdf"
+      ]
+    },
+    {
+      "query": "油服设备公司这份中报点评里，上半年营业收入和同比增速是多少？",
+      "missing": [
+        "2026中报点评：短期扰动不改基本面",
+        "燃机订单超预期+AIDC一体化打开成长空间.pdf"
+      ]
+    }
+  ],
+  "metrics": {
+    "answer_correctness": null,
+    "answer_relevancy": 0.7672,
+    "faithfulness": 0.7057,
+    "negative_rejection": 1.0
+  },
+  "diagnostic_metrics": {
+    "chunk_mrr": 0.2436,
+    "doc_coverage": 0.8333,
+    "doc_recall": 0.7308,
+    "evidence_all_in_topk": 0.1923,
+    "evidence_coverage": 0.2436,
+    "evidence_hit": 0.3077,
+    "hit_rate": 0.8571,
+    "mrr": 0.7827,
+    "multi_hop_hit": 0.4167,
+    "ndcg": 1.1749,
+    "precision_at_5": 0.0692,
+    "recall_at_5": 0.2436
+  },
+  "metrics_by_type": {
+    "single_hop": {
+      "faithfulness": 0.7702,
+      "answer_relevancy": 0.7771,
+      "hit_rate": 1.0,
+      "mrr": 0.9524,
+      "ndcg": 1.5841,
+      "doc_coverage": 1.0,
+      "doc_recall": 1.0,
+      "evidence_hit": 0.2857,
+      "evidence_coverage": 0.2857,
+      "evidence_all_in_topk": 0.2857,
+      "recall_at_5": 0.2857,
+      "precision_at_5": 0.0571,
+      "chunk_mrr": 0.25
+    },
+    "multi_hop": {
+      "faithfulness": 0.6305,
+      "answer_relevancy": 0.7557,
+      "hit_rate": 0.8333,
+      "mrr": 0.7153,
+      "ndcg": 0.8933,
+      "doc_coverage": 0.6389,
+      "doc_recall": 0.4167,
+      "evidence_hit": 0.3333,
+      "evidence_coverage": 0.1944,
+      "evidence_all_in_topk": 0.0833,
+      "recall_at_5": 0.1944,
+      "precision_at_5": 0.0833,
+      "chunk_mrr": 0.2361,
+      "multi_hop_hit": 0.4167
+    },
+    "negative": {
+      "hit_rate": 0.0,
+      "mrr": 0.0,
+      "ndcg": 0.0,
+      "negative_rejection": 1.0
+    }
+  },
+  "metrics_by_type_counts": {
+    "single_hop": {
+      "faithfulness": 14,
+      "answer_relevancy": 14,
+      "hit_rate": 14,
+      "mrr": 14,
+      "ndcg": 14,
+      "doc_coverage": 14,
+      "doc_recall": 14,
+      "evidence_hit": 14,
+      "evidence_coverage": 14,
+      "evidence_all_in_topk": 14,
+      "recall_at_5": 14,
+      "precision_at_5": 14,
+      "chunk_mrr": 14
+    },
+    "multi_hop": {
+      "faithfulness": 12,
+      "answer_relevancy": 12,
+      "hit_rate": 12,
+      "mrr": 12,
+      "ndcg": 12,
+      "doc_coverage": 12,
+      "doc_recall": 12,
+      "evidence_hit": 12,
+      "evidence_coverage": 12,
+      "evidence_all_in_topk": 12,
+      "recall_at_5": 12,
+      "precision_at_5": 12,
+      "chunk_mrr": 12,
+      "multi_hop_hit": 12
+    },
+    "negative": {
+      "hit_rate": 2,
+      "mrr": 2,
+      "ndcg": 2,
+      "negative_rejection": 2
+    }
+  },
+  "metrics_by_stratum": {
+    "explicit": {
+      "faithfulness": 0.7937,
+      "answer_relevancy": 0.7228,
+      "hit_rate": 1.0,
+      "mrr": 1.0,
+      "ndcg": 1.7364,
+      "doc_coverage": 1.0,
+      "doc_recall": 1.0,
+      "evidence_hit": 0.2857,
+      "evidence_coverage": 0.2857,
+      "evidence_all_in_topk": 0.2857,
+      "recall_at_5": 0.2857,
+      "precision_at_5": 0.0571,
+      "chunk_mrr": 0.2857
+    },
+    "cross_doc": {
+      "faithfulness": 0.6565,
+      "answer_relevancy": 0.8418,
+      "hit_rate": 0.8,
+      "mrr": 0.7333,
+      "ndcg": 0.9149,
+      "doc_coverage": 0.6167,
+      "doc_recall": 0.4,
+      "evidence_hit": 0.4,
+      "evidence_coverage": 0.2333,
+      "evidence_all_in_topk": 0.1,
+      "recall_at_5": 0.2333,
+      "precision_at_5": 0.1,
+      "chunk_mrr": 0.2833,
+      "multi_hop_hit": 0.4
+    },
+    "negative": {
+      "hit_rate": 0.0,
+      "mrr": 0.0,
+      "ndcg": 0.0,
+      "negative_rejection": 1.0
+    },
+    "vague": {
+      "faithfulness": 0.692,
+      "answer_relevancy": 0.7189,
+      "hit_rate": 1.0,
+      "mrr": 0.8426,
+      "ndcg": 1.2883,
+      "doc_coverage": 0.9444,
+      "doc_recall": 0.8889,
+      "evidence_hit": 0.2222,
+      "evidence_coverage": 0.2222,
+      "evidence_all_in_topk": 0.2222,
+      "recall_at_5": 0.2222,
+      "precision_at_5": 0.0444,
+      "chunk_mrr": 0.1667,
+      "multi_hop_hit": 0.5
+    }
+  },
+  "metrics_by_stratum_counts": {
+    "explicit": {
+      "faithfulness": 7,
+      "answer_relevancy": 7,
+      "hit_rate": 7,
+      "mrr": 7,
+      "ndcg": 7,
+      "doc_coverage": 7,
+      "doc_recall": 7,
+      "evidence_hit": 7,
+      "evidence_coverage": 7,
+      "evidence_all_in_topk": 7,
+      "recall_at_5": 7,
+      "precision_at_5": 7,
+      "chunk_mrr": 7
+    },
+    "cross_doc": {
+      "faithfulness": 10,
+      "answer_relevancy": 10,
+      "hit_rate": 10,
+      "mrr": 10,
+      "ndcg": 10,
+      "doc_coverage": 10,
+      "doc_recall": 10,
+      "evidence_hit": 10,
+      "evidence_coverage": 10,
+      "evidence_all_in_topk": 10,
+      "recall_at_5": 10,
+      "precision_at_5": 10,
+      "chunk_mrr": 10,
+      "multi_hop_hit": 10
+    },
+    "negative": {
+      "hit_rate": 2,
+      "mrr": 2,
+      "ndcg": 2,
+      "negative_rejection": 2
+    },
+    "vague": {
+      "faithfulness": 9,
+      "answer_relevancy": 9,
+      "hit_rate": 9,
+      "mrr": 9,
+      "ndcg": 9,
+      "doc_coverage": 9,
+      "doc_recall": 9,
+      "evidence_hit": 9,
+      "evidence_coverage": 9,
+      "evidence_all_in_topk": 9,
+      "recall_at_5": 9,
+      "precision_at_5": 9,
+      "chunk_mrr": 9,
+      "multi_hop_hit": 2
+    }
+  },
+  "suspect_annotations": [
+    {
+      "query": "多篇报告是否都提到 AI 对下游需求的拉动？分别针对哪个环节？",
+      "expected_docs": "H3_AP202609231829798847_1.pdf | H3_AP202609261829929943_1.pdf",
+      "missing_docs": " h3_ap202609261829929943_1, h3_ap202609231829798847_1",
+      "retrieved_docs": "H3_AP202609261829930314_1;H3_AP202609251829896818_1;H3_AP202609281829953173_1",
+      "note": "标注文档一篇都未召回：疑似该文档与问题无关（自动配对产物）"
+    },
+    {
+      "query": "个股深度报告与宏观周报对资本市场的判断侧重有何不同？",
+      "expected_docs": "H3_AP202609281829951050_1.pdf | H3_AP202609211829713285_1.pdf",
+      "missing_docs": " h3_ap202609211829713285_1, h3_ap202609281829951050_1",
+      "retrieved_docs": "H3_AP202609281829951153_1;H3_AP202609281829951153_1;H3_AP202609271829939976_1",
+      "note": "标注文档一篇都未召回：疑似该文档与问题无关（自动配对产物）"
+    }
+  ],
+  "multi_hop_diagnostics": [
+    {
+      "query": "本期多篇宏观与海外报告如何判断美联储加息路径？分别怎么说的？",
+      "expected_docs": "H3_AP202609211829713285_1.pdf | H3_AP202609251829896818_1.pdf | H3_AP202609241829864267_1.pdf",
+      "retrieved_docs": "H3_AP202609211829713285_1;H3_AP202609251829896818_1;H3_AP202609251829896818_1",
+      "doc_coverage": 0.6667,
+      "evidence_coverage": 0.3333,
+      "evidence_rank": 1.0
+    },
+    {
+      "query": "跨报告看，本期各机构对国内稳增长政策落地节奏的表述分别是什么？",
+      "expected_docs": "H3_AP202609211829713285_1.pdf | H3_AP202609271829939976_1.pdf",
+      "retrieved_docs": "H3_AP202609211829713285_1;H3_AP202609211829713285_1;H3_AP202609271829939976_1",
+      "doc_coverage": 1.0,
+      "evidence_coverage": 0.5,
+      "evidence_rank": 2.0
+    },
+    {
+      "query": "本期两篇宏观周报如何描述大类资产表现？各自强调哪条主线？",
+      "expected_docs": "H3_AP202609211829713285_1.pdf | H3_AP202609251829896818_1.pdf",
+      "retrieved_docs": "H3_AP202609251829896818_1;H3_AP202609211829713285_1;H3_AP202609211829713285_1;H3_AP202609211829713285_1;H3_AP202609251829896818_1",
+      "doc_coverage": 1.0,
+      "evidence_coverage": 1.0,
+      "evidence_rank": 3.0
+    },
+    {
+      "query": "结合算力行业报告与 AIDC 白皮书，说明算力基础设施需求趋势的驱动因素。",
+      "expected_docs": "H3_AP202609261829929943_1.pdf | H3_AP202609261829929869_1.pdf",
+      "retrieved_docs": "H3_AP202609261829929869_1;H3_AP202609261829929869_1;H3_AP202609261829929943_1;H3_AP202609261829929869_1;H3_AP202609261829929869_1",
+      "doc_coverage": 1.0,
+      "evidence_coverage": 0.0,
+      "evidence_rank": 6.0
+    },
+    {
+      "query": "AI 需求如何传导到 PCB/CCL 环节？结合算力报告与 PCB 行业专题说明。",
+      "expected_docs": "H3_AP202609261829929943_1.pdf | H3_AP202609281829953173_1.pdf",
+      "retrieved_docs": "H3_AP202609281829953173_1;H3_AP202609281829953173_1;H3_AP202609261829929869_1",
+      "doc_coverage": 0.5,
+      "evidence_coverage": 0.0,
+      "evidence_rank": 6.0
+    },
+    {
+      "query": "光伏与储能方向的两篇报告分别提到哪些行业进展？",
+      "expected_docs": "H3_AP202609281829951050_1.pdf | H3_AP202609281829951153_1.pdf",
+      "retrieved_docs": "H3_AP202609281829951153_1;H3_AP202609281829951050_1;H3_AP202609281829951153_1",
+      "doc_coverage": 1.0,
+      "evidence_coverage": 0.0,
+      "evidence_rank": 6.0
+    },
+    {
+      "query": "多篇报告是否都提到 AI 对下游需求的拉动？分别针对哪个环节？",
+      "expected_docs": "H3_AP202609231829798847_1.pdf | H3_AP202609261829929943_1.pdf",
+      "retrieved_docs": "H3_AP202609261829930314_1;H3_AP202609251829896818_1;H3_AP202609281829953173_1",
+      "doc_coverage": 0.0,
+      "evidence_coverage": 0.0,
+      "evidence_rank": 6.0
+    },
+    {
+      "query": "个股深度报告与宏观周报对资本市场的判断侧重有何不同？",
+      "expected_docs": "H3_AP202609281829951050_1.pdf | H3_AP202609211829713285_1.pdf",
+      "retrieved_docs": "H3_AP202609281829951153_1;H3_AP202609281829951153_1;H3_AP202609271829939976_1",
+      "doc_coverage": 0.0,
+      "evidence_coverage": 0.0,
+      "evidence_rank": 6.0
+    },
+    {
+      "query": "两篇公司报告分别给出的投资评级依据是什么？",
+      "expected_docs": "H3_AP202609241829833777_1.pdf | H3_AP202609271829940631_1.pdf",
+      "retrieved_docs": "H3_AP202609281829953173_1;H3_AP202609271829939976_1;H3_AP202609241829833777_1",
+      "doc_coverage": 0.5,
+      "evidence_coverage": 0.0,
+      "evidence_rank": 6.0
+    },
+    {
+      "query": "近期报告对汽车与轨交装备行业的判断分别是什么？",
+      "expected_docs": "H3_AP202609261829925702_1.pdf | H3_AP202609271829940631_1.pdf",
+      "retrieved_docs": "H3_AP202609271829940631_1;H3_AP202609281829951153_1;H3_AP202609231829798847_1",
+      "doc_coverage": 0.5,
+      "evidence_coverage": 0.5,
+      "evidence_rank": 1.0
+    },
+    {
+      "query": "算力需求增长和机房硬件改造，两边材料分别怎么解释基础设施需求被什么拉动？",
+      "expected_docs": "H3_AP202609261829929943_1.pdf | H3_AP202609261829929869_1.pdf",
+      "retrieved_docs": "H3_AP202609261829929943_1;H3_AP202609261829929943_1;H3_AP202609261829929869_1",
+      "doc_coverage": 1.0,
+      "evidence_coverage": 0.0,
+      "evidence_rank": 6.0
+    },
+    {
+      "query": "两篇个股点评分别拿什么事实支撑投资评级？",
+      "expected_docs": "H3_AP202609241829833777_1.pdf | H3_AP202609271829940631_1.pdf",
+      "retrieved_docs": "H3_AP202609281829953173_1;H3_AP202609281829951050_1;H3_AP202609231829798847_1;H3_AP202609241829833777_1;H3_AP202609271829939976_1",
+      "doc_coverage": 0.5,
+      "evidence_coverage": 0.0,
+      "evidence_rank": 6.0
+    }
+  ],
+  "per_query": [
+    {
+      "case_id": "rr-single-001",
+      "tier": "gold",
+      "user_input": "太平洋证券对国机汽车 2026 年 H1 的业绩点评中，公司营业收入是多少？",
+      "response": "国机汽车 2026 年 H1 营业收入为 **153.62 亿元**，同比 **-8.71%** [1]。",
+      "reference": "2026 年 H1 实现营收 153.62 亿元，同比 -8.71%。",
+      "related_docs": "H3_AP202609261829925702_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "explicit",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "e77881793b8a061a0fd2451bcc674b1597dff77b7f1e98a0661f467eb281e515"
+      ],
+      "sources": [
+        {
+          "id": "e77881793b8a061a0fd2451bcc674b1597dff77b7f1e98a0661f467eb281e515",
+          "chunk_key": "e77881793b8a061a0fd2451bcc674b1597dff77b7f1e98a0661f467eb281e515",
+          "parent_id": "c5a4f6a9008e3290f48e3d62fc7201b0305f9171acd1b3cac7ac2cc41a8a6ca3",
+          "title": "H3_AP202609261829925702_1",
+          "source": "H3_AP202609261829925702_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9979,
+          "content": "## ■ 事件\n\n近期，国机汽车披露 2026 年 H1 业绩。报告期内实现营收 153.62亿，同比-8.71%；归母净利润2.58亿，同比+21.08%；资产负债率为68.4%；加权ROE为2.21%，基本EPS为0.17元；中报披露，拟分红，每股派息税前为 0.042 元。\n\n公司 2025年度归母净利润为4.21 亿；2025全年派息二次，累计每股派息税前为 0.112元，股利支付率 39.6%。"
+        },
+        {
+          "id": "94ae2a65a042bfb0c4a40b5060fa2b7c409e1294110d2af58080ada1708da527",
+          "chunk_key": "94ae2a65a042bfb0c4a40b5060fa2b7c409e1294110d2af58080ada1708da527",
+          "parent_id": "6752aa76518048409ae6739ecfc39f6ff7628adb3d1b8e303859deb6678f965f",
+          "title": "H3_AP202609261829925702_1",
+          "source": "H3_AP202609261829925702_1.pdf",
+          "score": 0.9818,
+          "rerank_score": 0.9798,
+          "content": "# 国机汽车，2026 年 H1 点评，利润增速同比超 20%"
+        },
+        {
+          "id": "7c4b953aa951fb1b112b9534abd81fcdbb90e7fe698dd16904cd65bcebb52506",
+          "chunk_key": "7c4b953aa951fb1b112b9534abd81fcdbb90e7fe698dd16904cd65bcebb52506",
+          "parent_id": "3c7ba217d72f98a930b9474fbee28563e4a384c637c62eba39b3439b22572b9a",
+          "title": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间",
+          "source": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf",
+          "score": 0.8046,
+          "rerank_score": 0.8029,
+          "content": "# 2026 中报点评：短期扰动不改基本面，燃机订单超预期+ AIDC 一体化打开成长空间\n\n买入（维持）\n\n<table><tr><td>盈利预测与估值</td><td>2024A</td><td>2025A</td><td>2026E</td><td>2027E</td><td>2028E</td></tr><tr><td>营业总收入（百万元）</td><td>13,355</td><td>16,223</td><td>20,507</td><td>39,512</td><td>58,780</td></tr><tr><td>同比（%）</td><td>(4.00)</td><td>21.48</td><td>26.41</td><td>92.67</td><td>48.77</td></tr><tr><td>归母净利润（百万元）</td><td>2,627</td><td>2,680</td><td>3,683</td><td>8,608</td><td>13,421</td></tr><tr><td>同比（%）</td><td>7.03</td><td>2.03</td><td"
+        },
+        {
+          "id": "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27",
+          "chunk_key": "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27",
+          "parent_id": "b7a5e1b1f38c6259ce197f7d08651735aee79fe73f5ade2bb2a47e4f8410e3f7",
+          "title": "H3_AP202609271829940631_1",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "score": 0.746,
+          "rerank_score": 0.7445,
+          "content": "## [Table\\_Su<sub>投资要点</sub>\n\n 中标三项铁路项目合计 9.76 亿元，为后续收入提供支撑：中国通号公告，2026年7 月至8月中标铁路专用线、高铁公网5G 改造及轨道电路设备供货三个项目，金额分别为 5.29 亿元、2.90 亿元和 1.57 亿元，合计约占公司 2025 年经审计营业总收入的 2.81%。若项目顺利签约并实施，订单有望随建设和交付进度逐步转化为收入。\n\n 专用线建设运营与高铁通信信号项目并进，轨交业务覆盖持续拓宽：5.29亿元的巴音敖包工业园铁路专用线项目占本次中标总额约54%，线路全长7.977公里，公司负责建设及运营，建设工期约18个月。项目覆盖建设到运营环节，有助于公司积累工业园区铁路专用线项目经验。公司中标2.90亿元温福高铁公网覆盖 5G改造工程通信系统施工项目，以及 1.57 亿元西渝高铁轨道电路设备供货项目。后者所在项目规划装备CTCS-3 级列控系统。两项订单分别对应高铁通信升级与新建线路列控配套，体现公司在通信施工和信号设备供货领域的业务覆盖。\n\n 轨交主业研发积淀深厚，智能低空订单快速增长：公司持续推进面向更高速"
+        },
+        {
+          "id": "6ed844e1655ed73611e8581cce616bc9cd0240dfd2924ab15a957c6d3d4d68f2",
+          "chunk_key": "6ed844e1655ed73611e8581cce616bc9cd0240dfd2924ab15a957c6d3d4d68f2",
+          "parent_id": "0120fca5c2325e56edede44a8efa8ddc5384aa1a0434d0ce1601016dcb71acfc",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 0.5906,
+          "rerank_score": 0.5894,
+          "content": "## ▌ 盈利预测\n\n预测公司 2026-2028 年收入分别为 10.87、13.65、16.78 亿元，EPS 分别为 1.28、1.77、2.35 元，当前股价对应 PE 分别为 92.5、67.3、50.6 倍，考虑湿实验需求的大幅增长，首\n\n次覆盖，给予“买入”投资评级。"
+        }
+      ],
+      "retrieval_latency_ms": 21756.5988,
+      "generation_latency_ms": 10675.2336,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.774,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.6309,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 1.0,
+        "evidence_coverage": 1.0,
+        "evidence_all_in_topk": 1.0,
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "chunk_mrr": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": 1.0,
+        "retrieved_doc_stems": "H3_AP202609261829925702_1;H3_AP202609261829925702_1;2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间;H3_AP202609271829940631_1;H3_AP202609231829798847_1",
+        "retrieved_chunk_ids": "e77881793b8a061a0fd2451bcc674b1597dff77b7f1e98a0661f467eb281e515;94ae2a65a042bfb0c4a40b5060fa2b7c409e1294110d2af58080ada1708da527;7c4b953aa951fb1b112b9534abd81fcdbb90e7fe698dd16904cd65bcebb52506;66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27;6ed844e1655ed73611e8581cce616bc9cd0240dfd2924ab15a957c6d3d4d68f2"
+      }
+    },
+    {
+      "case_id": "rr-single-002",
+      "tier": "gold",
+      "user_input": "东吴证券点评中国通号中标了哪几个铁路市场项目、合计金额多少？",
+      "response": "根据 [1]，该点评显示中国通号中标了三个铁路市场项目，合计金额为 **9.76 亿元**。  \n检索内容中未披露这三个项目的具体名称。",
+      "reference": "中标三个铁路市场项目，合计 9.76 亿元。",
+      "related_docs": "H3_AP202609271829940631_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "explicit",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1"
+      ],
+      "sources": [
+        {
+          "id": "dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1",
+          "chunk_key": "dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1",
+          "parent_id": "bff8ed91e262527c209959dc0e32cd59661ffaa8899ae4d117aa08a722bbb2e5",
+          "title": "H3_AP202609271829940631_1",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9873,
+          "content": "# 点评：中标三个铁路市场项目共 9.76 亿，轨交业务覆盖持续拓宽\n\n买入（维持）\n\n<table><tr><td>盈利预测与估值</td><td>2024A</td><td>2025A</td><td>2026E</td><td>2027E</td><td>2028E</td></tr><tr><td>营业总收入（百万元）</td><td>32,644</td><td>34,677</td><td>36,342</td><td>37,897</td><td>40,097</td></tr><tr><td>同比（%）</td><td>(11.98)</td><td>6.23</td><td>4.80</td><td>4.28</td><td>5.81</td></tr><tr><td>归母净利润（百万元）</td><td>3,495</td><td>3,686</td><td>3,853</td><td>4,130</td><td>4,463</td></tr><tr><td>同比（%）</td><td>0.50</td><td>5.48</td><td>4.53</td><td>7"
+        },
+        {
+          "id": "174f7f24e8e3c636eed32cb15a9ef89cbdcf424bfabb56d26313abbdb2d08441",
+          "chunk_key": "174f7f24e8e3c636eed32cb15a9ef89cbdcf424bfabb56d26313abbdb2d08441",
+          "parent_id": "1b912a7a21a9f2d2a9c54eafaa0e87bf7f51ea3356a24d56606727a87bf536bb",
+          "title": "H3_AP202609271829940631_1",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "score": 0.3749,
+          "rerank_score": 0.3701,
+          "content": "中国通号（688009）"
+        },
+        {
+          "id": "5724f4b68204b04966443eb192a6defbb1b4c707a29efc68a7e5c99060b152cd",
+          "chunk_key": "5724f4b68204b04966443eb192a6defbb1b4c707a29efc68a7e5c99060b152cd",
+          "parent_id": "a7679b09e577efe7b76ce4f0d9454ff6d1b74bf099cdb7eddb7e2ed9d5123085",
+          "title": "H3_AP202609271829940631_1",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "score": 0.2932,
+          "rerank_score": 0.2894,
+          "content": "## 相关研究\n\n《中国通号(688009)：2026 年半年报点评：业绩阶段性承压，积极打造低空经济第二曲线》\n\n2026-08-31\n\n《中国通号(688009)：2025 年三季报点评：加速聚焦主业，低空经济构筑新增长极》\n\n2025-10-29\n\n中国通号三大财务预测表"
+        }
+      ],
+      "retrieval_latency_ms": 1769.4304,
+      "generation_latency_ms": 8193.6702,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.6667,
+        "answer_relevancy": 0.0,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 2.1309,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 1.0,
+        "evidence_coverage": 1.0,
+        "evidence_all_in_topk": 1.0,
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "chunk_mrr": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": 1.0,
+        "retrieved_doc_stems": "H3_AP202609271829940631_1;H3_AP202609271829940631_1;H3_AP202609271829940631_1",
+        "retrieved_chunk_ids": "dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1;174f7f24e8e3c636eed32cb15a9ef89cbdcf424bfabb56d26313abbdb2d08441;5724f4b68204b04966443eb192a6defbb1b4c707a29efc68a7e5c99060b152cd"
+      }
+    },
+    {
+      "case_id": "rr-single-004",
+      "tier": "gold",
+      "user_input": "开源证券对横店东磁的首次覆盖给出了什么投资评级？",
+      "response": "开源证券对横店东磁的首次覆盖给予“买入”评级 [1]。",
+      "reference": "买入（首次）。",
+      "related_docs": "H3_AP202609281829951050_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "explicit",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "a7ca2adf5f5d5710949969a167f2d05d25f346f0a35b97d7b6bd0093717cef98"
+      ],
+      "sources": [
+        {
+          "id": "5fce419dca6b279506b488b545dfa1697da1d62c79ef1dd15c89148677bd1892",
+          "chunk_key": "5fce419dca6b279506b488b545dfa1697da1d62c79ef1dd15c89148677bd1892",
+          "parent_id": "200d24ecdc43cea36f29ab3968d37e2444d968b483126be517a3485cbca75fab",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.5463,
+          "content": "## 5.2、 估值与评级\n\n公司以磁材器件为基础，光伏、锂电为第二增长曲线，软磁材料、高端器件及小动力锂电业务有望持续贡献增长。光伏业务聚焦海外高价值及差异化市场，后续伴随行业反内卷以及海外高功率、差异化产品占比提升，盈利能力有望逐步改善。锂电业务产能扩张及产品结构优化有望推动收入和盈利持续增长。软磁业务受益于新能源汽车、光储及 AIDC 需求增长，芯片电感已实现规模化量产，有望成为器件业 务 增 长 的 重 要 增 量 。 我 们 预 计 公 司 2026-2028 年 营 业 收 入 分 别 为249.24/280.17/313.59 亿元，归母净利润分别为 18.61/23.09/27.57 亿元。以 2026 年 9月 24 日收盘价 20.04 元计，公司 2026-2028 年 PE 分别为 17.52/14.12/11.82 倍。相较龙磁科技、铂科新材及顺络电子的可比公司平均 PE 63.92/36.17/23.98倍，公司估值具备明显优势；考虑到光伏盈利修复、锂电放量、器件高端化三重驱动，首次覆盖，给予“买入”评级。\n\n表10：公司2026-2028年PE低于可比公司"
+        },
+        {
+          "id": "bb2b2ff67e168a9a099568eba5c33200dd3f96860ce24006eab78d01beb2bf92",
+          "chunk_key": "bb2b2ff67e168a9a099568eba5c33200dd3f96860ce24006eab78d01beb2bf92",
+          "parent_id": "7115d363e3d0238da12d2e53d3631326d5f46603a7400fc9827cdfbc37fd1eec",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.608,
+          "rerank_score": 0.3322,
+          "content": "## 横店东磁（002056.SZ）"
+        },
+        {
+          "id": "a2fcf8293a06d235101756b7d99bfd6897a9550c860a4747877ae0e2e878206e",
+          "chunk_key": "a2fcf8293a06d235101756b7d99bfd6897a9550c860a4747877ae0e2e878206e",
+          "parent_id": "e712ba5f24437bb7298b557c10f428aa309d3ed3a0e9e2170026e98f0c27bfd9",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.5931,
+          "rerank_score": 0.324,
+          "content": "## 特别声明\n\n《证券期货投资者适当性管理办法》、《证券经营机构投资者适当性管理实施指引（试行）》已正式实施。根据上述规定，开源证券评定此研报的风险等级为R3（中风险），因此通过公共平台推送的研报其适用的投资者类别仅限定\n\n为专业投资者及风险承受能力为C3、C4、C5的普通投资者。若您并非专业投资者及风险承受能力为C3、C4、C5的普通投资者，请取消阅读，请勿收藏、接收或使用本研报中的任何信息。\n\n因此受限于访问权限的设置，若给您造成不便，烦请见谅！感谢您给予的理解与配合。"
+        }
+      ],
+      "retrieval_latency_ms": 1602.602,
+      "generation_latency_ms": 2397.8394,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.958,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 2.1309,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609281829951050_1;H3_AP202609281829951050_1;H3_AP202609281829951050_1",
+        "retrieved_chunk_ids": "5fce419dca6b279506b488b545dfa1697da1d62c79ef1dd15c89148677bd1892;bb2b2ff67e168a9a099568eba5c33200dd3f96860ce24006eab78d01beb2bf92;a2fcf8293a06d235101756b7d99bfd6897a9550c860a4747877ae0e2e878206e"
+      }
+    },
+    {
+      "case_id": "rr-single-005",
+      "tier": "gold",
+      "user_input": "华鑫证券对百普赛斯的公司事件点评报告主题是什么？",
+      "response": "该点评报告的主题为百普赛斯对外投资设立创业投资合伙企业事项。具体内容为：百普赛斯拟以自有资金出资 15,000 万元人民币，与专业投资机构共同设立苏州苏高新融晟百普创业投资合伙企业（有限合伙），并认购 30%的份额，成为其有限合伙人 [2]。检索到的报告标题仅显示为“百普赛斯（301080.SZ）公司事件点评报告”，未提供更具体的主题副标题 [1]。",
+      "reference": "加速赋能 AI 新药研发。",
+      "related_docs": "H3_AP202609231829798847_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "explicit",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "51457c8a1864f37a73c220b1daab16839282f9397641bc95b310606d5ef5d89b"
+      ],
+      "sources": [
+        {
+          "id": "7e96543740186e0f83cb924c49be96a75c45e0becdb1bef5474e908a1f30e4f1",
+          "chunk_key": "7e96543740186e0f83cb924c49be96a75c45e0becdb1bef5474e908a1f30e4f1",
+          "parent_id": "9735cae7208aa0180ed895d12b87cc997cafde1992950b62371d72ed9f6ba924",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.8473,
+          "content": "# —百普赛斯（301080.SZ）公司事件点评报告"
+        },
+        {
+          "id": "bc329d18c14869830f3f0371641a79922359945ff324ebd7b15a4d4075d492f8",
+          "chunk_key": "bc329d18c14869830f3f0371641a79922359945ff324ebd7b15a4d4075d492f8",
+          "parent_id": "4ee635f8052b5cfebbd57558091da1e92b4a60c384d621232ca9e2551f8c1b22",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 0.7248,
+          "rerank_score": 0.6141,
+          "content": "## 事件\n\n百普赛斯发布公告：拟以自有资金出资 15,000 万元人民币，与专业投资机构共同设立苏州苏高新融晟百普创业投资合伙企业（有限合伙），并认购 30%的份额，成为其有限合伙人。"
+        },
+        {
+          "id": "69bb9bd8d17537989d6d5267a9495dd01920bd125567f611bdf07f57a29dfdea",
+          "chunk_key": "69bb9bd8d17537989d6d5267a9495dd01920bd125567f611bdf07f57a29dfdea",
+          "parent_id": "ed9eecfb8e20808d3459071019fbb0a833b59b0d15d1b6fb434cc7f71063d0ff",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 0.4261,
+          "rerank_score": 0.3611,
+          "content": "## ▌ 免责条款\n\n华鑫证券有限责任公司（以下简称“华鑫证券”）具有中国证监会核准的证券投资咨询业务资格。本报告由华鑫证券制作，仅供华鑫证券的客户使用。本公司不会因接收人收到本报告而视其为客户。\n\n本报告中的信息均来源于公开资料，华鑫证券研究部门及相关研究人员力求准确可靠，但对这些信息的准确性及完整性不作任何保证。我们已力求报告内容客观、公正，但报告中的信息与所表达的观点不构成所述证券买卖的出价或询价的依据，该等信息、意见并未考虑到获取本报告人员的具体投资目的、财务状况以及特定需求，在任何时候均不构成对任何人的个人推荐。投资者应当对本报告中的信息和意见进行独立评估，并应同时结合各自的投资目的、财务状况和特定需求，必要时就财务、法律、商业、税收等方面咨询专业顾问的意见。对依据或者使用本报告所造成的一切后果，华鑫证券及/或其关联人员均不承担任何法律责任。本公司或关联机构可能会持有报告中所提到的公司所发行的证券头寸并进行交易，还可能为这些公司提供或争取提供投资银行、财务顾问或者金融产品等服务。本公司在知晓范围内依法合规地履行披露。\n\n本报告中的资料、意见、预测均只反映报告初次发布时的判断，"
+        }
+      ],
+      "retrieval_latency_ms": 1518.1868,
+      "generation_latency_ms": 12333.9892,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.6821,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 2.1309,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609231829798847_1;H3_AP202609231829798847_1;H3_AP202609231829798847_1",
+        "retrieved_chunk_ids": "7e96543740186e0f83cb924c49be96a75c45e0becdb1bef5474e908a1f30e4f1;bc329d18c14869830f3f0371641a79922359945ff324ebd7b15a4d4075d492f8;69bb9bd8d17537989d6d5267a9495dd01920bd125567f611bdf07f57a29dfdea"
+      }
+    },
+    {
+      "case_id": "rr-single-006",
+      "tier": "gold",
+      "user_input": "华鑫证券新锐股份公司动态研究报告的标题是什么？",
+      "response": "标题为“—新锐股份（688257.SH）公司动态研究报告”[1]。",
+      "reference": "《产能扩张与全球布局共振，硬质合金工具龙头成长路径清晰》。",
+      "related_docs": "H3_AP202609241829833777_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "explicit",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "7c07074346d9b033dd8a4c560e8c4830dc67f4b2724b3291f1c8f3d392a34690"
+      ],
+      "sources": [
+        {
+          "id": "f9e4d78b3e427ac7ab6bd8cf030f55509e7252e3ff3b426c0641bd551d38b95a",
+          "chunk_key": "f9e4d78b3e427ac7ab6bd8cf030f55509e7252e3ff3b426c0641bd551d38b95a",
+          "parent_id": "3b8267f2db5fba387fe0f06b29b1fdec11b1b1a2cf9bf46cc9d9284a6b7e3563",
+          "title": "H3_AP202609241829833777_1",
+          "source": "H3_AP202609241829833777_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9532,
+          "content": "# —新锐股份（688257.SH）公司动态研究报告"
+        },
+        {
+          "id": "69bb9bd8d17537989d6d5267a9495dd01920bd125567f611bdf07f57a29dfdea",
+          "chunk_key": "69bb9bd8d17537989d6d5267a9495dd01920bd125567f611bdf07f57a29dfdea",
+          "parent_id": "ed9eecfb8e20808d3459071019fbb0a833b59b0d15d1b6fb434cc7f71063d0ff",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 0.5232,
+          "rerank_score": 0.4988,
+          "content": "## ▌ 免责条款\n\n华鑫证券有限责任公司（以下简称“华鑫证券”）具有中国证监会核准的证券投资咨询业务资格。本报告由华鑫证券制作，仅供华鑫证券的客户使用。本公司不会因接收人收到本报告而视其为客户。\n\n本报告中的信息均来源于公开资料，华鑫证券研究部门及相关研究人员力求准确可靠，但对这些信息的准确性及完整性不作任何保证。我们已力求报告内容客观、公正，但报告中的信息与所表达的观点不构成所述证券买卖的出价或询价的依据，该等信息、意见并未考虑到获取本报告人员的具体投资目的、财务状况以及特定需求，在任何时候均不构成对任何人的个人推荐。投资者应当对本报告中的信息和意见进行独立评估，并应同时结合各自的投资目的、财务状况和特定需求，必要时就财务、法律、商业、税收等方面咨询专业顾问的意见。对依据或者使用本报告所造成的一切后果，华鑫证券及/或其关联人员均不承担任何法律责任。本公司或关联机构可能会持有报告中所提到的公司所发行的证券头寸并进行交易，还可能为这些公司提供或争取提供投资银行、财务顾问或者金融产品等服务。本公司在知晓范围内依法合规地履行披露。\n\n本报告中的资料、意见、预测均只反映报告初次发布时的判断，"
+        },
+        {
+          "id": "26a8b58a22c9ab7534e2a01d61a15d6c76cc99f0990e4a602ce039cb8e5aaede",
+          "chunk_key": "26a8b58a22c9ab7534e2a01d61a15d6c76cc99f0990e4a602ce039cb8e5aaede",
+          "parent_id": "858533f9d51d1642fbe5361036195c82999fdfd62fcb2f0fad6d2bb02c7b4387",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 0.0558,
+          "rerank_score": 0.0532,
+          "content": "资料来源：Wind、华鑫证券研究"
+        }
+      ],
+      "retrieval_latency_ms": 1541.9121,
+      "generation_latency_ms": 3579.8432,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.6454,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609241829833777_1;H3_AP202609231829798847_1;H3_AP202609231829798847_1",
+        "retrieved_chunk_ids": "f9e4d78b3e427ac7ab6bd8cf030f55509e7252e3ff3b426c0641bd551d38b95a;69bb9bd8d17537989d6d5267a9495dd01920bd125567f611bdf07f57a29dfdea;26a8b58a22c9ab7534e2a01d61a15d6c76cc99f0990e4a602ce039cb8e5aaede"
+      }
+    },
+    {
+      "case_id": "rr-single-007",
+      "tier": "gold",
+      "user_input": "中航证券对信科移动 2026 年中报的核心结论是什么？",
+      "response": "中航证券对信科移动 2026 年中报的核心结论是：收入企稳回升、亏损幅度收窄，卫星互联网业务有望快速增长。[1]",
+      "reference": "收入企稳回升、净利润亏损幅度显著收窄。",
+      "related_docs": "H3_AP202609201829669604_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "explicit",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "6c24cf61149344231b51e698354dcff89c161faae7b3b4c0cb25c106f3262732"
+      ],
+      "sources": [
+        {
+          "id": "83af5b354209ebdbfbcf91920c94e396640ee5c790487f16151f988da7a61631",
+          "chunk_key": "83af5b354209ebdbfbcf91920c94e396640ee5c790487f16151f988da7a61631",
+          "parent_id": "9ea1510fa78795eda3fbdb827b91a9669634950dedabc8f12a1c8277a39c6dae",
+          "title": "H3_AP202609201829669604_1",
+          "source": "H3_AP202609201829669604_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.8465,
+          "content": "# 2026年中报点评：收入企稳回升、亏损幅度收窄，卫星互联网业务有望快速增长"
+        },
+        {
+          "id": "7c4b953aa951fb1b112b9534abd81fcdbb90e7fe698dd16904cd65bcebb52506",
+          "chunk_key": "7c4b953aa951fb1b112b9534abd81fcdbb90e7fe698dd16904cd65bcebb52506",
+          "parent_id": "3c7ba217d72f98a930b9474fbee28563e4a384c637c62eba39b3439b22572b9a",
+          "title": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间",
+          "source": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf",
+          "score": 0.8793,
+          "rerank_score": 0.7443,
+          "content": "# 2026 中报点评：短期扰动不改基本面，燃机订单超预期+ AIDC 一体化打开成长空间\n\n买入（维持）\n\n<table><tr><td>盈利预测与估值</td><td>2024A</td><td>2025A</td><td>2026E</td><td>2027E</td><td>2028E</td></tr><tr><td>营业总收入（百万元）</td><td>13,355</td><td>16,223</td><td>20,507</td><td>39,512</td><td>58,780</td></tr><tr><td>同比（%）</td><td>(4.00)</td><td>21.48</td><td>26.41</td><td>92.67</td><td>48.77</td></tr><tr><td>归母净利润（百万元）</td><td>2,627</td><td>2,680</td><td>3,683</td><td>8,608</td><td>13,421</td></tr><tr><td>同比（%）</td><td>7.03</td><td>2.03</td><td"
+        },
+        {
+          "id": "5fce419dca6b279506b488b545dfa1697da1d62c79ef1dd15c89148677bd1892",
+          "chunk_key": "5fce419dca6b279506b488b545dfa1697da1d62c79ef1dd15c89148677bd1892",
+          "parent_id": "200d24ecdc43cea36f29ab3968d37e2444d968b483126be517a3485cbca75fab",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.1756,
+          "rerank_score": 0.1486,
+          "content": "## 5.2、 估值与评级\n\n公司以磁材器件为基础，光伏、锂电为第二增长曲线，软磁材料、高端器件及小动力锂电业务有望持续贡献增长。光伏业务聚焦海外高价值及差异化市场，后续伴随行业反内卷以及海外高功率、差异化产品占比提升，盈利能力有望逐步改善。锂电业务产能扩张及产品结构优化有望推动收入和盈利持续增长。软磁业务受益于新能源汽车、光储及 AIDC 需求增长，芯片电感已实现规模化量产，有望成为器件业 务 增 长 的 重 要 增 量 。 我 们 预 计 公 司 2026-2028 年 营 业 收 入 分 别 为249.24/280.17/313.59 亿元，归母净利润分别为 18.61/23.09/27.57 亿元。以 2026 年 9月 24 日收盘价 20.04 元计，公司 2026-2028 年 PE 分别为 17.52/14.12/11.82 倍。相较龙磁科技、铂科新材及顺络电子的可比公司平均 PE 63.92/36.17/23.98倍，公司估值具备明显优势；考虑到光伏盈利修复、锂电放量、器件高端化三重驱动，首次覆盖，给予“买入”评级。\n\n表10：公司2026-2028年PE低于可比公司"
+        }
+      ],
+      "retrieval_latency_ms": 1609.4265,
+      "generation_latency_ms": 19005.3448,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.0,
+        "answer_relevancy": 1.0,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609201829669604_1;2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间;H3_AP202609281829951050_1",
+        "retrieved_chunk_ids": "83af5b354209ebdbfbcf91920c94e396640ee5c790487f16151f988da7a61631;7c4b953aa951fb1b112b9534abd81fcdbb90e7fe698dd16904cd65bcebb52506;5fce419dca6b279506b488b545dfa1697da1d62c79ef1dd15c89148677bd1892"
+      }
+    },
+    {
+      "case_id": "rr-single-008",
+      "tier": "gold",
+      "user_input": "南华期货宏观周报对美联储 9 月议息的核心判断是什么？",
+      "response": "南华期货宏观周报对美联储9月议息的核心判断是：8月美国通胀数据超预期、核心CPI明显走升，进一步强化美联储加息预期；利率期货隐含的9月加息概率已升至约九成，美联储或为维护信誉而被迫加息 [3]。周报同时指出，美国8月通胀数据是美联储9月议息前最后也是最关键的一块拼图，市场对9月加息预期押注已升至9成附近 [2]。后续需紧盯美国9月议息的结果和表态 [3]。",
+      "reference": "美国通胀超预期，加息已“箭在弦上”。",
+      "related_docs": "H3_AP202609251829896818_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "explicit",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "5c536ce77ff96430baafda376292448d6d640626c615a670edcfa8ffd0c917c4"
+      ],
+      "sources": [
+        {
+          "id": "2dad3897db4c20fef070f5056f30a5468cd2d894959d7ea702eec9c988f3e5b0",
+          "chunk_key": "2dad3897db4c20fef070f5056f30a5468cd2d894959d7ea702eec9c988f3e5b0",
+          "parent_id": "87e1e7228e9f829c75d27d47270ab30ca56285e4a8569700fc17900e781fb7ef",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9536,
+          "content": "## 南华期货宏观周报"
+        },
+        {
+          "id": "5597cc8638400d2bc2bbc55e81505c16308fa1539e6790c7ccc3a067be606f51",
+          "chunk_key": "5597cc8638400d2bc2bbc55e81505c16308fa1539e6790c7ccc3a067be606f51",
+          "parent_id": "013762606a2e69644cf93fb52e13536c77b56bde15b708b09699e459e7441413",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 0.8047,
+          "rerank_score": 0.7673,
+          "content": "### 第一章 一周市场感悟\n\n本周海外宏观的扰动源进一步收敛为“地缘冲突”与“通胀数据”两条主线。美伊对抗转向海上“油轮战”，霍尔木兹海峡通航风险陡升，直接推高能源价格与通胀预期；而周四周五公布的美国8月通胀数据，成为美联储9月议息前最后也是最关键的一块拼图，市场对9月加息预期押注已经升至9成附近。国内则处于“外贸高增、物价温和、内需偏弱”的组合之中。"
+        },
+        {
+          "id": "fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c",
+          "chunk_key": "fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c",
+          "parent_id": "5008ad006f322a459ffda858d731263288d54078f2167e14e9d757f472240815",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 0.7044,
+          "rerank_score": 0.6717,
+          "content": "## 主要观点\n\n本周全球宏观主线仍是“地缘风险升级、加息预期升温”两条主线交织。中东方面，美伊“油轮战”未平，红海方向又生变局，胡塞武装沿红海海岸闪电推进、控制穆哈港与哈尼什群岛，进一步收紧曼德海峡，与霍尔木兹形成“双要道”同时受压，全球能源运输咽喉被一并扼住，原油大幅飙升、通胀预期再度升温。与此同时，8月美国通胀数据超预期，核心CPI明显走升，进一步强化美联储加息预期，利率期货隐含的9月加息概率随之升至约九成，美联储或为维护信誉而被迫加息。国内方面，8月外贸延续两位数高增、物价温和修复，经济在“弱现实”中仍具结构性亮点，但地产与内需疲弱尚未根本扭转。大类资产上，能源受地缘溢价主导持续走强，贵金属和有色在加息压制下偏承压，美债遭遇猛烈抛售、收益率创多年新高；权益快速轮动、整体偏弱。后续需紧盯美国9月议息的结果和表态，以及中东局势变动。"
+        }
+      ],
+      "retrieval_latency_ms": 1578.4245,
+      "generation_latency_ms": 5730.4966,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.8889,
+        "answer_relevancy": 1.0,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 2.1309,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609251829896818_1;H3_AP202609251829896818_1;H3_AP202609251829896818_1",
+        "retrieved_chunk_ids": "2dad3897db4c20fef070f5056f30a5468cd2d894959d7ea702eec9c988f3e5b0;5597cc8638400d2bc2bbc55e81505c16308fa1539e6790c7ccc3a067be606f51;fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c"
+      }
+    },
+    {
+      "case_id": "rr-multi-001",
+      "tier": "gold",
+      "user_input": "本期多篇宏观与海外报告如何判断美联储加息路径？分别怎么说的？",
+      "response": "相关报告内容对美联储加息路径的判断主要有以下表述：\n\n**[1] 的判断：美联储可能继续加息，但路径仍存不确定性**\n\n- 认为美国经济周期和经济动量均处于扩张阶段，通胀黏性较强，且货币政策反应函数开始更关注通胀、失业率变化速度，因此“美联储可能继续加息”[1]。\n- 在路径预期上存在分歧：\n  - FOMC与会者预期2026年累计加息两次，2027年暂停加息，2028年再次降息[1]。\n  - 9月18日 CME Fed Watch 工具显示，市场预期2026年累计加息两次，2027年加息两次[1]。\n- 美联储同时上调2026年经济增速预期至2.3%、核心PCE通胀预期至3.4%[1]。\n\n**[2] 的判断：短期9月加息预期高，市场押注已升至九成附近**\n\n- 将美国8月通胀数据视为美联储9月议息前最后也是最关键的一块拼图，市场对9月加息预期押注已经升至9成附近[2]。\n- 该部分内容更强调短期加息预期，未进一步展开更长期加息路径[2]。\n\n**[3] 的判断：通胀超预期进一步强化加息预期，9月加息概率约九成**\n\n- 8月美国通胀数据超预期、核心CPI明显走升，进一步强化美联储加息预期，利率期货隐含的9月加息概率随之升至约九成[3]。\n- 美联储或为维护信誉而被迫加息[3]。\n- 后续需紧盯美国9月议息的结果和表态，以及中东局势变动[3]。",
+      "reference": "需按各报告原文口径分别列出并注明报告日期：诚通证券认为如期加息但路径仍存不确定性；南华期货认为通胀超预期、加息箭在弦上；格林大华期货认为全球进入加息周期、债市是大类资产中的金丝雀。不做口径归一化。",
+      "related_docs": "H3_AP202609211829713285_1.pdf | H3_AP202609251829896818_1.pdf | H3_AP202609241829864267_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "af6fc9572bcc3d5c5e5d3bbeb7a4c018667d6d75758b2f8662b9122a4a568b30",
+        "5c536ce77ff96430baafda376292448d6d640626c615a670edcfa8ffd0c917c4",
+        "3ee1c70c26951275c4606bb71e4838e059edf13df1cfe5e98766e5d4ddfdea02"
+      ],
+      "sources": [
+        {
+          "id": "af6fc9572bcc3d5c5e5d3bbeb7a4c018667d6d75758b2f8662b9122a4a568b30",
+          "chunk_key": "af6fc9572bcc3d5c5e5d3bbeb7a4c018667d6d75758b2f8662b9122a4a568b30",
+          "parent_id": "759611c468a77cbf779e469393939843b20d48fa8876223336eba1c066805ac2",
+          "title": "H3_AP202609211829713285_1",
+          "source": "H3_AP202609211829713285_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.7328,
+          "content": "## 2.2、美联储如期加息，加息路径仍存不确定性\n\n美东时间9月16日，美联储加息25个基点，根本原因是美国经济周期(一阶）和经济动量（二阶）均处于扩张阶段，通胀呈现较强的黏性。美联储主席Warsh强调货币政策反应函数在盯住失业率、通胀偏离均衡程度的同时，还应考虑这些指标变化速度。这进一步增强了加息必要性。我们认为美联储可能继续加息。\n\n美联储货币政策的限制性不足。货币政策利率的基准应是短期中性利率，虽然美国政策利率高于长期中性利率，但相对于短期中性利率，货币政策的限制性并不强。疫情后，美国政府加大财政支出，同时人工智能产业链加大资本开支，短期中性利率上升。当前政策利率可能并未明显高于短期中性利率，美国经济周期(一阶，产出缺口）和经济动量（二阶，经济短周期）均处于扩张阶段。一方面，经济增速整体高于潜在增速，产出缺口长期为正，并未收窄。这使得失业率持续低于自然失业率，通胀呈现较强黏性，特别是PCE、核心PCE通胀仍在3.7%、3.3%的高位，离2%的目标较远。另一方面，在AI资本开支、金融条件等拉动下，经济动量（经济短周期）也处于疫情后的第二个上升阶段。美国经济周期、经济动量均处于扩张"
+        },
+        {
+          "id": "5597cc8638400d2bc2bbc55e81505c16308fa1539e6790c7ccc3a067be606f51",
+          "chunk_key": "5597cc8638400d2bc2bbc55e81505c16308fa1539e6790c7ccc3a067be606f51",
+          "parent_id": "013762606a2e69644cf93fb52e13536c77b56bde15b708b09699e459e7441413",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 0.6156,
+          "rerank_score": 0.4511,
+          "content": "### 第一章 一周市场感悟\n\n本周海外宏观的扰动源进一步收敛为“地缘冲突”与“通胀数据”两条主线。美伊对抗转向海上“油轮战”，霍尔木兹海峡通航风险陡升，直接推高能源价格与通胀预期；而周四周五公布的美国8月通胀数据，成为美联储9月议息前最后也是最关键的一块拼图，市场对9月加息预期押注已经升至9成附近。国内则处于“外贸高增、物价温和、内需偏弱”的组合之中。"
+        },
+        {
+          "id": "fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c",
+          "chunk_key": "fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c",
+          "parent_id": "5008ad006f322a459ffda858d731263288d54078f2167e14e9d757f472240815",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 0.5608,
+          "rerank_score": 0.411,
+          "content": "## 主要观点\n\n本周全球宏观主线仍是“地缘风险升级、加息预期升温”两条主线交织。中东方面，美伊“油轮战”未平，红海方向又生变局，胡塞武装沿红海海岸闪电推进、控制穆哈港与哈尼什群岛，进一步收紧曼德海峡，与霍尔木兹形成“双要道”同时受压，全球能源运输咽喉被一并扼住，原油大幅飙升、通胀预期再度升温。与此同时，8月美国通胀数据超预期，核心CPI明显走升，进一步强化美联储加息预期，利率期货隐含的9月加息概率随之升至约九成，美联储或为维护信誉而被迫加息。国内方面，8月外贸延续两位数高增、物价温和修复，经济在“弱现实”中仍具结构性亮点，但地产与内需疲弱尚未根本扭转。大类资产上，能源受地缘溢价主导持续走强，贵金属和有色在加息压制下偏承压，美债遭遇猛烈抛售、收益率创多年新高；权益快速轮动、整体偏弱。后续需紧盯美国9月议息的结果和表态，以及中东局势变动。"
+        }
+      ],
+      "retrieval_latency_ms": 1516.6608,
+      "generation_latency_ms": 44711.9959,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.8312,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "doc_coverage": 0.6667,
+        "doc_recall": 0.0,
+        "evidence_hit": 1.0,
+        "evidence_coverage": 0.3333,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.3333,
+        "precision_at_5": 0.2,
+        "chunk_mrr": 1.0,
+        "multi_hop_hit": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 1.0,
+        "retrieved_doc_stems": "H3_AP202609211829713285_1;H3_AP202609251829896818_1;H3_AP202609251829896818_1",
+        "retrieved_chunk_ids": "af6fc9572bcc3d5c5e5d3bbeb7a4c018667d6d75758b2f8662b9122a4a568b30;5597cc8638400d2bc2bbc55e81505c16308fa1539e6790c7ccc3a067be606f51;fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c"
+      }
+    },
+    {
+      "case_id": "rr-multi-002",
+      "tier": "gold",
+      "user_input": "跨报告看，本期各机构对国内稳增长政策落地节奏的表述分别是什么？",
+      "response": "跨报告看，对国内稳增长政策落地节奏的表述主要有：\n\n1. **《存量政策加快落地，保障经济平稳运行——2026年7月经济数据点评》（2026-08-19）**  \n   表述为：**存量政策加快落地，稳增长效果逐渐显现**。其中提到“8月，存量政策加快落地，稳增长效果逐渐显现，经济运行总体平稳”[2]；并指出“存量政策效果显现，当月投资同比降幅收窄”，基建投资当月同比降幅从11.2%收窄至6.9%[2]。\n\n2. **《外部因素时有扰动，注重行业景气度支撑方向———2026年9月宏观及大类资产月报》（2026-08-23）**  \n   表述为：**政策性金融工具投放提速，政策资金形成实物工作量的进度有所加快**。其中提到“9月以来三家政策性银行已投放新型政策性金融工具资金超1000亿元，支持项目总投资约2.1万亿元，政策资金形成实物工作量的进度有所加快；广义赤字与去年同期的差距继续收窄，新增一般债发行进度已基本追平去年”[3]。",
+      "reference": "诚通证券表述为“存量政策效果显现，经济运行总体平稳”；国信证券表述为“政策资金加速落地”、新型政策性金融工具资金已投放超 1000 亿。需分别注明出处与报告日期。",
+      "related_docs": "H3_AP202609211829713285_1.pdf | H3_AP202609271829939976_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "95c050665a529fd1514d446b944ad0694bcb26db9b5d0982c6d5ab4800c648c6",
+        "85f92c2b480510a7910ece36e3bf901e88beca36865df8727a56c04c5c6bb879"
+      ],
+      "sources": [
+        {
+          "id": "e9d424b63c83c258bd91af18210cb71b1bd0183c10c74f8ddb58bfcf35cb3a3f",
+          "chunk_key": "e9d424b63c83c258bd91af18210cb71b1bd0183c10c74f8ddb58bfcf35cb3a3f",
+          "parent_id": "feffb931ab658508daff2b343c71a962aa9f7d37b1f0b9050ea46bc0f23f645a",
+          "title": "H3_AP202609211829713285_1",
+          "source": "H3_AP202609211829713285_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.1641,
+          "content": "## 相关报告\n\n《人工智能影响利率的四个层面》2026-08-23\n\n《外部因素时有扰动，注重行业景气度支撑方向———2026年9月宏观及大类资产月报》2026-08-23\n\n《存量政策加快落地，保障经济平稳运行——2026年7月经济数据点评》2026-08-19\n\n《内外趋于平稳，继续布局AI主线以及景气度边际改善行业———宏观与大类资产周报（2026.08.10—2026.08.15）》2026-08-16\n\n《康波周期之辩：萧条期未尽VS 回升期开启》2026-08-15"
+        },
+        {
+          "id": "95c050665a529fd1514d446b944ad0694bcb26db9b5d0982c6d5ab4800c648c6",
+          "chunk_key": "95c050665a529fd1514d446b944ad0694bcb26db9b5d0982c6d5ab4800c648c6",
+          "parent_id": "31867b5240a8926c5512c5fab98801f1bef0ca9c4066a443aeedcf19dca8fa2b",
+          "title": "H3_AP202609211829713285_1",
+          "source": "H3_AP202609211829713285_1.pdf",
+          "score": 0.8316,
+          "rerank_score": 0.1365,
+          "content": "## 2.1、存量政策效果显现，经济运行总体平稳\n\n8月，存量政策加快落地，稳增长效果逐渐显现，经济运行总体平稳。工业生产加速扩张，当月基建投资降幅收窄。不过，消费、制造业投资、房地产投资仍待进一步提振。\n\n多因素共振下，工业生产加速扩张。8月，工业生产同比增速5.2%，高于前值4.5%。其原因有三方面。一是高温多雨天气的干扰消退。二是出口同比增长25%，有效支撑了工业生产。三是“六张网”等存量政策加快落地，带动相关制造业生产扩张。其中，出口高增长主要有两方面原因。一方面，全球制造业景气度仍比较高。全球制造业PMI52.3%，连续13个月维持在50%以上，中国对主要经济体出口保持较高增速。另一方面，AI产业链需求旺盛。与AI产业链相关的高新技术产品、机电产品出口同比增速较高，分别为56.9%、32.8%。年内，全球信用脉冲仍处在向上阶段，全球制造业或将保持较高景气度，同时AI基建尚未完成，资本开支有望继续扩张，中国出口或仍保持韧性。加之，存量政策加快落地，我们预计工业生产将基本保持稳定。\n\n存量政策效果显现，当月投资同比降幅收窄。8月，固定资产投资累计同比下降7.2%，降幅扩大0.5个"
+        },
+        {
+          "id": "72b96740ea126849a60e8e05e51623ef443096e8573d4b7405b5da4e824b2c4d",
+          "chunk_key": "72b96740ea126849a60e8e05e51623ef443096e8573d4b7405b5da4e824b2c4d",
+          "parent_id": "9a9638724ce9c6c04e97afc82ee2d6a8c6e224299a52f6e764c84178e55cd255",
+          "title": "H3_AP202609271829939976_1",
+          "source": "H3_AP202609271829939976_1.pdf",
+          "score": 0.1635,
+          "rerank_score": 0.0268,
+          "content": "## 核心观点\n\n生产端景气整体回落。地产、基建和机电产品相关领域生产景气均有所走弱，仅纺织服装和包装材料景气延续回升，显示在终端需求偏弱的背景下，“金九”对工业生产的提振作用有限。\n\n消费修复仍显不足。市内出行活跃度小幅回升，但线上物流同比增速继续回落；汽车销量环比超季节性回升，同比降幅有所收窄，但累计销量仍处低位；电影票房延续季节性回落，同比大幅弱于去年同期，主要受去年高基数影响。整体来看，居民消费尚未形成稳定修复趋势。\n\n外贸发运保持韧性，但运价上行动能放缓。港口货物和集装箱吞吐量同步回升，中秋假期提前带动部分发运需求前置；出口集装箱运价连续第五周上涨，但涨幅较上周收窄，航线运力普遍回升，东南亚和中东印巴航线增量较为突出。中美会晤未出现明显超预期突破，关税、能源和航道风险仍对外贸预期形成约束。\n\n房地产成交延续回升，但价格端仍在调整。新房和二手房成交环比上行，二手房同比增速升至 12.6%，库存持续回落；土地成交规模继续改善，但同比仍处负增长，楼面均价和土地溢价率同步下行。一线城市报价及二手房挂牌量价指数延续走弱，北京率先出台“828”新政地方细则，政策向市场销售和价格企稳的传导"
+        }
+      ],
+      "retrieval_latency_ms": 1653.5538,
+      "generation_latency_ms": 37577.4593,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.9091,
+        "answer_relevancy": 0.9319,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.3066,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 1.0,
+        "evidence_coverage": 0.5,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.5,
+        "precision_at_5": 0.2,
+        "chunk_mrr": 0.5,
+        "multi_hop_hit": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": 2.0,
+        "retrieved_doc_stems": "H3_AP202609211829713285_1;H3_AP202609211829713285_1;H3_AP202609271829939976_1",
+        "retrieved_chunk_ids": "e9d424b63c83c258bd91af18210cb71b1bd0183c10c74f8ddb58bfcf35cb3a3f;95c050665a529fd1514d446b944ad0694bcb26db9b5d0982c6d5ab4800c648c6;72b96740ea126849a60e8e05e51623ef443096e8573d4b7405b5da4e824b2c4d"
+      }
+    },
+    {
+      "case_id": "rr-multi-003",
+      "tier": "gold",
+      "user_input": "本期两篇宏观周报如何描述大类资产表现？各自强调哪条主线？",
+      "response": "检索内容中，两组宏观周报对大类资产表现的描述和主线侧重不同：\n\n## 一组（[3]）：聚焦A股，主线是“加息落地后不确定溢价回落、把握AI反弹”\n\n- **A股表现**：上周上证综指、创业板指分别上涨0.6%、1.5%，沪深300下跌0.1%；市场震荡上涨，主要宽基指数收益分化。资金面上，截至9月17日两融余额为2.64万亿元，较前周小幅下降，但融资买入占比小幅上升；两市日均成交金额1.80万亿元，较前周继续缩量 [3]。\n- **主线**：海外央行加息落地后不确定溢价回落，市场有望开启反弹。具体包括：美联储9月FOMC会议如期加息25BP，但将加息定性为“撤出一剂宽松”；美伊冲突局势可能出现新变化；特朗普与英伟达CEO黄仁勋通话，修复市场对AI行业发展的信心 [3]。\n- **配置**：把握反弹中的AI主线机会，尤其是AI上游硬件方向，同时适当关注其他行业轮动机会 [3]。\n\n## 另一组（[1][4][5]）：覆盖权益、美债、大宗商品，主线是“地缘风险冲击/升级+紧缩预期升温”\n\n该组内容来自“宏观与大类资产周报（2026.09.14—2026.09.19）”的展望与建议部分 [4][5]，主要观点也强调两条主线交织 [1]。\n\n- **权益**：A股保持区间震荡，板块快速轮动，科技板块反弹乏力；核心矛盾是“政策托底、流动性充裕、红利与AI应用结构亮点”与“内需疲弱、外部加息与地缘反复”之间的拉锯，短期更可能延续震荡轮动、结构分化 [5]。\n- **美债**：在通胀与加息预期驱动下遭遇猛烈抛售，收益率曲线整体大幅上移并刷新多年高位；短端主要反映加息预期重定价，长端还叠加财政与美元信用“信誉担忧” [5]。\n- **大宗商品**：整体呈“能化一枝独秀、近油品种偏强、其余整体承压”的格局。贵金属波动剧烈；有色矿端供给收紧与低库存支撑抗跌，但加息预期压制反弹空间，碳酸锂跌幅最大；农产品受地缘外溢、天气溢价“强预期”与全球库存充裕“弱现实”博弈；黑色从“煤焦成本推动”切换为“钢厂利润约束下的负反馈”，双焦和双硅明显回落 [5]。\n- **主线**：地缘风险升级/冲击与加息/紧缩预期升温两条主线交织，后续需紧盯美联储9月议息会议表态和中东局势变动 [1][5]。\n\n综合来看，[3] 更偏向“加息落地后风险偏好修复、AI主线反弹”的视角；[1][4][5] 更偏向“议息前地缘风险与紧缩预期双重压制、资产分化”的视角。",
+      "reference": "诚通证券侧重股市与债市，给出 A 股大势研判与指数涨跌；南华期货强调地缘风险冲击与紧缩预期升温下大宗商品“能化一枝独秀”。需分别注明出处。",
+      "related_docs": "H3_AP202609211829713285_1.pdf | H3_AP202609251829896818_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "a61337133aee48847a33556f7c9ffaff3e42be97346424ec10f608370ab488d5",
+        "0f5d3cd5438534587f62bd87efc0af2740a0ea3b7719eec7ab4edf144829dff4"
+      ],
+      "sources": [
+        {
+          "id": "fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c",
+          "chunk_key": "fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c",
+          "parent_id": "5008ad006f322a459ffda858d731263288d54078f2167e14e9d757f472240815",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9233,
+          "content": "## 主要观点\n\n本周全球宏观主线仍是“地缘风险升级、加息预期升温”两条主线交织。中东方面，美伊“油轮战”未平，红海方向又生变局，胡塞武装沿红海海岸闪电推进、控制穆哈港与哈尼什群岛，进一步收紧曼德海峡，与霍尔木兹形成“双要道”同时受压，全球能源运输咽喉被一并扼住，原油大幅飙升、通胀预期再度升温。与此同时，8月美国通胀数据超预期，核心CPI明显走升，进一步强化美联储加息预期，利率期货隐含的9月加息概率随之升至约九成，美联储或为维护信誉而被迫加息。国内方面，8月外贸延续两位数高增、物价温和修复，经济在“弱现实”中仍具结构性亮点，但地产与内需疲弱尚未根本扭转。大类资产上，能源受地缘溢价主导持续走强，贵金属和有色在加息压制下偏承压，美债遭遇猛烈抛售、收益率创多年新高；权益快速轮动、整体偏弱。后续需紧盯美国9月议息的结果和表态，以及中东局势变动。"
+        },
+        {
+          "id": "e9d424b63c83c258bd91af18210cb71b1bd0183c10c74f8ddb58bfcf35cb3a3f",
+          "chunk_key": "e9d424b63c83c258bd91af18210cb71b1bd0183c10c74f8ddb58bfcf35cb3a3f",
+          "parent_id": "feffb931ab658508daff2b343c71a962aa9f7d37b1f0b9050ea46bc0f23f645a",
+          "title": "H3_AP202609211829713285_1",
+          "source": "H3_AP202609211829713285_1.pdf",
+          "score": 0.9625,
+          "rerank_score": 0.8887,
+          "content": "## 相关报告\n\n《人工智能影响利率的四个层面》2026-08-23\n\n《外部因素时有扰动，注重行业景气度支撑方向———2026年9月宏观及大类资产月报》2026-08-23\n\n《存量政策加快落地，保障经济平稳运行——2026年7月经济数据点评》2026-08-19\n\n《内外趋于平稳，继续布局AI主线以及景气度边际改善行业———宏观与大类资产周报（2026.08.10—2026.08.15）》2026-08-16\n\n《康波周期之辩：萧条期未尽VS 回升期开启》2026-08-15"
+        },
+        {
+          "id": "a61337133aee48847a33556f7c9ffaff3e42be97346424ec10f608370ab488d5",
+          "chunk_key": "a61337133aee48847a33556f7c9ffaff3e42be97346424ec10f608370ab488d5",
+          "parent_id": "7833c2ab97126f527e24aa303d9e900b8cb31ed07810076f972e1f0ea749f7d7",
+          "title": "H3_AP202609211829713285_1",
+          "source": "H3_AP202609211829713285_1.pdf",
+          "score": 0.9617,
+          "rerank_score": 0.888,
+          "content": "## ● 大类资产表现\n\nA股大势研判：上周，上证综指、创业板指分别上涨0.6%、1.5%，沪深300下跌0.1%。上周市场震荡上涨，主要宽基指数收益分化。从资金面来看，截至9月17日，两融余额为2.64万亿元，较前周小幅下降，但融资买入占比小幅上升。交易量方面，两市日均成交金额为1.80万亿元，较前周继续缩量。海外央行加息落地后不确定溢价回落，市场有望开启反弹。一是美联储在9月FOMC会议如期加息25BP，但将本次加息定性为“撤出一剂宽松”（而非收紧），后续加息遵循纪律而非已确定，受此影响美债利率上行趋缓，全球流动性收紧预期也有所缓和。二是美伊冲突局势可能出现新变化，美国总统特朗普预计将在9月22日纽约联合国大会期间与海湾国家领导人举行会晤，讨论对伊朗战事的下一步行动。三是美国总统特朗普在All-inSummit峰会致电英伟达 CEO黄仁勋，强调 AI的重要性并驳斥 AI行业发展放缓的观点，修复市场对AI行业发展信心。总的看，海外央行加息落地后不确定溢价回落，市场有望开启反弹。\n\nA 股配置策略：把握反弹中的AI主线机会。在不确定溢价回落和AI行业发展降速担忧缓解后，市场有望回归行业"
+        },
+        {
+          "id": "5bc7f3b3f70978c27bc69614c0b371e28d14033c4c0d6ee39d9b41f366436563",
+          "chunk_key": "5bc7f3b3f70978c27bc69614c0b371e28d14033c4c0d6ee39d9b41f366436563",
+          "parent_id": "957ca34081503eeedeca74b04be55496b25cc65f4e363fa9bf49565175d15467",
+          "title": "H3_AP202609211829713285_1",
+          "source": "H3_AP202609211829713285_1.pdf",
+          "score": 0.9473,
+          "rerank_score": 0.8746,
+          "content": "## ——宏观与大类资产周报（2026.09.14—2026.09.19）"
+        },
+        {
+          "id": "0f5d3cd5438534587f62bd87efc0af2740a0ea3b7719eec7ab4edf144829dff4",
+          "chunk_key": "0f5d3cd5438534587f62bd87efc0af2740a0ea3b7719eec7ab4edf144829dff4",
+          "parent_id": "d433a393c348f47db2f94f3f29c062757fe25bf4c40fb8343db054922bd0f81f",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 0.9308,
+          "rerank_score": 0.8594,
+          "content": "### 第二章 展望与建议\n\n本周大类资产在“地缘风险冲击、紧缩预期升温”主线主导下进一步分化。风险资产整体承压、内部结构快速轮动；大宗商品呈“能化一枝独秀、近油品种偏强、其余整体承压”的格局。后续需紧盯美联储9月议息会议的相关表态和中东局势变动。\n\n权益方面，本周A股保持区间震荡，市场板块快速轮动，科技板块反弹乏力。核心矛盾在于“政策托底、流动性充裕、红利与AI应用结构亮点”的支撑，与“内需疲弱、外部加息与地缘反复”的压制之间的拉锯。短期市场更可能延续震荡轮动、结构分化格局。接下来重点关注美联储9月议息会议，若加息则可能继续压制风险偏好，后续若外围流动性环境进一步改善、国内增量政策持续发力，市场将迎来更具确定性的反弹窗口。\n\n美债方面，本周海外债市在通胀与加息预期驱动下遭遇猛烈抛售，收益率曲线整体大幅上移并刷新多年高位，长端利率快速走升，短端利率对于加息更加敏感 、走升幅度更大。长短端的抛售逻辑并不相同：短端主要反映加息预期的重定价，8月PPI同比升至5.4%的年内高位、8月CPI核心环比录得0.3%高于预期，叠加油价破百推升通胀溢价，市场对9月加息的定价升至约九成，直接压制近端品种"
+        }
+      ],
+      "retrieval_latency_ms": 1676.2933,
+      "generation_latency_ms": 45778.6563,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.1179,
+        "answer_relevancy": 0.8666,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.8078,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 1.0,
+        "evidence_coverage": 1.0,
+        "evidence_all_in_topk": 1.0,
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.4,
+        "chunk_mrr": 0.3333,
+        "multi_hop_hit": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": 3.0,
+        "retrieved_doc_stems": "H3_AP202609251829896818_1;H3_AP202609211829713285_1;H3_AP202609211829713285_1;H3_AP202609211829713285_1;H3_AP202609251829896818_1",
+        "retrieved_chunk_ids": "fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c;e9d424b63c83c258bd91af18210cb71b1bd0183c10c74f8ddb58bfcf35cb3a3f;a61337133aee48847a33556f7c9ffaff3e42be97346424ec10f608370ab488d5;5bc7f3b3f70978c27bc69614c0b371e28d14033c4c0d6ee39d9b41f366436563;0f5d3cd5438534587f62bd87efc0af2740a0ea3b7719eec7ab4edf144829dff4"
+      }
+    },
+    {
+      "case_id": "rr-multi-004",
+      "tier": "gold",
+      "user_input": "结合算力行业报告与 AIDC 白皮书，说明算力基础设施需求趋势的驱动因素。",
+      "response": "算力基础设施需求趋势的驱动因素主要包括：\n\n- **大模型与AI应用高速发展**：大模型与AI应用高速发展，算力需求持续爆发，AI数据中心迎来系统性代际变革；芯片功耗攀升、集群规模向十万卡、百万卡级别跨越，推动基础设施能力要求升级 [1]。\n\n- **智能体规模化运行带来持续刚性算力需求**：智能体的规模化运行正在带来持续、刚性的算力需求，推动算力跃升为与水利、电网、铁路同等层级的国家战略基础设施。IDC数据显示，2026年中国智能算力规模将达到2,576.5 EFLOPS，同比增长87.9%，2030年将达到10,524.3 EFLOPS；2025—2030年中国智能算力规模复合增长率达50.3%，较上一版本预测显著提升 [3]。\n\n- **AI算力指数级爆发与硬件高密化趋势**：机柜功率已从传统数据中心普遍的10-20千瓦级别，跃升至100-300千瓦甚至更高的百千瓦级别；单集群算力规模从万卡级别向十万卡乃至百万卡演进，高密度算力部署成为常态，对供电、散热和结构承载能力提出更高要求 [5]。\n\n- **AI算力发展的高动态性和不确定性**：大模型、生成式AI及智能计算快速发展，推动算力基础设施由传统通用计算中心向高密度、高功率、高互联的AI算力中心演进。传统数据中心基础设施刚性较强，难以适应AI设备快速迭代、多代设备共存、单柜功率持续提升以及液冷规模化应用等趋势，需要向资源池化、动态调度、弹性演进的新型架构转变 [4]。\n\n- **建设与交付模式升级需求**：AI硬件快速迭代和代际升级，要求数据中心从传统现场施工模式向预制化、产品化模式转型，算力交付周期从以年为单位大幅压缩至以月甚至周为单位 [5]。",
+      "reference": "IDC 报告从全球活跃智能体数量增长（2026 年 7,940 万个 → 2030 年 22.16 亿个）说明算力刚性需求；全球计算联盟 AIDC 白皮书从硬件层面说明 AI 算力指数级爆发驱动数据中心发生深刻变革。需分别注明出处。",
+      "related_docs": "H3_AP202609261829929943_1.pdf | H3_AP202609261829929869_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "cbb7015ce437c5d25ef3da1f215c77552c1b7ea15ab6b9775e4e14e55f6a9e63",
+        "bb7dadb56524d8f5b2649ba39a4a588c9fea13288b12315d9c1c784e4f4712b7"
+      ],
+      "sources": [
+        {
+          "id": "f8e03d530cf6cc6ac6f5d5ff11e4b6aa7a6a12b30cefe95cf931ec7677d6a6d0",
+          "chunk_key": "f8e03d530cf6cc6ac6f5d5ff11e4b6aa7a6a12b30cefe95cf931ec7677d6a6d0",
+          "parent_id": "502b656929cbf99896a7ae18318034915f3da3bfce5cfd96009318debc1c2888",
+          "title": "H3_AP202609261829929869_1",
+          "source": "H3_AP202609261829929869_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9508,
+          "content": "## 前言\n\n大模型与AI应用高速发展，算力需求持续爆发，AI数据中心(AIDC)迎来系统性代际变革。芯片功耗攀升、集群规模向十万卡、百万卡级别跨越，传统以设备选型为主的评估方式，已难以衡量新一代算力基础设施的综合能力，行业亟需一套可量化、可对比的统一评价体系。\n\n当前产业对新一代AIDC已形成广泛共识，本文提出六维指标体系，从单柜功率、集群规模、交付速度、弹性兼容、运维方式、综合能效六个维度，系统定义新一代AIDC的代际跃迁特征，摆脱单一产品视角，实现对AIDC综合能力的客观评判。本报告对该指标体系展开定义和说明。\n\n指标明确能力目标，架构支撑落地实现。3D数据中心作为新一代AIDC的最佳实践架构之一，报告相关内容由行业内3D数据中心相关资料浓缩提炼。该架构通过系统分层解耦，匹配六维指标的发展要求，同时它并非唯一技术路线，业界也可通过其他技术路径实现同等指标水平。\n\n本报告面向产业从业者，打通指标定义与工程实践，文中代际数值仅代表能力量级，后续将依托项目实践持续迭代优化，为AI算力基础设施建设提供参考。\n\n编写组\n\n2026年9月"
+        },
+        {
+          "id": "e9f8a5199ad661cc75b17372a51b1ca696e6029bee38e94ef3fe4bede9d50d29",
+          "chunk_key": "e9f8a5199ad661cc75b17372a51b1ca696e6029bee38e94ef3fe4bede9d50d29",
+          "parent_id": "",
+          "title": "H3_AP202609261829929869_1",
+          "source": "H3_AP202609261829929869_1.pdf",
+          "score": 0.9167,
+          "rerank_score": 0.8716,
+          "content": "该图片为一份报告的前言页面，顶部有“全球计算联盟”标志及英文名称。内容主要阐述大模型与AI应用发展带来的算力需求增长，提出针对新一代AI数据中心（AIDC）的六维指标体系，涵盖单柜功率、集群规模等六个维度，旨在建立统一评价标准。报告以3D数据中心架构为例，强调指标体系的实践指导意义，并说明其面向产业从业者，供AI算力基础设施建设参考。落款为“编写组 2026年9月”。"
+        },
+        {
+          "id": "eebec6d1f1ebed101a65be1a4f6b4b9b9ce74abf5fb019f997bd3a3a32a6f359",
+          "chunk_key": "eebec6d1f1ebed101a65be1a4f6b4b9b9ce74abf5fb019f997bd3a3a32a6f359",
+          "parent_id": "619b0886fdc5f968c42b931baf2ff454c77f584d5c35881152d17489d53dc0e3",
+          "title": "H3_AP202609261829929943_1",
+          "source": "H3_AP202609261829929943_1.pdf",
+          "score": 0.8902,
+          "rerank_score": 0.8464,
+          "content": "## 算力跃升为国家战略基础设施，智能体拉动算力规模斜率大幅上调。\n\n智能体的规模化运行正在带来持续、刚性的算力需求，推动算力跃升为与水利、电网、铁路同等层级的国家战略基础设施。IDC数据显示，2026年中国智能算力规模将达到2,576.5 EFLOPS，同比增长87.9%，并在2030年达到10,524.3 EFLOPS。2025-2030年中国智能算力规模和通用算力规模的复合增长率分别达50.3%和27.7%，较上一版本预测值46.2%和18.8%有显著提升。"
+        },
+        {
+          "id": "97af4aed31a9ed8a76fda3dcf238a13d45f02f15c566fc9cc229ad8418f6f9ce",
+          "chunk_key": "97af4aed31a9ed8a76fda3dcf238a13d45f02f15c566fc9cc229ad8418f6f9ce",
+          "parent_id": "ae6d7a0ab27f0ec01cc698a9b7d6ab98902403f2025a057d0def55db7d1af9e8",
+          "title": "H3_AP202609261829929869_1",
+          "source": "H3_AP202609261829929869_1.pdf",
+          "score": 0.7875,
+          "rerank_score": 0.7488,
+          "content": "#### 第一节 面向AI 高密算力时代的3D数据中心架构设计理念\n\n随着大模型、生成式AI 及智能计算快速发展，算力基础设施正由传统通用计算中心向高密度、高功率、高互联的 AI算力中心演进。AIDC 作为面向 AI 时代的新型算力基础设施，其核心并非简单提升设备规模，而是对数据中心空间组织方式、供能体系、热管理模式及交付运维体系进行系统性重构。\n\n传统数据中心架构建立在IT设备与基础设施长期绑定的模式之上，但面对AI设备快速迭代、多代设备共存、单柜功率持续提升以及液冷规模化应用等趋势，传统架构逐渐暴露出空间利用率不足、供电扩展困难、冷热资源匹配效率低、建设周期长以及运维复杂度高等问题。\n\n其根本原因在于传统数据中心基础设施具有较强刚性，而AI算力发展呈现高动态性和不确定性。因此，未来数据中心需要由“固定容量承载模式”向“资源池化、动态调度、弹性演进”的新型架构转变。\n\n3D数据中心围绕“标准重构、分层解耦、立体堆叠”三大理念，实现IT系统与基础设施系统的物理解耦和能力独立演进。通过电力、冷量及空间资源池化，实现算力资源跨模块动态配置，使数据中心具备适应多代AI设备持续演进的能力，构建"
+        },
+        {
+          "id": "37c1b6fc6d1b7d5e4efe8a54178dce10c01f9a7c16c67689be05448f3c9c2f25",
+          "chunk_key": "37c1b6fc6d1b7d5e4efe8a54178dce10c01f9a7c16c67689be05448f3c9c2f25",
+          "parent_id": "532dd9b9d46ed26afea6bb4779071c6eea00118981e17ece61faffe8d9278272",
+          "title": "H3_AP202609261829929869_1",
+          "source": "H3_AP202609261829929869_1.pdf",
+          "score": 0.7783,
+          "rerank_score": 0.74,
+          "content": "#### 第一节 发展方向\n\n进入AIDC（人工智能数据中心）时代，AI算力的指数级爆发正驱动数据中心发生一场深刻而全面的变革。在硬件层面，变革尤为显著：机柜功率已从传统数据中心普遍的10-20千瓦级别，跃升至100-300千瓦甚至更高的百千瓦级别，这对建筑的供电、散热和结构承载能力提出了前所未有的要求。同时，单集群的算力规模正从过去的万卡级别，迅速向十万卡乃至百万卡的超大规模演进，高密度算力部署已成为行业常态，彻底改变了数据中心的物理形态和基础设施设计理念。\n\n在建设模式上，传统依赖现场勘测、施工和调试的线性建设模式，正逐步被高效的预制化、产品化模式所取代。通过将电源模块、制冷单元等核心组件在工厂预制，再到现场进行快速组装，算力交付周期从过去的以年为单位，大幅压缩至以月甚至周为单位。这种模式不仅提升了建设效率，更重要的是，它使基础设施具备了高度的灵活性，能够支持算力硬件的快速迭代和代际升级，极大缩短了技术更新周期。\n\n运维与能效管理也迎来了革命性改变。传统依赖人工巡检和被动故障排查的模式，正被基于AI的智能运维系统所替代，实现了从故障预警、自动定位到闭环自愈的全流程自动化，极大提升了"
+        }
+      ],
+      "retrieval_latency_ms": 1794.4136,
+      "generation_latency_ms": 26295.9993,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.8249,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.8078,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0,
+        "multi_hop_hit": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609261829929869_1;H3_AP202609261829929869_1;H3_AP202609261829929943_1;H3_AP202609261829929869_1;H3_AP202609261829929869_1",
+        "retrieved_chunk_ids": "f8e03d530cf6cc6ac6f5d5ff11e4b6aa7a6a12b30cefe95cf931ec7677d6a6d0;e9f8a5199ad661cc75b17372a51b1ca696e6029bee38e94ef3fe4bede9d50d29;eebec6d1f1ebed101a65be1a4f6b4b9b9ce74abf5fb019f997bd3a3a32a6f359;97af4aed31a9ed8a76fda3dcf238a13d45f02f15c566fc9cc229ad8418f6f9ce;37c1b6fc6d1b7d5e4efe8a54178dce10c01f9a7c16c67689be05448f3c9c2f25"
+      }
+    },
+    {
+      "case_id": "rr-multi-005",
+      "tier": "gold",
+      "user_input": "AI 需求如何传导到 PCB/CCL 环节？结合算力报告与 PCB 行业专题说明。",
+      "response": "AI 需求向 PCB/CCL 环节的传导路径可概括为：**AI 算力扩张 → AI 服务器/数据中心硬件需求 → PCB 高密度高性能化 → CCL 高频高速化升级**。\n\n1. **算力侧起点**  \n   AI 大模型与 AI 应用发展带来算力需求增长，新一代 AI 数据中心（AIDC）建设关注单柜功率、集群规模等六维指标体系，推动 AI 算力基础设施扩容 [3]（2026-09）。\n\n2. **向 PCB/CCL 环节传导**  \n   CCL 直接受益于 AI 服务器终端需求放量带来的景气度快速提升。CCL 是 PCB 最核心基材，在 PCB 成本中占比约 30%；产业链上游为铜箔、电子树脂、电子玻纤布，中游为 CCL 制造，下游为 PCB 制造与封装基板 [1]。\n\n3. **材料端高端化升级**  \n   终端产品高频高速化倒逼 PCB 向高密度、高性能迭代，进而推动 CCL 向高频高速赛道升级 [2]。受益于 AI 需求扩张，M7 及以上特种覆铜板高速增长，主要用于 AI 服务器高速背板、800G/1.6T 光模块，价格约为普通 FR-4 的数倍以上 [2]。  \n   2024 年特种覆铜板（M7 及以上）收入为 57.05 亿美元，占 38% 份额，同比增长 40%；标准 FR-4 收入为 43.54 亿美元，占 29%，增速仅 1% [2]。\n\n4. **行业格局集中受益**  \n   2024 年全球 CCL 行业规模约 1000 亿人民币，前四大供应商为建滔、生益科技、台光电子、南亚新材，份额分别为 14%、14%、13%、9%，合计约 50%；中游 CCL 制造是技术壁垒最高、利润弹性最大的环节，头部厂商更易承接 AI 高端需求 [1]。",
+      "reference": "IDC 报告给出算力需求的三项乘数结构（Token 消耗总量 = 任务执行次数 × 单任务 Token 消耗 × 多智能体协同放大系数）；源达信息 PCB 专题指出英伟达 CCL 平台由 GB200 的 M4+M8 升级至 Rubin 的 M8/M9，AI 服务器迭代驱动 CCL 量价双升。需分别注明出处。",
+      "related_docs": "H3_AP202609261829929943_1.pdf | H3_AP202609281829953173_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "619e6137b06719dd07e750368f07460cce5193e4013adaaf1010bdee9ba42ad7",
+        "24ad1cc70b5e8526fb652563cdf6ff88a27b55403b959d3e6492b2c9fc876d2d"
+      ],
+      "sources": [
+        {
+          "id": "4c9f0fc83959cc3104e437668eddf208b97394210ade94d44640b2be4e581ab3",
+          "chunk_key": "4c9f0fc83959cc3104e437668eddf208b97394210ade94d44640b2be4e581ab3",
+          "parent_id": "c375da4c16fb42f634f861c88db9b1f3f246fd899e2151a334ca2c994095fc45",
+          "title": "H3_AP202609281829953173_1",
+          "source": "H3_AP202609281829953173_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9777,
+          "content": "#### 1.1 CCL 是 PCB 最核心基材\n\n覆铜板（Copper Clad Laminate，CCL）是将玻璃纤维布浸以树脂、一面或双面覆以铜箔并经热压制成的板状材料，承担印制电路板导电、绝缘、支撑三大功能。根据 Prismark，CCL、铜箔、磷铜球等直接材料占PCB成本约60%，其中 CCL占比约为30%，是 PCB成本的核心中枢。CCL的三大核心原材料为铜箔、树脂和玻纤布，占CCL成本占比分别为42%、26%和19%，其中铜箔价格主要取决于铜价，玻纤布价格受供需关系影响较大。\n\n图 1：PCB 的主要成本构成  \n![](images/60266cb3bf10a82c7a3382b87bc54a98cb765e2d1c9b500359b57f26242ced4d.jpg)  \n\n图 2：CLL 的主要成本构成  \n![](images/cd18f41a6c81cb0774d72137e83ec9a8a9df9927e2f6da2d5dbe84b8d402d30a.jpg)  \n\nCCL 直接受益于 AI 服务器终端需求放量带来的景气度快速提升：CCL 产业链的上游为铜箔、"
+        },
+        {
+          "id": "fcf40df22004fcbb933f25cce0ee87ca0be1001ccb50be30a278b10598b4ca69",
+          "chunk_key": "fcf40df22004fcbb933f25cce0ee87ca0be1001ccb50be30a278b10598b4ca69",
+          "parent_id": "89b52abb4d8afb29a26e750945faf8080038bb688c19034be3c3d393c6e708b1",
+          "title": "H3_AP202609281829953173_1",
+          "source": "H3_AP202609281829953173_1.pdf",
+          "score": 0.9922,
+          "rerank_score": 0.9701,
+          "content": "#### 1.2 CCL走向高端化，M7 及以上高速增长\n\n终端产品持续朝着轻薄小型化、高频高速化方向演进，倒逼 PCB 向高密度、高性能迭代，进而推动覆铜板（CCL）向高频高速赛道升级。在高速应用领域，伴随 5G 通信技术迭代，信号频率与传输速率显著抬升，理论速率可达10–20Gbps，这就要求配套CCL至少具备中低等级的介质损耗特性；对于覆铜板材料而言，Df（介电损耗）数值越低，材料研发与制造的技术壁垒越高。\n\n图 5：高速互联技术对 CCL 材料提出更高要求  \n![](images/d85a2cb85a507cea56806dc8f15630fb160faefee0a240e5b331f70d28d079b8.jpg)  \n资料来源：《224G 高速互联对 PCB 及覆铜板需求和挑战》，源达信息证券研究所\n\n受益于 AI 需求扩张，M7 及以上特种覆铜板高速增长。行业以松下 M 系列为通用技术标尺：等级越高，介电常数Dk 与介电损耗Df越低，可适配速率越高。M7-M9 用于 AI 服务器高速背板、800G/1.6T 光模块，单张价格约为普通 FR-4 的数倍以上。2024 年特"
+        },
+        {
+          "id": "e9f8a5199ad661cc75b17372a51b1ca696e6029bee38e94ef3fe4bede9d50d29",
+          "chunk_key": "e9f8a5199ad661cc75b17372a51b1ca696e6029bee38e94ef3fe4bede9d50d29",
+          "parent_id": "",
+          "title": "H3_AP202609261829929869_1",
+          "source": "H3_AP202609261829929869_1.pdf",
+          "score": 0.4917,
+          "rerank_score": 0.4808,
+          "content": "该图片为一份报告的前言页面，顶部有“全球计算联盟”标志及英文名称。内容主要阐述大模型与AI应用发展带来的算力需求增长，提出针对新一代AI数据中心（AIDC）的六维指标体系，涵盖单柜功率、集群规模等六个维度，旨在建立统一评价标准。报告以3D数据中心架构为例，强调指标体系的实践指导意义，并说明其面向产业从业者，供AI算力基础设施建设参考。落款为“编写组 2026年9月”。"
+        }
+      ],
+      "retrieval_latency_ms": 1655.0654,
+      "generation_latency_ms": 36926.4624,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.7941,
+        "answer_relevancy": 0.7651,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "doc_coverage": 0.5,
+        "doc_recall": 0.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0,
+        "multi_hop_hit": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609281829953173_1;H3_AP202609281829953173_1;H3_AP202609261829929869_1",
+        "retrieved_chunk_ids": "4c9f0fc83959cc3104e437668eddf208b97394210ade94d44640b2be4e581ab3;fcf40df22004fcbb933f25cce0ee87ca0be1001ccb50be30a278b10598b4ca69;e9f8a5199ad661cc75b17372a51b1ca696e6029bee38e94ef3fe4bede9d50d29"
+      }
+    },
+    {
+      "case_id": "rr-multi-006",
+      "tier": "gold",
+      "user_input": "光伏与储能方向的两篇报告分别提到哪些行业进展？",
+      "response": "光伏与储能方向相关行业进展如下：\n\n**一、在整体观点相关内容 [1] 中提到的进展**\n- **光伏**：发布爱旭股份公司深度报告，判断公司有望引领以 BC 技术为代表的光伏技术迭代并实现行业地位跃升；业绩说明会传递多重积极信号，订单结构优化、新产能持续放量，预计在 26Q2 减亏拐点后，下半年以更陡峭斜率走向复苏右侧，季度业绩扭亏为盈或近在眼前 [1]。\n- **储能**：英伟达将电池储能 BESS 纳入首批 DSX 认证，重视 AIDC 配储带来的增量应用场景 [1]。\n- **三季报关注**：预计 10 月聚焦三季报，光伏与风电板块部分环节、个股经营拐点有望在 Q3 进一步确认 [1]。\n\n**二、在本周行业重要事件相关内容 [3] 中提到的进展**\n- **风光储**：能源局公布 8 月风光新增装机，单月同比 +48%/+50% [3]。\n- **光伏**：隆基绿能刷新晶硅电池效率纪录至 28.29% [3]。\n- **储能/锂电**：宁德时代上调储能电芯报价，587Ah 首次公开挂牌 [3]。\n\n另外，[2] 仅出现“光伏差异化产品与全球化布局，穿越行业周期”标题，未提供展开内容。",
+      "reference": "开源证券横店东磁报告提到光伏产品出货量由 2018 年 1.8GW 提升至 2025 年 24.9GW；国金证券行业周报提到英伟达将 BESS 纳入首批 DSX 认证。需分别注明出处。",
+      "related_docs": "H3_AP202609281829951050_1.pdf | H3_AP202609281829951153_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "d93681eafc697b0f6307245692ab8a0a2229764efede6a9e55a35d36c5eaf06f",
+        "ecf86f588acd1d802bd307f3ea806b493b2400c16f4e74851507d61e480d4717"
+      ],
+      "sources": [
+        {
+          "id": "13acfe509719c47a21fa88a08bfc740d69b778d92ded01698de5fafedad3e523",
+          "chunk_key": "13acfe509719c47a21fa88a08bfc740d69b778d92ded01698de5fafedad3e523",
+          "parent_id": "6a2970d1d47379953770f60971a544e1581e5ae8cb40027854b1ce140dbb3343",
+          "title": "H3_AP202609281829951153_1",
+          "source": "H3_AP202609281829951153_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.3269,
+          "content": "## 整体观点：\n\n上周周报我们题为《重视BC业绩、海风订单清晰拐点，AIDC进入密集催化窗口》，本周相关领域均有催化兑现，尤其是：SOFC及BE供应链首推的振华股份，本周与友商先后发布铬产品涨价函，开始兑现涨价弹性，重申强烈看好。大金重工在汉堡风能展上签署海上基础安装船设计合同，正式进军海风安装环节，进一步巩固竞争优势及龙头地位。本周我们发布爱旭股份公司深度报告，判断公司有望引领本轮以 BC 技术为代表的光伏技术迭代，并实现行业地位的跃升，短期内三季报有望进一步确认经营拐点，重申强烈推荐。AIDC电源与液冷领域继续催化丰富：1）英伟达正式将电池储能 BESS纳入首批DSX Ready认证；2）Vicor大幅上调收入指引，Q3 VPD商业化进程加速；3）鸿富诚上市\n\n预计 10 月板块关注点与交易重心将开始聚焦三季报，我们预计锂电板块仍将延续二季度表现、呈现强势的Q3 业绩同环比增长，光伏与风电板块部分环节、个股经营拐点有望在 Q3 得到进一步确认，AIDC领域则建议继续关注相关公司AI 相关业务放量在先行财务指标、盈利弹性驱动等方面的呈现。\n\nAIDC 电源&液冷：重视800V、VP"
+        },
+        {
+          "id": "762019b9cffa7a61fa4c29a3bfa496b3524bd60d8ec46027c2b8686feec6e91a",
+          "chunk_key": "762019b9cffa7a61fa4c29a3bfa496b3524bd60d8ec46027c2b8686feec6e91a",
+          "parent_id": "0437a93e99476ad21c6ec89d43816b8b8386e4812a7dbf64ae5716ebdee027a5",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.2855,
+          "rerank_score": 0.0933,
+          "content": "### 2、 光伏差异化产品与全球化布局，穿越行业周期"
+        },
+        {
+          "id": "c9b668e52353f5bcb8d54a21a22a81baae1610e6f9fa93047711a865ba58db29",
+          "chunk_key": "c9b668e52353f5bcb8d54a21a22a81baae1610e6f9fa93047711a865ba58db29",
+          "parent_id": "c06856dedae6bd3d7557fe88b748fb00bd57ea58aa13b1b7972d5e6853e0e030",
+          "title": "H3_AP202609281829951153_1",
+          "source": "H3_AP202609281829951153_1.pdf",
+          "score": 0.2585,
+          "rerank_score": 0.0845,
+          "content": "## 本周行业重要事件：\n\n风光储：能源局公布 8 月风光新增装机，单月同比+48%/+50%；大金重工签署海风基础安装船设计合同；隆基绿能刷新晶硅电池效纪录至 28.29%。\n\n锂电：宁德时代上调储能电芯报价，587Ah首次公开挂牌；工信部旗下媒体发文对“去宁德化”论调降温。\n\n电网：8 月全社会用电量同比+1.7%；国网与中国电气装备签署战略合作协；输变电设备5 批招标发布。\n\n氢能与燃料电池：振华、银河先后上调金属铬、铬盐产品价格；五省十四市协同召开大湾区氢能城市群工作部署会。  \n投资建议与估值：详见报告正文各子行业观点详情。"
+        }
+      ],
+      "retrieval_latency_ms": 1695.2264,
+      "generation_latency_ms": 65215.4179,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.1698,
+        "answer_relevancy": 0.7943,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.3066,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0,
+        "multi_hop_hit": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609281829951153_1;H3_AP202609281829951050_1;H3_AP202609281829951153_1",
+        "retrieved_chunk_ids": "13acfe509719c47a21fa88a08bfc740d69b778d92ded01698de5fafedad3e523;762019b9cffa7a61fa4c29a3bfa496b3524bd60d8ec46027c2b8686feec6e91a;c9b668e52353f5bcb8d54a21a22a81baae1610e6f9fa93047711a865ba58db29"
+      }
+    },
+    {
+      "case_id": "rr-multi-007",
+      "tier": "gold",
+      "user_input": "多篇报告是否都提到 AI 对下游需求的拉动？分别针对哪个环节？",
+      "response": "三篇检索内容均涉及 AI 对相关需求的拉动，但针对的环节不同：\n\n- **品牌营销与 AI 呈现环节**：AI 影响用户信息获取与消费决策，品牌营销延伸至 AI 引用和推荐，企业对品牌在 AI 结果中的呈现需求持续增长 [1]。\n\n- **集成电路出口与 AI 设备/算力环节**：AI 产业链带动集成电路出口同比大增 103.9%，AI 相关设备价格上涨明显，反映算力需求的结构性支撑 [2]。\n\n- **CCL（覆铜板）材料环节**：AI 驱动 CCL 量价双升，供给瓶颈强化涨价弹性，指向 AI 对 CCL 材料的需求拉动 [3]。",
+      "reference": "华鑫证券百普赛斯报告指向 AI 药物发现与湿实验验证平台；IDC 算力报告指出医疗健康行业智能体成熟度相对有限但专业化程度较高。需按环节归纳并注明出处。",
+      "related_docs": "H3_AP202609231829798847_1.pdf | H3_AP202609261829929943_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "518689ed83123f1d71e642b89d7ec7621e75c93469d74f25c8efe1dcd9c8bdf1",
+        "1f331de002a0b4ef7fbd94ccc4c945f545f2e63d0cfcace4d98ee9c5b9763261"
+      ],
+      "sources": [
+        {
+          "id": "a747a5a61e19b1b77024b64b60ac80ab4a54f09b6ccb7c61667a63142f614179",
+          "chunk_key": "a747a5a61e19b1b77024b64b60ac80ab4a54f09b6ccb7c61667a63142f614179",
+          "parent_id": "1a84f0639961f6ccdd38d26922bbe868fb67d9a1cbc0995ce84262a1e82801ae",
+          "title": "H3_AP202609261829930314_1",
+          "source": "H3_AP202609261829930314_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.0221,
+          "content": "## 需求驱动：品牌营销进入AI优化阶段\n\n• AI影响用户信息获取与消费决策，品牌营销延伸至AI引用和推荐\n\n• 企业对品牌在AI结果中的呈现需求持续增长"
+        },
+        {
+          "id": "8d678e6b56ab1c126e9f0a828bfd2c3b56d6b3bf8eebf0fdf46d6b7274f7b492",
+          "chunk_key": "8d678e6b56ab1c126e9f0a828bfd2c3b56d6b3bf8eebf0fdf46d6b7274f7b492",
+          "parent_id": "534dc88214ba49a26725ec523693837e53f8cd23d31622e75940149181735005",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 0.7396,
+          "rerank_score": 0.0164,
+          "content": "##### 1.3　中国出口保持高增，物价温和修复\n\n8月进出口数据保持高速增长，结构上新动能全面接棒。进口已经连续6个月跑赢出口，说明复苏由内需修复与大宗商品涨价成本效应共同驱动。结构上\"质优于量\"：机电占出口63.8%、民企占57%、一带一路占51%，增长重心明显向东盟与新兴市场倾斜。亮点是新动能全面接棒，AI产业链带动集成电路出口同比大增103.9%，“新三样”与“新新三样”交替发力，而劳动密集型与钢材等旧动能同步出清，升级路径清晰。但隐忧犹存：海外关税不确定性较大、大宗商品高价挤压下游利润。展望后市，短期新动能与汽车出口仍具韧性，但中期看前期积压订单释放殆尽叠加基数抬升，出口增速或将逐步回落，全年外贸料呈“前高后稳”态势。\n\n8月通胀呈\"上游强、下游弱、结构分化\"的特征。8月通胀数据呈现温和回升态势，CPI同比上涨0.8%，核心CPI回升至1.0%，PPI同比涨幅扩大至3.8%。结构上，能源价格是CPI上行的最大推手，食品价格继续构成拖累（猪肉降11.8%）；AI相关设备价格上涨明显，反映算力需求的结构性支撑。PPI则主要是由大宗商品价格大幅上涨带动，海外输入性通胀压力为主。后"
+        },
+        {
+          "id": "74716bb61c73f3337141c85050b1072544debfde34aca52826583d5eae08833e",
+          "chunk_key": "74716bb61c73f3337141c85050b1072544debfde34aca52826583d5eae08833e",
+          "parent_id": "2790cf8f78c0ed2b33d2b597b2423ba488e9fb146155b9c83a96270643291e46",
+          "title": "H3_AP202609281829953173_1",
+          "source": "H3_AP202609281829953173_1.pdf",
+          "score": 0.5686,
+          "rerank_score": 0.0126,
+          "content": "# AI 驱动 CCL 量价双升，供给瓶颈强化涨价弹性"
+        }
+      ],
+      "retrieval_latency_ms": 1522.9589,
+      "generation_latency_ms": 16706.4195,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.454,
+        "answer_relevancy": 0.8005,
+        "hit_rate": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "doc_coverage": 0.0,
+        "doc_recall": 0.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0,
+        "multi_hop_hit": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609261829930314_1;H3_AP202609251829896818_1;H3_AP202609281829953173_1",
+        "retrieved_chunk_ids": "a747a5a61e19b1b77024b64b60ac80ab4a54f09b6ccb7c61667a63142f614179;8d678e6b56ab1c126e9f0a828bfd2c3b56d6b3bf8eebf0fdf46d6b7274f7b492;74716bb61c73f3337141c85050b1072544debfde34aca52826583d5eae08833e"
+      }
+    },
+    {
+      "case_id": "rr-multi-008",
+      "tier": "gold",
+      "user_input": "个股深度报告与宏观周报对资本市场的判断侧重有何不同？",
+      "response": "个股深度报告与宏观周报的侧重差异主要体现在：\n\n- **个股深度报告更侧重公司层面、微观基本面和个股推荐**。例如，检索内容中提到的爱旭股份公司深度报告，落脚点在于公司能否引领 BC 技术迭代、实现行业地位跃升，以及三季报能否确认经营拐点，并给出“重申强烈推荐”的判断 [1][2]。其分析维度主要是订单结构、新产能放量、业绩减亏/扭亏等公司经营变化 [1]。\n\n- **宏观周报更侧重宏观经济总量、供需格局和政策工具**。从检索到的报告标题看，《宏观经济周报-“供强需弱”进一步加深》（2026-09-19）、《宏观经济周报-局部有亮点，整体仍承压》（2026-09-13）关注的是经济供需强弱、整体承压与结构性亮点；《宏观经济周报-政策性金融工具启用》（2026-09-05）关注政策工具变化 [3]。\n\n- **多资产周报则更直接侧重汇率、加息预期、黄金等资产价格和资本市场变量**。例如《多资产周报-人民币汇率突破6.7》（2026-09-19）、《多资产周报-加息预期升温,黄金逐渐脱敏》（2026-09-14）[3]。\n\n因此，个股深度报告主要从公司技术、订单、产能、业绩拐点等微观角度判断个股机会；宏观周报/多资产周报主要从经济供需、政策工具、汇率、利率预期和资产价格等总量角度判断宏观及市场环境。",
+      "reference": "开源证券横店东磁报告给出个股投资评级（买入/首次）与业务判断；诚通证券宏观周报侧重 A 股大势与指数涨跌。需分别注明出处。",
+      "related_docs": "H3_AP202609281829951050_1.pdf | H3_AP202609211829713285_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "a7ca2adf5f5d5710949969a167f2d05d25f346f0a35b97d7b6bd0093717cef98",
+        "a61337133aee48847a33556f7c9ffaff3e42be97346424ec10f608370ab488d5"
+      ],
+      "sources": [
+        {
+          "id": "13acfe509719c47a21fa88a08bfc740d69b778d92ded01698de5fafedad3e523",
+          "chunk_key": "13acfe509719c47a21fa88a08bfc740d69b778d92ded01698de5fafedad3e523",
+          "parent_id": "6a2970d1d47379953770f60971a544e1581e5ae8cb40027854b1ce140dbb3343",
+          "title": "H3_AP202609281829951153_1",
+          "source": "H3_AP202609281829951153_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.2305,
+          "content": "## 整体观点：\n\n上周周报我们题为《重视BC业绩、海风订单清晰拐点，AIDC进入密集催化窗口》，本周相关领域均有催化兑现，尤其是：SOFC及BE供应链首推的振华股份，本周与友商先后发布铬产品涨价函，开始兑现涨价弹性，重申强烈看好。大金重工在汉堡风能展上签署海上基础安装船设计合同，正式进军海风安装环节，进一步巩固竞争优势及龙头地位。本周我们发布爱旭股份公司深度报告，判断公司有望引领本轮以 BC 技术为代表的光伏技术迭代，并实现行业地位的跃升，短期内三季报有望进一步确认经营拐点，重申强烈推荐。AIDC电源与液冷领域继续催化丰富：1）英伟达正式将电池储能 BESS纳入首批DSX Ready认证；2）Vicor大幅上调收入指引，Q3 VPD商业化进程加速；3）鸿富诚上市\n\n预计 10 月板块关注点与交易重心将开始聚焦三季报，我们预计锂电板块仍将延续二季度表现、呈现强势的Q3 业绩同环比增长，光伏与风电板块部分环节、个股经营拐点有望在 Q3 得到进一步确认，AIDC领域则建议继续关注相关公司AI 相关业务放量在先行财务指标、盈利弹性驱动等方面的呈现。\n\nAIDC 电源&液冷：重视800V、VP"
+        },
+        {
+          "id": "b2d04356017b28ab818b7e754ef21f9004e8143c80f074fe4c6b48416010ef29",
+          "chunk_key": "b2d04356017b28ab818b7e754ef21f9004e8143c80f074fe4c6b48416010ef29",
+          "parent_id": "c8e7574ab561cb66ab7c90b869ec1a282c3c40b66ebc600674b7373ea16128d6",
+          "title": "H3_AP202609281829951153_1",
+          "source": "H3_AP202609281829951153_1.pdf",
+          "score": 0.2611,
+          "rerank_score": 0.0602,
+          "content": "## 整体观点：\n\n上周周报我们题为《重视BC业绩、海风订单清晰拐点，AIDC进入密集催化窗口》，本周相关领域均有催化兑现，尤其是：我们在SOFC及BE供应链首推的振华股份，本周与银河化学先后发布金属铬及铬盐产品涨价函，铬产品在供给增长受限、需求多重拉动下，开始兑现涨价弹性，重申强烈看好。\n\n海风方面，本周汉堡风能展在德国举行，大金重工在展会上与挪威知名船舶设计企业 Ulstein 正式签署新一代海上基础安装船设计合同，标志着公司正式进军海上风电安装环节，向“制造+运输+母港+安装”一体化交付商迈出关键一步。供给紧缺背景下欧洲高端海工安装船日租金持续上涨，一体化布局逐步落地有望进一步巩固大金的竞争优势及龙头地位。\n\n本周我们发布“曙光初现”系列（二）爱旭股份公司深度报告，对公司的推荐逻辑进行了系统性阐述，我们认为：公司有望引领本轮以 BC 技术为代表的光伏技术迭代，并实现行业地位的跃升，短期内三季报有望进一步更加清晰的确认公司经营拐点，重申强烈推荐。\n\nAIDC电源与液冷领域继续催化丰富：1）英伟达正式将电池储能BESS纳入首批DSX Ready认证；2）Vicor大幅上调Q3收入指引"
+        },
+        {
+          "id": "fb5d5899fa63d2070cc407e2a14a13241e64862ee48bf438a6652b69fd0e1b57",
+          "chunk_key": "fb5d5899fa63d2070cc407e2a14a13241e64862ee48bf438a6652b69fd0e1b57",
+          "parent_id": "a252b5edcc653a8be87bb004f8c975119c302edcc492921310adaef7db7cedcc",
+          "title": "H3_AP202609271829939976_1",
+          "source": "H3_AP202609271829939976_1.pdf",
+          "score": 0.1224,
+          "rerank_score": 0.0282,
+          "content": "## 相关研究报告\n\n《多资产周报-人民币汇率突破6.7》 ——2026-09-19  \n《宏观经济周报-“供强需弱”进一步加深》 2026-09-19  \n《多资产周报-加息预期升温,黄金逐渐脱敏》 2026-09-14  \n《宏观经济周报-局部有亮点，整体仍承压》 2026-09-13  \n《宏观经济周报-政策性金融工具启用》 —— 2026-09-05"
+        }
+      ],
+      "retrieval_latency_ms": 1692.7656,
+      "generation_latency_ms": 38413.7074,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.2078,
+        "answer_relevancy": 0.9259,
+        "hit_rate": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "doc_coverage": 0.0,
+        "doc_recall": 0.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0,
+        "multi_hop_hit": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609281829951153_1;H3_AP202609281829951153_1;H3_AP202609271829939976_1",
+        "retrieved_chunk_ids": "13acfe509719c47a21fa88a08bfc740d69b778d92ded01698de5fafedad3e523;b2d04356017b28ab818b7e754ef21f9004e8143c80f074fe4c6b48416010ef29;fb5d5899fa63d2070cc407e2a14a13241e64862ee48bf438a6652b69fd0e1b57"
+      }
+    },
+    {
+      "case_id": "rr-multi-009",
+      "tier": "gold",
+      "user_input": "两篇公司报告分别给出的投资评级依据是什么？",
+      "response": "不同材料中关于**公司/股票投资评级依据**如下：\n\n1. **材料[1]的投资评级说明**  \n   公司评级以报告日后 **6个月内** 证券相对于沪深300指数的涨跌幅为标准：  \n   - 买入：相对沪深300指数表现 **+20%以上**  \n   - 增持：相对沪深300指数表现 **+10%～+20%**  \n   - 中性：相对沪深300指数表现 **-10%～+10%** 之间波动  \n   - 减持：相对沪深300指数表现 **-10%以下** [1]\n\n2. **材料[2]的国信证券投资评级**  \n   股票投资评级以报告发布日后 **6到12个月内** 公司股价相对同期相关证券市场代表性指数的涨跌幅为基准：  \n   - 优于大市：股价表现优于市场代表性指数 **10%以上**  \n   - 中性：股价表现介于市场代表性指数 **±10%之间**  \n   - 弱于大市：股价表现弱于市场代表性指数 **10%以上**  \n   - 无评级：股价与市场代表性指数相比无明确观点  \n\n   基准指数：A股以沪深300为基准，新三板以三板成指为基准，香港以恒生指数为基准，美国以标普500或纳斯达克指数为基准。[2]\n\n3. **材料[3]的证券投资评级说明**  \n   股票投资评级以报告日后 **12个月内** 预测个股相对于相关证券市场主要指数的涨跌幅为标准：  \n   - 买入：**> 20%**  \n   - 增持：**10%—20%**  \n   - 中性：**-10%—10%**  \n   - 卖出：**< -10%**  \n\n   基准指数：A股以沪深300为基准，新三板以三板成指或三板做市指数为基准，香港以恒生指数为基准，美国以道琼斯指数为基准。[3]",
+      "reference": "华鑫证券新锐股份报告依据凿岩工具龙头地位与产能瓶颈突破；东吴证券中国通号报告依据中标三项铁路项目合计 9.76 亿元、为后续收入提供支撑。需分别注明出处。",
+      "related_docs": "H3_AP202609241829833777_1.pdf | H3_AP202609271829940631_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "d5ec92dfd7abff483e8b85b6e8285bf8df46ec8068697c965aff1f7bf1c5b168",
+        "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27"
+      ],
+      "sources": [
+        {
+          "id": "d60740cf23df805966677cb2ade6e93abe3f99a19b403df1aba46a14a5e2a594",
+          "chunk_key": "d60740cf23df805966677cb2ade6e93abe3f99a19b403df1aba46a14a5e2a594",
+          "parent_id": "14b491c7f97c2427c4d18941d8602fc4d24b0f0b9945c1fc6cd47830bbdcb754",
+          "title": "H3_AP202609281829953173_1",
+          "source": "H3_AP202609281829953173_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.2966,
+          "content": "## 投资评级说明\n\n<table><tr><td>行业评级</td><td colspan=\"2\">以报告日后的6个月内，证券相对于沪深300指数的涨跌幅为标准，投资建议的评级标准为：</td></tr><tr><td rowspan=\"3\"></td><td>看好：</td><td>行业指数相对于沪深300指数表现+10%以上</td></tr><tr><td>中性：</td><td>行业指数相对于沪深300指数表现 - 10%~+10%以上</td></tr><tr><td>看淡：</td><td>行业指数相对于沪深 300 指数表现 - 10%以下</td></tr><tr><td rowspan=\"2\">公司评级</td><td></td><td>以报告日后的6个月内，行业指数相对于沪深300指数的涨跌幅为标准，投资建议的评级标准为：</td></tr><tr><td>买入：</td><td>相对于沪深 300指数表现+ 20%以上</td></tr><tr><td></td><td>增持：</td><td>相对于沪深 300 指数表现+10%~ +20%</td></tr>"
+        },
+        {
+          "id": "e6edbed9eded71066846afe3efa238f2fcfe387fb0493cffe237c78a94fd5209",
+          "chunk_key": "e6edbed9eded71066846afe3efa238f2fcfe387fb0493cffe237c78a94fd5209",
+          "parent_id": "26d5356dcce2b0fbd3ad88a94c48099e73fdc88e4fe7082da301e39fd68989aa",
+          "title": "H3_AP202609271829939976_1",
+          "source": "H3_AP202609271829939976_1.pdf",
+          "score": 0.4697,
+          "rerank_score": 0.1393,
+          "content": "## 国信证券投资评级\n\n<table><tr><td rowspan=1 colspan=1>投资评级标准</td><td rowspan=1 colspan=1>类别</td><td rowspan=1 colspan=1>级别</td><td rowspan=1 colspan=1>说明</td></tr><tr><td rowspan=7 colspan=1>报告中投资建议所涉及的评级（如有）分为股票评级和行业评级（另有说明的除外）。评级标准为报告发布日后6到12个月内的相对市场表现，也即报告发布日后的6到12个月内公司股价(或行业指数)相对同期相关证券市场代表性指数的涨跌幅作为基准。A股市场以沪深 300指数（000300.SH)作为基准；新三板市场以三板成指（899001.CSI）为基准；香港市场以恒生指数(HSI.HI)作为基准；美国市场以标普 500 指数(SPX.GI)或纳斯达克指数(IXIC.GI)为基准。</td><td rowspan=4 colspan=1>股票投资评级</td><td rowspan=1 colspan=1>优于大市</td><td rows"
+        },
+        {
+          "id": "94eebf759ecafb754ebfc3cb4c220a74c9afb20234617768ff39d1e9f64c610e",
+          "chunk_key": "94eebf759ecafb754ebfc3cb4c220a74c9afb20234617768ff39d1e9f64c610e",
+          "parent_id": "fc77f32f5f9182c947a0db3ab710f2a4360d3fe4a9ba3530109871b6a8c9d811",
+          "title": "H3_AP202609241829833777_1",
+          "source": "H3_AP202609241829833777_1.pdf",
+          "score": 0.4101,
+          "rerank_score": 0.1216,
+          "content": "## ▌ 证券投资评级说明\n\n股票投资评级说明：\n<table><tr><td rowspan=1 colspan=1>投资建议       预测个股相对同期证券市场代表性指数涨幅</td></tr><tr><td rowspan=1 colspan=1>1               买入                                &gt; 20%</td></tr><tr><td rowspan=1 colspan=1>2               增持                             10% — 20%</td></tr><tr><td rowspan=1 colspan=1>3               中性                            -10% — 10%</td></tr><tr><td rowspan=1 colspan=1>4               卖出                                &lt; -10%</td></tr></table>\n\n行业投资评级说明："
+        }
+      ],
+      "retrieval_latency_ms": 1541.3296,
+      "generation_latency_ms": 40029.2772,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.9583,
+        "answer_relevancy": 0.7306,
+        "hit_rate": 1.0,
+        "mrr": 0.3333,
+        "ndcg": 0.3066,
+        "doc_coverage": 0.5,
+        "doc_recall": 0.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0,
+        "multi_hop_hit": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609281829953173_1;H3_AP202609271829939976_1;H3_AP202609241829833777_1",
+        "retrieved_chunk_ids": "d60740cf23df805966677cb2ade6e93abe3f99a19b403df1aba46a14a5e2a594;e6edbed9eded71066846afe3efa238f2fcfe387fb0493cffe237c78a94fd5209;94eebf759ecafb754ebfc3cb4c220a74c9afb20234617768ff39d1e9f64c610e"
+      }
+    },
+    {
+      "case_id": "rr-multi-010",
+      "tier": "gold",
+      "user_input": "近期报告对汽车与轨交装备行业的判断分别是什么？",
+      "response": "汽车行业方面，未检索到相关判断。\n\n轨交装备行业方面，近期报告 [1]（2026-09-27）的判断主要包括：\n\n1. **轨交业务覆盖持续拓宽**：专用线建设运营与高铁通信信号项目并进，订单有望随建设和交付进度逐步转化为收入 [1]。\n\n2. **主业地位稳固、新产业稳步增长**：公司作为全球轨道交通装备领军企业，铁路装备与新产业稳步增长 [1]。\n\n3. **智能低空业务有望成为第二成长曲线**：2026H1 智能低空领域新签合同额 1.71 亿元，同比 +472.88%，随着低空基础设施及规模化应用场景逐步落地，该业务有望成为第二成长曲线 [1]。\n\n4. **盈利预测与评级**：维持 2026-2028 年归母净利润 38.5/41.3/44.6 亿元预测，维持“买入”评级 [1]。\n\n5. **主要风险**：需关注轨道交通固定资产投资不及预期、城轨市场竞争加剧、智能低空业务规模化落地不及预期等风险 [1]。",
+      "reference": "太平洋证券国机汽车报告将其定位为大型汽车工程与流通全链服务商并维持买入；东吴证券中国通号报告指出专用线建设运营与高铁通信信号项目并进、轨交业务覆盖持续拓宽。需分别注明出处。",
+      "related_docs": "H3_AP202609261829925702_1.pdf | H3_AP202609271829940631_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "cross_doc",
+      "paired_case_id": "",
+      "chunk_ids": [
+        "f03abaf65fb207e082c443c857b8fdb6160f7bd39204c6c3bdefa1a7ce34182e",
+        "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27"
+      ],
+      "sources": [
+        {
+          "id": "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27",
+          "chunk_key": "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27",
+          "parent_id": "b7a5e1b1f38c6259ce197f7d08651735aee79fe73f5ade2bb2a47e4f8410e3f7",
+          "title": "H3_AP202609271829940631_1",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.3044,
+          "content": "## [Table\\_Su<sub>投资要点</sub>\n\n 中标三项铁路项目合计 9.76 亿元，为后续收入提供支撑：中国通号公告，2026年7 月至8月中标铁路专用线、高铁公网5G 改造及轨道电路设备供货三个项目，金额分别为 5.29 亿元、2.90 亿元和 1.57 亿元，合计约占公司 2025 年经审计营业总收入的 2.81%。若项目顺利签约并实施，订单有望随建设和交付进度逐步转化为收入。\n\n 专用线建设运营与高铁通信信号项目并进，轨交业务覆盖持续拓宽：5.29亿元的巴音敖包工业园铁路专用线项目占本次中标总额约54%，线路全长7.977公里，公司负责建设及运营，建设工期约18个月。项目覆盖建设到运营环节，有助于公司积累工业园区铁路专用线项目经验。公司中标2.90亿元温福高铁公网覆盖 5G改造工程通信系统施工项目，以及 1.57 亿元西渝高铁轨道电路设备供货项目。后者所在项目规划装备CTCS-3 级列控系统。两项订单分别对应高铁通信升级与新建线路列控配套，体现公司在通信施工和信号设备供货领域的业务覆盖。\n\n 轨交主业研发积淀深厚，智能低空订单快速增长：公司持续推进面向更高速"
+        },
+        {
+          "id": "38b956dca8f789715c524a5eb7892bfa4349e20530f94948342de66c623ae97d",
+          "chunk_key": "38b956dca8f789715c524a5eb7892bfa4349e20530f94948342de66c623ae97d",
+          "parent_id": "6582805d98d7d8f5d88d23337733c78d4c9309ac3a6d4126c73f0fadabee654d",
+          "title": "H3_AP202609281829951153_1",
+          "source": "H3_AP202609281829951153_1.pdf",
+          "score": 0.0132,
+          "rerank_score": 0.004,
+          "content": "## 特别声明：\n\n国金证券股份有限公司经中国证券监督管理委员会批准，已具备证券投资咨询业务资格。\n\n本报告的产生基于国金证券及其研究人员认为可信的公开资料或实地调研资料，但国金证券及其研究人员对这些信息的准确性和完整性不作任何保证。本报告反映撰写研究人员的不同设想、见解及分析方法，故本报告所载观点可能与其他类似研究报告的观点及市场实际情况不一致，国金证券不对使用本报告所包含的材料产生的任何直接或间接损失或与此有关的其他任何损失承担任何责任。且本报告中的资料、意见、预测均反映报告初次公开发布时的判断，在不作事先通知的情况下，可能会随时调整，亦可因使用不同假设和标准、采用不同观点和分析方法而与国金证券其它业务部门、单位或附属机构在制作类似的其他材料时所给出的意见不同或者相反。\n\n本报告仅为参考之用，在任何地区均不应被视为买卖任何证券、金融工具的要约或要约邀请。本报告提及的任何证券或金融工具均可能含有重大的风险，可能不易变卖以及不适合所有投资者。本报告所提及的证券或金融工具的价格、价值及收益可能会受汇率影响而波动。过往的业绩并不能代表未来的表现。\n\n客户应当考虑到国金证券存在可能影响本报告"
+        },
+        {
+          "id": "69bb9bd8d17537989d6d5267a9495dd01920bd125567f611bdf07f57a29dfdea",
+          "chunk_key": "69bb9bd8d17537989d6d5267a9495dd01920bd125567f611bdf07f57a29dfdea",
+          "parent_id": "ed9eecfb8e20808d3459071019fbb0a833b59b0d15d1b6fb434cc7f71063d0ff",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 0.0089,
+          "rerank_score": 0.0027,
+          "content": "## ▌ 免责条款\n\n华鑫证券有限责任公司（以下简称“华鑫证券”）具有中国证监会核准的证券投资咨询业务资格。本报告由华鑫证券制作，仅供华鑫证券的客户使用。本公司不会因接收人收到本报告而视其为客户。\n\n本报告中的信息均来源于公开资料，华鑫证券研究部门及相关研究人员力求准确可靠，但对这些信息的准确性及完整性不作任何保证。我们已力求报告内容客观、公正，但报告中的信息与所表达的观点不构成所述证券买卖的出价或询价的依据，该等信息、意见并未考虑到获取本报告人员的具体投资目的、财务状况以及特定需求，在任何时候均不构成对任何人的个人推荐。投资者应当对本报告中的信息和意见进行独立评估，并应同时结合各自的投资目的、财务状况和特定需求，必要时就财务、法律、商业、税收等方面咨询专业顾问的意见。对依据或者使用本报告所造成的一切后果，华鑫证券及/或其关联人员均不承担任何法律责任。本公司或关联机构可能会持有报告中所提到的公司所发行的证券头寸并进行交易，还可能为这些公司提供或争取提供投资银行、财务顾问或者金融产品等服务。本公司在知晓范围内依法合规地履行披露。\n\n本报告中的资料、意见、预测均只反映报告初次发布时的判断，"
+        }
+      ],
+      "retrieval_latency_ms": 1567.8326,
+      "generation_latency_ms": 25801.302,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.9545,
+        "answer_relevancy": 0.9469,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 0.6131,
+        "doc_coverage": 0.5,
+        "doc_recall": 0.0,
+        "evidence_hit": 1.0,
+        "evidence_coverage": 0.5,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.5,
+        "precision_at_5": 0.2,
+        "chunk_mrr": 1.0,
+        "multi_hop_hit": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 1.0,
+        "retrieved_doc_stems": "H3_AP202609271829940631_1;H3_AP202609281829951153_1;H3_AP202609231829798847_1",
+        "retrieved_chunk_ids": "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27;38b956dca8f789715c524a5eb7892bfa4349e20530f94948342de66c623ae97d;69bb9bd8d17537989d6d5267a9495dd01920bd125567f611bdf07f57a29dfdea"
+      }
+    },
+    {
+      "case_id": "rr-negative-001",
+      "tier": "gold",
+      "user_input": "宁德时代 2026 年上半年的储能电池出货量是多少 GWh？",
+      "retrieved_contexts": [
+        "## 2.2、 印尼产能承接订单转移，双反调查扰动短期盈利\n\n2024 年 5 月，美国商务部对越南、马来西亚、泰国和柬埔寨光伏产品发起反倾销、反补贴调查，东南亚既有供应链的贸易风险上升，美国订单开始向其他海外生产基地转移。公司印尼基地于 2024 年三季度投产 3GW 电池片产能，凭借相对较低的贸易壁垒与本地化制造优势，成为承接订单转移的重要平台。印尼产能投放不仅补充了公司海外供给，也强化了电池—组件一体化交付能力，使公司在订单转移阶段获得较高的产品溢价和单位盈利。\n\n但印尼的贸易优势在2025年下半年受到明显冲击。2025年8月起，美国商务部对印尼、印度、老挝光伏产品启动双反调查，公司随后主动调整印尼基地的出口区域，此前由订单转移带来的价格溢价和超额利润快速收窄。2026 年 9 月，美国商务部针对“新三国”的双反调查终裁落地，印尼光伏产品面临的双反税率合计达 167.56%。\n\n图5：美国对印尼双反税率达167.56%  \n![](images/19b40f474f5518e73eca4b9914cfdca1477b3887cdc89552897ad5e0f5645005.jpg)  \n数据来源：美国商务部、开源证券研究所\n\n目前公司电池片产能约 23GW，其中横店基地 5GW、宜宾基地合计 15GW、印尼基地 3GW；组件产能约21GW。2026年上半年公司海外出货占比已超过 70%，在美国市场受限后，欧洲分布式渠道、差异化产品以及海外市场多元化布局，仍为公司光伏业务提供重要支撑。\n\n表3：公司已实现23GW电池及21GW组件产能\n<table><tr><td>环节</td><td>基地</td><td>投产时间</td><td>产能（MW）</td></tr><tr><td rowspan=\"5\">电池</td><td>横店基地</td><td>2021Q3</td><td>5,000</td></tr><tr><td>宜宾一期基地</td><td>2023Q2</td><td>6,500</td></tr><tr><td>宜宾二期基地</td><td>2025Q1</td><td>8,500</td></tr><tr><td>印度尼西亚基地</td><td>2024Q3</td><td>3,000</td></tr><tr><td>合计</td><td></td><td>23,000</td></tr><tr><td rowspan=\"5\">组件</td><td>横店基地</td><td>2019Q1</td><td>1,500</td></tr><tr><td>泗洪基地</td><td>2021Q3</td><td>5,500</td></tr><tr><td>连云港基地</td><td>2023Q3</td><td>12,000</td></tr><tr><td>印度尼西亚基地</td><td>2024Q4</td><td>2,000</td></tr><tr><td>合计</td><td></td><td>21,000</td></tr></table>\n\n资料来源：infolink、开源证券研究所",
+        "## 3.1、 聚焦小圆柱锂电，需求扩容与结构升级并行\n\n公司自2016年进入锂电池业务，定位于“聚焦小动力、延伸发展储能”，现有锂电池产能 8.5GWh，小圆柱电池出货量位居全国前三。公司圆柱锂电池覆盖 18650、21700等18/21系小圆柱，广泛应用于电动二轮车、智能家电、电动工具、便携式储能等领域，并积极开拓无人机等新兴领域；同时，公司延伸布局了户储产品，并积极开拓工商业储能等市场。相较于方形和软包电池，圆柱电池具备标准化程度高、制造工艺成熟、产品型号丰富等特点，更适配小动力及分布式应用场景的多规格需求。\n\n图8：公司锂电业务聚焦小动力市场  \n![](images/38c03e645a267a4ff641cb45f9664959b7a20530cb55b4b41dd7af2112bc2670.jpg)  \n\n行业需求仍处于扩张阶段。根据 SPIR 数据，2025 年全球及中国圆柱电池出货量分别为 168.3 亿支和 103.6 亿支，同比增长 15.1%和 25.3%；其中 18/21 系小圆柱出货141.8亿支，仍是市场主体。30系以上大圆柱出货量为26.5亿支，同比增长45.2%，增速显著高于行业整体，反映出新能源车、高功率工具及储能等应用对高容量、高倍率产品的需求加快释放。根据 SPIR 预测，2026—2027 年全球圆柱电池出货量有望进一步增至 204.1亿支和247.8亿支，行业需求保持 20%以上增长。\n\n图9：圆柱电池需求持续提升（单位：亿支）  \n![](images/5645d0415b2afec847a5f617af0bbece24496a915ee7bb2e78aee111927af97b.jpg)  \n资料来源：SPIR\n\n需求结构上，传统电动工具、智能家居、两轮车和无人机等领域为小圆柱提供稳定基本盘，AI 硬件、AR/VR、服务器 BBU 及机器人等新应用则有望打开增量空间。技术层面，全极耳工艺向 18650、21700 等小圆柱产品渗透，有助于改善内阻、倍率与快充表现，推动产品向高性能、高附加值方向升级；30 系以上大圆柱的快速放量，也将带动圆柱电池产业的产品结构持续优化。",
+        "## 本周行业重要事件：\n\n风光储：能源局公布 8 月风光新增装机，单月同比+48%/+50%；大金重工签署海风基础安装船设计合同；隆基绿能刷新晶硅电池效纪录至 28.29%。\n\n锂电：宁德时代上调储能电芯报价，587Ah首次公开挂牌；工信部旗下媒体发文对“去宁德化”论调降温。\n\n电网：8 月全社会用电量同比+1.7%；国网与中国电气装备签署战略合作协；输变电设备5 批招标发布。\n\n氢能与燃料电池：振华、银河先后上调金属铬、铬盐产品价格；五省十四市协同召开大湾区氢能城市群工作部署会。  \n投资建议与估值：详见报告正文各子行业观点详情。"
+      ],
+      "response": "现有知识库中暂未检索到相关内容。",
+      "reference": "",
+      "related_docs": "",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "negative",
+      "stratum": "negative",
+      "paired_case_id": "",
+      "chunk_ids": [],
+      "sources": [
+        {
+          "id": "a8c234e5f420a0d7860bda7f059caf48c63ebe5314779cfde4323e673ffbba4c",
+          "chunk_key": "a8c234e5f420a0d7860bda7f059caf48c63ebe5314779cfde4323e673ffbba4c",
+          "parent_id": "ce8e11f593c821401ffca57dfaf9d32ce8943fe92d912d812b9a4f5b217c5cc3",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.8291,
+          "content": "## 2.2、 印尼产能承接订单转移，双反调查扰动短期盈利\n\n2024 年 5 月，美国商务部对越南、马来西亚、泰国和柬埔寨光伏产品发起反倾销、反补贴调查，东南亚既有供应链的贸易风险上升，美国订单开始向其他海外生产基地转移。公司印尼基地于 2024 年三季度投产 3GW 电池片产能，凭借相对较低的贸易壁垒与本地化制造优势，成为承接订单转移的重要平台。印尼产能投放不仅补充了公司海外供给，也强化了电池—组件一体化交付能力，使公司在订单转移阶段获得较高的产品溢价和单位盈利。\n\n但印尼的贸易优势在2025年下半年受到明显冲击。2025年8月起，美国商务部对印尼、印度、老挝光伏产品启动双反调查，公司随后主动调整印尼基地的出口区域，此前由订单转移带来的价格溢价和超额利润快速收窄。2026 年 9 月，美国商务部针对“新三国”的双反调查终裁落地，印尼光伏产品面临的双反税率合计达 167.56%。\n\n图5：美国对印尼双反税率达167.56%  \n![](images/19b40f474f5518e73eca4b9914cfdca1477b3887cdc89552897ad5e0f5645005.jpg"
+        },
+        {
+          "id": "f7ebfdc7858fce4030c3797ee07e9ea34e2b7aaabdf44161f06e6fbf6b7e4237",
+          "chunk_key": "f7ebfdc7858fce4030c3797ee07e9ea34e2b7aaabdf44161f06e6fbf6b7e4237",
+          "parent_id": "d3ac3fbc3d04dbca590a9f1432ebe2316f24a4c405e10cd02aeec960b792e75d",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.9018,
+          "rerank_score": 0.7477,
+          "content": "## 3.1、 聚焦小圆柱锂电，需求扩容与结构升级并行\n\n公司自2016年进入锂电池业务，定位于“聚焦小动力、延伸发展储能”，现有锂电池产能 8.5GWh，小圆柱电池出货量位居全国前三。公司圆柱锂电池覆盖 18650、21700等18/21系小圆柱，广泛应用于电动二轮车、智能家电、电动工具、便携式储能等领域，并积极开拓无人机等新兴领域；同时，公司延伸布局了户储产品，并积极开拓工商业储能等市场。相较于方形和软包电池，圆柱电池具备标准化程度高、制造工艺成熟、产品型号丰富等特点，更适配小动力及分布式应用场景的多规格需求。\n\n图8：公司锂电业务聚焦小动力市场  \n![](images/38c03e645a267a4ff641cb45f9664959b7a20530cb55b4b41dd7af2112bc2670.jpg)  \n\n行业需求仍处于扩张阶段。根据 SPIR 数据，2025 年全球及中国圆柱电池出货量分别为 168.3 亿支和 103.6 亿支，同比增长 15.1%和 25.3%；其中 18/21 系小圆柱出货141.8亿支，仍是市场主体。30系以上大圆柱出货量为26.5亿支，同比增长"
+        },
+        {
+          "id": "c9b668e52353f5bcb8d54a21a22a81baae1610e6f9fa93047711a865ba58db29",
+          "chunk_key": "c9b668e52353f5bcb8d54a21a22a81baae1610e6f9fa93047711a865ba58db29",
+          "parent_id": "c06856dedae6bd3d7557fe88b748fb00bd57ea58aa13b1b7972d5e6853e0e030",
+          "title": "H3_AP202609281829951153_1",
+          "source": "H3_AP202609281829951153_1.pdf",
+          "score": 0.554,
+          "rerank_score": 0.4593,
+          "content": "## 本周行业重要事件：\n\n风光储：能源局公布 8 月风光新增装机，单月同比+48%/+50%；大金重工签署海风基础安装船设计合同；隆基绿能刷新晶硅电池效纪录至 28.29%。\n\n锂电：宁德时代上调储能电芯报价，587Ah首次公开挂牌；工信部旗下媒体发文对“去宁德化”论调降温。\n\n电网：8 月全社会用电量同比+1.7%；国网与中国电气装备签署战略合作协；输变电设备5 批招标发布。\n\n氢能与燃料电池：振华、银河先后上调金属铬、铬盐产品价格；五省十四市协同召开大湾区氢能城市群工作部署会。  \n投资建议与估值：详见报告正文各子行业观点详情。"
+        }
+      ],
+      "retrieval_latency_ms": 1593.9871,
+      "generation_latency_ms": 2285.3498,
+      "errors": [],
+      "metrics": {
+        "hit_rate": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "doc_coverage": null,
+        "doc_recall": null,
+        "evidence_hit": null,
+        "evidence_coverage": null,
+        "evidence_all_in_topk": null,
+        "recall_at_5": null,
+        "precision_at_5": null,
+        "chunk_mrr": null,
+        "negative_rejection": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": null,
+        "retrieved_doc_stems": "H3_AP202609281829951050_1;H3_AP202609281829951050_1;H3_AP202609281829951153_1",
+        "retrieved_chunk_ids": "a8c234e5f420a0d7860bda7f059caf48c63ebe5314779cfde4323e673ffbba4c;f7ebfdc7858fce4030c3797ee07e9ea34e2b7aaabdf44161f06e6fbf6b7e4237;c9b668e52353f5bcb8d54a21a22a81baae1610e6f9fa93047711a865ba58db29"
+      }
+    },
+    {
+      "case_id": "rr-negative-002",
+      "tier": "gold",
+      "user_input": "贵州茅台 2026 年中报的营业总收入和归母净利润分别是多少？",
+      "retrieved_contexts": [
+        "| 2024A 2025A 2026E 2027E 2028E |\n| --- |\n| 营业收入 420.25356.02328.50312.85307.60 |\n| 营业成本 389.76327.06296.77282.46276.44 |\n| 营业税金及附加 1.54 1.88 2.30 2.19 2.15 |\n| 销售费用 5.50 4.79 5.58 5.32 5.23 |\n| 管理费用 10.38 9.74 10.18 9.39 9.23 |\n| 财务费用 1.14 0.22 0.16 -0.16 0.09 |\n| 资产减值损失 -0.58 -1.41 0.00 0.00 0.00 |\n| 投资收益 -0.16 -0.18 -0.09 -0.12 -0.11 |\n| 公允价值变动 0.17 -0.03 0.00 0.00 0.00 |\n| 营业利润 5.15 5.70 7.60 8.00 8.88 |\n| 其他非经营损益 0.14 0.11 0.11 0.12 0.11 |\n| 利润总额 5.29 5.80 7.71 8.11 8.99 |\n| 所得税 1.29 1.47 2.73 2.45 2.80 |\n| 净利润 4.00 4.33 4.98 5.66 6.19 |\n| 少数股东损益 0.08 0.11 0.04 0.09 0.09 |\n| 归母股东净利润 3.92 4.21 4.94 5.57 6.10 |",
+        "## ▌ 盈利预测\n\n预测公司 2026-2028 年收入分别为 10.87、13.65、16.78 亿元，EPS 分别为 1.28、1.77、2.35 元，当前股价对应 PE 分别为 92.5、67.3、50.6 倍，考虑湿实验需求的大幅增长，首\n\n次覆盖，给予“买入”投资评级。",
+        "## 5.2、 估值与评级\n\n公司以磁材器件为基础，光伏、锂电为第二增长曲线，软磁材料、高端器件及小动力锂电业务有望持续贡献增长。光伏业务聚焦海外高价值及差异化市场，后续伴随行业反内卷以及海外高功率、差异化产品占比提升，盈利能力有望逐步改善。锂电业务产能扩张及产品结构优化有望推动收入和盈利持续增长。软磁业务受益于新能源汽车、光储及 AIDC 需求增长，芯片电感已实现规模化量产，有望成为器件业 务 增 长 的 重 要 增 量 。 我 们 预 计 公 司 2026-2028 年 营 业 收 入 分 别 为249.24/280.17/313.59 亿元，归母净利润分别为 18.61/23.09/27.57 亿元。以 2026 年 9月 24 日收盘价 20.04 元计，公司 2026-2028 年 PE 分别为 17.52/14.12/11.82 倍。相较龙磁科技、铂科新材及顺络电子的可比公司平均 PE 63.92/36.17/23.98倍，公司估值具备明显优势；考虑到光伏盈利修复、锂电放量、器件高端化三重驱动，首次覆盖，给予“买入”评级。\n\n表10：公司2026-2028年PE低于可比公司平均估值\n<table><tr><td rowspan=\"2\">公司代码</td><td rowspan=\"2\">可比公司名称</td><td rowspan=\"2\">收盘价（元）</td><td rowspan=\"2\">总市值（亿元）</td><td colspan=\"3\">归母净利润（亿元）</td><td colspan=\"3\">P/E</td></tr><tr><td>2026E</td><td>2027E</td><td>2028E</td><td>2026E</td><td>2027E</td><td>2028E</td></tr><tr><td>300835.SZ</td><td>龙磁科技</td><td>189.93</td><td>226.49</td><td>2.23</td><td>5.59</td><td>11.84</td><td>101.68</td><td>40.49</td><td>19.13</td></tr><tr><td>300811.SZ</td><td>铂科新材</td><td>83.28</td><td>339.64</td><td>5.94</td><td>7.96</td><td>10.46</td><td>57.20</td><td>42.66</td><td>32.47</td></tr><tr><td>002138.SZ</td><td>顺络电子</td><td>51.30</td><td>413.64</td><td>12.58</td><td>16.30</td><td>20.33</td><td>32.88</td><td>25.37</td><td>20.35</td></tr><tr><td></td><td></td><td>同行平均</td><td></td><td></td><td></td><td></td><td>63.92</td><td>36.17</td><td>23.98</td></tr><tr><td>002056.SZ</td><td>横店东磁</td><td>20.04</td><td>325.99</td><td>18.61</td><td>23.09</td><td>27.57</td><td>17.52</td><td>14.12</td><td>11.82</td></tr></table>\n\n资料来源：Wind、开源证券研究所（龙磁科技、铂科新材、顺络电子盈利预测与估值均来自于 Wind 一致预期，横店东磁盈利预测与估值来自开源证券研究所，收盘价选取日期为 2026 年9 月 24 日）",
+        "## ⚫ 磁材器件与新能源协同发展，多元业务增强经营韧性\n\n公司已形成磁材、器件、光伏及锂电协同发展的业务格局：磁材业务提供稳定的制造基础与盈利支撑，器件业务依托材料能力向高附加值产品延伸，光伏业务以全球化布局和差异化产品构筑竞争优势，锂电业务则聚焦小圆柱电池并持续拓展储能及新兴应用。我们预计公司 2026-2028 年营业收入分别为 249.24/280.17/313.59亿元，归母净利润分别为 18.61/23.09/27.57 亿元，当前股价对应 2026-2028 年 PE 分别为 17.5/14.1/11.8 倍，首次覆盖，给予“买入”评级。",
+        "# 2026年中报点评：收入企稳回升、亏损幅度收窄，卫星互联网业务有望快速增长"
+      ],
+      "response": "现有知识库中暂未检索到相关内容。",
+      "reference": "",
+      "related_docs": "",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "negative",
+      "stratum": "negative",
+      "paired_case_id": "",
+      "chunk_ids": [],
+      "sources": [
+        {
+          "id": "855e6349017e70cb36fa4541fae84496496f8922322209f92bb662489dcfdae9",
+          "chunk_key": "855e6349017e70cb36fa4541fae84496496f8922322209f92bb662489dcfdae9",
+          "parent_id": "dc809313701f7c3020c252da81c3a7a16367905e4d81499e79e64996027783cb",
+          "title": "H3_AP202609261829925702_1",
+          "source": "H3_AP202609261829925702_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.8735,
+          "content": "| 2024A 2025A 2026E 2027E 2028E |\n| --- |\n| 营业收入 420.25356.02328.50312.85307.60 |\n| 营业成本 389.76327.06296.77282.46276.44 |\n| 营业税金及附加 1.54 1.88 2.30 2.19 2.15 |\n| 销售费用 5.50 4.79 5.58 5.32 5.23 |\n| 管理费用 10.38 9.74 10.18 9.39 9.23 |\n| 财务费用 1.14 0.22 0.16 -0.16 0.09 |\n| 资产减值损失 -0.58 -1.41 0.00 0.00 0.00 |\n| 投资收益 -0.16 -0.18 -0.09 -0.12 -0.11 |\n| 公允价值变动 0.17 -0.03 0.00 0.00 0.00 |\n| 营业利润 5.15 5.70 7.60 8.00 8.88 |\n| 其他非经营损益 0.14 0.11 0.11 0.12 0.11 |\n| 利润总额 5.29 5.80 7.71 8.11 8.99 |\n| 所得税 1.29 1.47 2"
+        },
+        {
+          "id": "6ed844e1655ed73611e8581cce616bc9cd0240dfd2924ab15a957c6d3d4d68f2",
+          "chunk_key": "6ed844e1655ed73611e8581cce616bc9cd0240dfd2924ab15a957c6d3d4d68f2",
+          "parent_id": "0120fca5c2325e56edede44a8efa8ddc5384aa1a0434d0ce1601016dcb71acfc",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 0.7866,
+          "rerank_score": 0.6871,
+          "content": "## ▌ 盈利预测\n\n预测公司 2026-2028 年收入分别为 10.87、13.65、16.78 亿元，EPS 分别为 1.28、1.77、2.35 元，当前股价对应 PE 分别为 92.5、67.3、50.6 倍，考虑湿实验需求的大幅增长，首\n\n次覆盖，给予“买入”投资评级。"
+        },
+        {
+          "id": "50c8446f1744ae1eec8fcb0a44bf2948e3b0e387b1c999d048aa0248e04579e8",
+          "chunk_key": "50c8446f1744ae1eec8fcb0a44bf2948e3b0e387b1c999d048aa0248e04579e8",
+          "parent_id": "200d24ecdc43cea36f29ab3968d37e2444d968b483126be517a3485cbca75fab",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.656,
+          "rerank_score": 0.573,
+          "content": "## 5.2、 估值与评级\n\n公司以磁材器件为基础，光伏、锂电为第二增长曲线，软磁材料、高端器件及小动力锂电业务有望持续贡献增长。光伏业务聚焦海外高价值及差异化市场，后续伴随行业反内卷以及海外高功率、差异化产品占比提升，盈利能力有望逐步改善。锂电业务产能扩张及产品结构优化有望推动收入和盈利持续增长。软磁业务受益于新能源汽车、光储及 AIDC 需求增长，芯片电感已实现规模化量产，有望成为器件业 务 增 长 的 重 要 增 量 。 我 们 预 计 公 司 2026-2028 年 营 业 收 入 分 别 为249.24/280.17/313.59 亿元，归母净利润分别为 18.61/23.09/27.57 亿元。以 2026 年 9月 24 日收盘价 20.04 元计，公司 2026-2028 年 PE 分别为 17.52/14.12/11.82 倍。相较龙磁科技、铂科新材及顺络电子的可比公司平均 PE 63.92/36.17/23.98倍，公司估值具备明显优势；考虑到光伏盈利修复、锂电放量、器件高端化三重驱动，首次覆盖，给予“买入”评级。\n\n表10：公司2026-2028年PE低于可比公司"
+        },
+        {
+          "id": "cd5ee52c0fc07181008f32093520d11e505e0ba6502c05ec4f9e36ec53974633",
+          "chunk_key": "cd5ee52c0fc07181008f32093520d11e505e0ba6502c05ec4f9e36ec53974633",
+          "parent_id": "8e8f34ca9225359ed06ecf63dbd56c3605a04202cdc06d83fbcdd992f03ba3a5",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.582,
+          "rerank_score": 0.5084,
+          "content": "## ⚫ 磁材器件与新能源协同发展，多元业务增强经营韧性\n\n公司已形成磁材、器件、光伏及锂电协同发展的业务格局：磁材业务提供稳定的制造基础与盈利支撑，器件业务依托材料能力向高附加值产品延伸，光伏业务以全球化布局和差异化产品构筑竞争优势，锂电业务则聚焦小圆柱电池并持续拓展储能及新兴应用。我们预计公司 2026-2028 年营业收入分别为 249.24/280.17/313.59亿元，归母净利润分别为 18.61/23.09/27.57 亿元，当前股价对应 2026-2028 年 PE 分别为 17.5/14.1/11.8 倍，首次覆盖，给予“买入”评级。"
+        },
+        {
+          "id": "83af5b354209ebdbfbcf91920c94e396640ee5c790487f16151f988da7a61631",
+          "chunk_key": "83af5b354209ebdbfbcf91920c94e396640ee5c790487f16151f988da7a61631",
+          "parent_id": "9ea1510fa78795eda3fbdb827b91a9669634950dedabc8f12a1c8277a39c6dae",
+          "title": "H3_AP202609201829669604_1",
+          "source": "H3_AP202609201829669604_1.pdf",
+          "score": 0.5042,
+          "rerank_score": 0.4404,
+          "content": "# 2026年中报点评：收入企稳回升、亏损幅度收窄，卫星互联网业务有望快速增长"
+        }
+      ],
+      "retrieval_latency_ms": 1520.3342,
+      "generation_latency_ms": 3850.7486,
+      "errors": [],
+      "metrics": {
+        "hit_rate": 0.0,
+        "mrr": 0.0,
+        "ndcg": 0.0,
+        "doc_coverage": null,
+        "doc_recall": null,
+        "evidence_hit": null,
+        "evidence_coverage": null,
+        "evidence_all_in_topk": null,
+        "recall_at_5": null,
+        "precision_at_5": null,
+        "chunk_mrr": null,
+        "negative_rejection": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": null,
+        "retrieved_doc_stems": "H3_AP202609261829925702_1;H3_AP202609231829798847_1;H3_AP202609281829951050_1;H3_AP202609281829951050_1;H3_AP202609201829669604_1",
+        "retrieved_chunk_ids": "855e6349017e70cb36fa4541fae84496496f8922322209f92bb662489dcfdae9;6ed844e1655ed73611e8581cce616bc9cd0240dfd2924ab15a957c6d3d4d68f2;50c8446f1744ae1eec8fcb0a44bf2948e3b0e387b1c999d048aa0248e04579e8;cd5ee52c0fc07181008f32093520d11e505e0ba6502c05ec4f9e36ec53974633;83af5b354209ebdbfbcf91920c94e396640ee5c790487f16151f988da7a61631"
+      }
+    },
+    {
+      "case_id": "rr-vague-001",
+      "tier": "gold",
+      "user_input": "那家汽车工程与流通公司的半年业绩点评里，营业收入是多少？",
+      "response": "该半年业绩点评中，分业务披露的2026H1营业收入如下 [1]：\n\n- 汽车工程系统服务：营收 **70亿元**，营收占比 45.5%\n- 汽车流通服务：营收 **70.1亿元**，营收占比 50.8%\n- 汽车租赁服务：营收 **4.49亿元**，营收占比 2.92%\n\n三项主要业务营收合计约为 **144.59亿元**。",
+      "reference": "2026 年 H1 实现营收 153.62 亿元，同比 -8.71%。",
+      "related_docs": "H3_AP202609261829925702_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "vague",
+      "paired_case_id": "rr-single-001",
+      "chunk_ids": [
+        "e77881793b8a061a0fd2451bcc674b1597dff77b7f1e98a0661f467eb281e515"
+      ],
+      "sources": [
+        {
+          "id": "f03abaf65fb207e082c443c857b8fdb6160f7bd39204c6c3bdefa1a7ce34182e",
+          "chunk_key": "f03abaf65fb207e082c443c857b8fdb6160f7bd39204c6c3bdefa1a7ce34182e",
+          "parent_id": "951e27eb0b9a7b984aded58fe8ea4656a33e2d44883e22de237277b081a6f3cd",
+          "title": "H3_AP202609261829925702_1",
+          "source": "H3_AP202609261829925702_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9746,
+          "content": "## ■ 点评\n\n公司是世界 500 强企业国机集团旗下一家大型汽车工程与流通全链服务商。主要业务由三部分组成：\n\n>>汽车工程系统服务。此为公司核心业务，具备涵盖咨询、勘察、设计、研发、制造、安装、调试、交付、运维等环节的项目全周期、全产业链工程技术服务能力。2026H1的营收 70亿，营收占比 45.5%；毛利润9.35亿，毛利占比 59.1%。此业务使公司盈利模式从“低毛利贸易商”向“高毛利工程服务商”迁移，也是上半年业绩结构变化的主因。\n\n>>汽车流通服务。公司是国内领先的多品牌汽车进口贸易服务商；出口方面，覆盖东欧、中亚、中东、南非等多个国家和地区。2026H1的营收 70.1 亿，营收占比 50.8%；毛利润 4.94 亿，毛利占比 31.23%。\n\n>>汽车租赁服务。主要服务国内汽车租赁 ToB、ToG 市场,已在全国建立70 余个分支机构。2026H1 的营收 4.49 亿，营收占比 2.92%；毛利润 0.89 亿，毛利占比 5.6%。"
+        },
+        {
+          "id": "bf25d42dc9ccca6ee066663b45f17680a1c92028a6d60c64bc785ddd4e027637",
+          "chunk_key": "bf25d42dc9ccca6ee066663b45f17680a1c92028a6d60c64bc785ddd4e027637",
+          "parent_id": "e4a94bb6365f701c892775cdfd3c80c1c54ccf3f69d9a6e2e0be0d098c1896e7",
+          "title": "H3_AP202609261829925702_1",
+          "source": "H3_AP202609261829925702_1.pdf",
+          "score": 0.3525,
+          "rerank_score": 0.3435,
+          "content": "## ■ 投资评级\n\n公司致力于成为“全球领先的汽车工程与流通全链服务商”，我们看好公司“十五五”战略方向，维持“买入”评级。"
+        },
+        {
+          "id": "dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1",
+          "chunk_key": "dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1",
+          "parent_id": "bff8ed91e262527c209959dc0e32cd59661ffaa8899ae4d117aa08a722bbb2e5",
+          "title": "H3_AP202609271829940631_1",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "score": 0.045,
+          "rerank_score": 0.0439,
+          "content": "# 点评：中标三个铁路市场项目共 9.76 亿，轨交业务覆盖持续拓宽\n\n买入（维持）\n\n<table><tr><td>盈利预测与估值</td><td>2024A</td><td>2025A</td><td>2026E</td><td>2027E</td><td>2028E</td></tr><tr><td>营业总收入（百万元）</td><td>32,644</td><td>34,677</td><td>36,342</td><td>37,897</td><td>40,097</td></tr><tr><td>同比（%）</td><td>(11.98)</td><td>6.23</td><td>4.80</td><td>4.28</td><td>5.81</td></tr><tr><td>归母净利润（百万元）</td><td>3,495</td><td>3,686</td><td>3,853</td><td>4,130</td><td>4,463</td></tr><tr><td>同比（%）</td><td>0.50</td><td>5.48</td><td>4.53</td><td>7"
+        }
+      ],
+      "retrieval_latency_ms": 1578.2988,
+      "generation_latency_ms": 18806.0627,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.7652,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.6309,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609261829925702_1;H3_AP202609261829925702_1;H3_AP202609271829940631_1",
+        "retrieved_chunk_ids": "f03abaf65fb207e082c443c857b8fdb6160f7bd39204c6c3bdefa1a7ce34182e;bf25d42dc9ccca6ee066663b45f17680a1c92028a6d60c64bc785ddd4e027637;dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1"
+      }
+    },
+    {
+      "case_id": "rr-vague-002",
+      "tier": "gold",
+      "user_input": "轨交信号公司中标了几个铁路项目，合计金额是多少？",
+      "response": "中国通号在2026年7月至8月中标了三个铁路项目，合计金额约9.76亿元 [1]。三个项目分别为：铁路专用线项目5.29亿元、高铁公网5G改造项目2.90亿元、轨道电路设备供货项目1.57亿元 [1]。",
+      "reference": "中标三个铁路市场项目，合计 9.76 亿元。",
+      "related_docs": "H3_AP202609271829940631_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "vague",
+      "paired_case_id": "rr-single-002",
+      "chunk_ids": [
+        "dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1"
+      ],
+      "sources": [
+        {
+          "id": "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27",
+          "chunk_key": "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27",
+          "parent_id": "b7a5e1b1f38c6259ce197f7d08651735aee79fe73f5ade2bb2a47e4f8410e3f7",
+          "title": "H3_AP202609271829940631_1",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9974,
+          "content": "## [Table\\_Su<sub>投资要点</sub>\n\n 中标三项铁路项目合计 9.76 亿元，为后续收入提供支撑：中国通号公告，2026年7 月至8月中标铁路专用线、高铁公网5G 改造及轨道电路设备供货三个项目，金额分别为 5.29 亿元、2.90 亿元和 1.57 亿元，合计约占公司 2025 年经审计营业总收入的 2.81%。若项目顺利签约并实施，订单有望随建设和交付进度逐步转化为收入。\n\n 专用线建设运营与高铁通信信号项目并进，轨交业务覆盖持续拓宽：5.29亿元的巴音敖包工业园铁路专用线项目占本次中标总额约54%，线路全长7.977公里，公司负责建设及运营，建设工期约18个月。项目覆盖建设到运营环节，有助于公司积累工业园区铁路专用线项目经验。公司中标2.90亿元温福高铁公网覆盖 5G改造工程通信系统施工项目，以及 1.57 亿元西渝高铁轨道电路设备供货项目。后者所在项目规划装备CTCS-3 级列控系统。两项订单分别对应高铁通信升级与新建线路列控配套，体现公司在通信施工和信号设备供货领域的业务覆盖。\n\n 轨交主业研发积淀深厚，智能低空订单快速增长：公司持续推进面向更高速"
+        },
+        {
+          "id": "dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1",
+          "chunk_key": "dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1",
+          "parent_id": "bff8ed91e262527c209959dc0e32cd59661ffaa8899ae4d117aa08a722bbb2e5",
+          "title": "H3_AP202609271829940631_1",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "score": 0.996,
+          "rerank_score": 0.9934,
+          "content": "# 点评：中标三个铁路市场项目共 9.76 亿，轨交业务覆盖持续拓宽\n\n买入（维持）\n\n<table><tr><td>盈利预测与估值</td><td>2024A</td><td>2025A</td><td>2026E</td><td>2027E</td><td>2028E</td></tr><tr><td>营业总收入（百万元）</td><td>32,644</td><td>34,677</td><td>36,342</td><td>37,897</td><td>40,097</td></tr><tr><td>同比（%）</td><td>(11.98)</td><td>6.23</td><td>4.80</td><td>4.28</td><td>5.81</td></tr><tr><td>归母净利润（百万元）</td><td>3,495</td><td>3,686</td><td>3,853</td><td>4,130</td><td>4,463</td></tr><tr><td>同比（%）</td><td>0.50</td><td>5.48</td><td>4.53</td><td>7"
+        },
+        {
+          "id": "eb6040cb90a0b34355b27c74ff804ef239aaa7414bd237ed47e12d8f99db2f28",
+          "chunk_key": "eb6040cb90a0b34355b27c74ff804ef239aaa7414bd237ed47e12d8f99db2f28",
+          "parent_id": "6fe7062837c6c2eff235063faad4b034558a6bcd5fa3adf9e21757be9b2341ce",
+          "title": "H3_AP202609201829669604_1",
+          "source": "H3_AP202609201829669604_1.pdf",
+          "score": 0.0144,
+          "rerank_score": 0.0144,
+          "content": "| 项目名称 | 投资总额(亿元) | 拟使用募集资金额(亿元) | 项目基本情况 |\n| --- | --- | --- | --- |\n| 空天地一体化移动通信产业化项目 | 20.00 | 15.00 | 建设卫星互联网智能工厂，研制和生产星载基带、星载相控阵天线、一体化载荷、专用终端等卫星互联网产品 |\n| 空天地一体化移动通信研发项目 | 28.50 | 18.50 | 开展卫星互联网标准体制演进和关键技术研究，研制高性能星载基站、分布式核心网等产品样机，构建端到端卫星互联网测试验证平台 |\n| 6G 研发项目 | 28.50 | 18.50 | 开展 6G 关键技术研究，制定 6G 标准，研制 6G 核心网、6G 基站芯片等全系列6G通信产品及验证平台 |\n| 补充流动资金 | 18.00 | 18.00 |  |\n| 合计 | 95.00 | 70.00 |  |"
+        }
+      ],
+      "retrieval_latency_ms": 1546.2517,
+      "generation_latency_ms": 5498.361,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.7449,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.6309,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 1.0,
+        "evidence_coverage": 1.0,
+        "evidence_all_in_topk": 1.0,
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "chunk_mrr": 0.5
+      },
+      "diagnostics": {
+        "evidence_rank": 2.0,
+        "retrieved_doc_stems": "H3_AP202609271829940631_1;H3_AP202609271829940631_1;H3_AP202609201829669604_1",
+        "retrieved_chunk_ids": "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27;dabccdac3ad2a16259ba16de71ae186cf7117a93e6280f0977b68be1b6ace0b1;eb6040cb90a0b34355b27c74ff804ef239aaa7414bd237ed47e12d8f99db2f28"
+      }
+    },
+    {
+      "case_id": "rr-vague-004",
+      "tier": "gold",
+      "user_input": "磁材公司那份首次覆盖给出了什么投资评级？",
+      "response": "首次覆盖给予“买入”评级 [1]。",
+      "reference": "买入（首次）。",
+      "related_docs": "H3_AP202609281829951050_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "vague",
+      "paired_case_id": "rr-single-004",
+      "chunk_ids": [
+        "a7ca2adf5f5d5710949969a167f2d05d25f346f0a35b97d7b6bd0093717cef98"
+      ],
+      "sources": [
+        {
+          "id": "cd5ee52c0fc07181008f32093520d11e505e0ba6502c05ec4f9e36ec53974633",
+          "chunk_key": "cd5ee52c0fc07181008f32093520d11e505e0ba6502c05ec4f9e36ec53974633",
+          "parent_id": "8e8f34ca9225359ed06ecf63dbd56c3605a04202cdc06d83fbcdd992f03ba3a5",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.9631,
+          "content": "## ⚫ 磁材器件与新能源协同发展，多元业务增强经营韧性\n\n公司已形成磁材、器件、光伏及锂电协同发展的业务格局：磁材业务提供稳定的制造基础与盈利支撑，器件业务依托材料能力向高附加值产品延伸，光伏业务以全球化布局和差异化产品构筑竞争优势，锂电业务则聚焦小圆柱电池并持续拓展储能及新兴应用。我们预计公司 2026-2028 年营业收入分别为 249.24/280.17/313.59亿元，归母净利润分别为 18.61/23.09/27.57 亿元，当前股价对应 2026-2028 年 PE 分别为 17.5/14.1/11.8 倍，首次覆盖，给予“买入”评级。"
+        },
+        {
+          "id": "0bbf1f9221ca748ef0a7da3601ec3d328ada5e5dcbe2cdebd81be3cca8907e1f",
+          "chunk_key": "0bbf1f9221ca748ef0a7da3601ec3d328ada5e5dcbe2cdebd81be3cca8907e1f",
+          "parent_id": "6aafca1e542e4f58b1984b2207c55f10ee3beac9ede91285128e8df8890a668a",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.1937,
+          "rerank_score": 0.1865,
+          "content": "## 1.1、 磁材基业深厚，多元拓界完成产业升级\n\n横店集团东磁股份有限公司（以下简称“横店东磁”）前身为 1980 年成立的东阳县横店磁性器材厂，早期专注于磁性材料的研发、生产与销售。经过多年技术积累与规模扩张，公司逐步在永磁铁氧体、软磁铁氧体等领域建立领先优势，并持续完善材料体系及客户结构。2006 年，公司在深圳证券交易所成功上市，借助资本市场进一步提升研发、制造及产业拓展能力，为后续业务多元化发展奠定基础。\n\n上市后，公司围绕原有材料制造能力持续拓展业务边界。2009 年，公司成立太阳能事业部，正式进入光伏产业；2010 年进一步开展光伏产品生产与销售，此后逐步向组件环节延伸，形成电池、组件协同发展的业务布局。2016 年，公司成立新能源电池事业部切入锂电领域，重点布局 18650 等圆柱锂离子电池；2018 年，公司进一步拓展器件产品，持续向磁材下游延伸，逐步建立从磁性材料向器件拓展的纵向发展能力。\n\n2020 年以来，公司各项业务持续深化拓展。光伏方面，公司持续扩充高效电池及组件产能，同时推进 PERC向N型 TOPCon技术迭代；2022 年，公司组件出货量首次进入 P"
+        },
+        {
+          "id": "9b5312439a515e5fd657df0fc1b8e2ff47dd0d0c092a06d992154883d9790bf4",
+          "chunk_key": "9b5312439a515e5fd657df0fc1b8e2ff47dd0d0c092a06d992154883d9790bf4",
+          "parent_id": "639666e938235c64d7ba515aeda9e26b59227d7f48b44441d4cf5e5fd136b68b",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.1571,
+          "rerank_score": 0.1513,
+          "content": "### 1、 四十余年深耕磁性材料，业务版图延伸至新能源.\n、 磁材稳盘器件增量，新能源业务保持盈利韧性"
+        }
+      ],
+      "retrieval_latency_ms": 1560.468,
+      "generation_latency_ms": 4251.3482,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.7675,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 2.1309,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609281829951050_1;H3_AP202609281829951050_1;H3_AP202609281829951050_1",
+        "retrieved_chunk_ids": "cd5ee52c0fc07181008f32093520d11e505e0ba6502c05ec4f9e36ec53974633;0bbf1f9221ca748ef0a7da3601ec3d328ada5e5dcbe2cdebd81be3cca8907e1f;9b5312439a515e5fd657df0fc1b8e2ff47dd0d0c092a06d992154883d9790bf4"
+      }
+    },
+    {
+      "case_id": "rr-vague-005",
+      "tier": "gold",
+      "user_input": "生物试剂公司那篇事件点评的主题是什么？",
+      "response": "生物试剂公司相关事件点评的主题主要包括：\n\n- **政策激励源头创新，推动上游生物试剂需求**：工信部等十部门联合印发《医药工业发展“十五”规划》，提出2030年首创新药（FIC）占全球比例≥25%，拉动对上游高质量生物试剂的需求；公司凭借靶点覆盖广度与快速研发响应速度切入全球药企供应链，2026年H1收入同比增长28.97% [1]。\n\n- **投资1.5亿元合伙设立医药投资基金**：公司主业为供应重组蛋白和抗体，通过设立医药投资基金拓展投资渠道、获取投资收益，并培育与主营业务资源互补、战略协同的合作方，完善产业链布局 [3]。",
+      "reference": "加速赋能 AI 新药研发。",
+      "related_docs": "H3_AP202609231829798847_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "vague",
+      "paired_case_id": "rr-single-005",
+      "chunk_ids": [
+        "51457c8a1864f37a73c220b1daab16839282f9397641bc95b310606d5ef5d89b"
+      ],
+      "sources": [
+        {
+          "id": "6f479dc605017167136ff8cc803c00c28880c2c63875365b188c13988294492b",
+          "chunk_key": "6f479dc605017167136ff8cc803c00c28880c2c63875365b188c13988294492b",
+          "parent_id": "b939dca5e0bebfca3b3dbed7639478664ea9fc5d994d79ba80cf781efccc91fe",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.0155,
+          "content": "## ▌ 政策激励源头创新，推动上游生物试剂需求\n\n9 月 18 日工信部等十部门联合印发《医药工业发展 “十五规划》，规划提出 2030 年目标——首创新药（FIC）占全球比例≥25%。顶层政策激励源头创新，推动创新药研发向首创性、突破性、颠覆性升级，也拉动对上游高质量生物试剂的需求。公司凭借领先的靶点覆盖广度与快速研发响应速度，切入全球药企的供应链体系。2026 年 H1,公司收入同比增长 28.97%，延续了稳定增长趋势。"
+        },
+        {
+          "id": "3d8861994a65e1c9a68e11878cf9d08e96c4b738b2065673e0ff0a6fa7959a65",
+          "chunk_key": "3d8861994a65e1c9a68e11878cf9d08e96c4b738b2065673e0ff0a6fa7959a65",
+          "parent_id": "e85947ae98d517ff42ddbfd20a67f201baf2679f20cc7c4c38655a30222a1aa0",
+          "title": "H3_AP202609261829930314_1",
+          "source": "H3_AP202609261829930314_1.pdf",
+          "score": 0.0528,
+          "rerank_score": 0.0008,
+          "content": "| 误区类型 | 常见误区 | 观点 |\n| --- | --- | --- |\n| 认知误区 | 误区一：GEO就是SEO的升级版 | GEO并非SEO的简单延伸。SEO面向搜索引擎排名，GEO面向生成式AI的信息理解、内 容引用与品牌推荐，两者优化目标、对象及评价体系均存在明显差异。 |\n| 认知误区 | 误区二：GEO就是让AI多提及品牌 | 品牌提及只是结果，而非目标。GEO的核心在于提升品牌被AI理解、引用和推荐的能力， 本质是增强品牌在AI中的认知质量。 |\n| 实践误区 | 误区三：做好官网或多发内容就能做好GEO | 单一渠道无法建立完整AI认知。AI会综合官网、媒体、百科、行业平台、社交媒体等多 源信息形成品牌认知，需要系统化建设品牌信息资产。 |\n| 实践误区 | 误区四：GEO只是内容优化 | 内容只是GEO的一部分。品牌知识体系、权威信源、数字资产、结构化数据等都会影响 AI对品牌的理解和推荐能力。 |\n| 实践误区 | 误区五：所有AI平台的优化方式都一样 | 不同AI平台的数据来源、引用机制和生成逻辑存在差异。品牌应建立统一的信息资产体 系，并结合不同平台特"
+        },
+        {
+          "id": "2ededcb85e6b56b23ca46e5c4c4e6db783a589266b237429a30f5f3b5f5437bc",
+          "chunk_key": "2ededcb85e6b56b23ca46e5c4c4e6db783a589266b237429a30f5f3b5f5437bc",
+          "parent_id": "8b4a49c23f39d4f145153c66e843c4da0dbdaa5c7f63c7b8f98d03bcc1f38584",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 0.026,
+          "rerank_score": 0.0004,
+          "content": "## ▌ 投资1.5亿元合伙设立投资基金\n\n公司主业为供应重组蛋白和抗体，不仅服务头部生物医药企业，还面向非上市的 biotech 企业，此次投资设立的医药投资基金，一方面有利于发挥公司在生命科学、医疗健康领域的专业优势，拓展公司投资渠道，获取投资收益，另一方面，发掘培养与公司主营业务形成资源互补、战略协同的合作方，不断完善产业链布局，提升公司综合竞争力。"
+        }
+      ],
+      "retrieval_latency_ms": 1497.5254,
+      "generation_latency_ms": 21088.1212,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9318,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.5,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609231829798847_1;H3_AP202609261829930314_1;H3_AP202609231829798847_1",
+        "retrieved_chunk_ids": "6f479dc605017167136ff8cc803c00c28880c2c63875365b188c13988294492b;3d8861994a65e1c9a68e11878cf9d08e96c4b738b2065673e0ff0a6fa7959a65;2ededcb85e6b56b23ca46e5c4c4e6db783a589266b237429a30f5f3b5f5437bc"
+      }
+    },
+    {
+      "case_id": "rr-vague-006",
+      "tier": "gold",
+      "user_input": "硬质合金工具公司那份动态研究报告的标题是什么？",
+      "response": "该动态研究报告的标题是《产能扩张与全球布局共振，硬质合金工具龙头成长路径清晰》[1]。",
+      "reference": "《产能扩张与全球布局共振，硬质合金工具龙头成长路径清晰》。",
+      "related_docs": "H3_AP202609241829833777_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "vague",
+      "paired_case_id": "rr-single-006",
+      "chunk_ids": [
+        "7c07074346d9b033dd8a4c560e8c4830dc67f4b2724b3291f1c8f3d392a34690"
+      ],
+      "sources": [
+        {
+          "id": "7c07074346d9b033dd8a4c560e8c4830dc67f4b2724b3291f1c8f3d392a34690",
+          "chunk_key": "7c07074346d9b033dd8a4c560e8c4830dc67f4b2724b3291f1c8f3d392a34690",
+          "parent_id": "4e72abdf6edee535894635703480cf2a60c7619a7b390ff5d1ec8689dbfb3d49",
+          "title": "H3_AP202609241829833777_1",
+          "source": "H3_AP202609241829833777_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.7531,
+          "content": "# 产能扩张与全球布局共振，硬质合金工具龙头成长路径清晰"
+        },
+        {
+          "id": "8474fd4cbf85395eb18d76b62d1067b9ea7fa49800351c2ce2312c127768b9d0",
+          "chunk_key": "8474fd4cbf85395eb18d76b62d1067b9ea7fa49800351c2ce2312c127768b9d0",
+          "parent_id": "4b1c8ec58fde741911df79269e6864655dfa6f45940b82e59e3998c3af0434b2",
+          "title": "H3_AP202609281829953173_1",
+          "source": "H3_AP202609281829953173_1.pdf",
+          "score": 0.0574,
+          "rerank_score": 0.0432,
+          "content": "# ——PCB 行业专题研究二"
+        },
+        {
+          "id": "3af6525224cabd32bc627f248540832db0348ccae420b0f2e6634d4909800619",
+          "chunk_key": "3af6525224cabd32bc627f248540832db0348ccae420b0f2e6634d4909800619",
+          "parent_id": "2b9e51e1a282e4d0d44ee76a339789417d5a370255497d0c78d0e6bf6d3c4b75",
+          "title": "H3_AP202609201829669604_1",
+          "source": "H3_AP202609201829669604_1.pdf",
+          "score": 0.0218,
+          "rerank_score": 0.0164,
+          "content": "## ◆ 公司报告期内的业务进展情况"
+        }
+      ],
+      "retrieval_latency_ms": 1513.8798,
+      "generation_latency_ms": 5223.4945,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.8085,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.0,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 1.0,
+        "evidence_coverage": 1.0,
+        "evidence_all_in_topk": 1.0,
+        "recall_at_5": 1.0,
+        "precision_at_5": 0.2,
+        "chunk_mrr": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": 1.0,
+        "retrieved_doc_stems": "H3_AP202609241829833777_1;H3_AP202609281829953173_1;H3_AP202609201829669604_1",
+        "retrieved_chunk_ids": "7c07074346d9b033dd8a4c560e8c4830dc67f4b2724b3291f1c8f3d392a34690;8474fd4cbf85395eb18d76b62d1067b9ea7fa49800351c2ce2312c127768b9d0;3af6525224cabd32bc627f248540832db0348ccae420b0f2e6634d4909800619"
+      }
+    },
+    {
+      "case_id": "rr-vague-007",
+      "tier": "gold",
+      "user_input": "通信设备公司这份中报点评的核心结论是什么？",
+      "response": "该中报点评的核心结论为：维持“买入”评级，认为公司短期扰动不改基本面，燃机订单超预期，且 AIDC 一体化布局打开成长空间 [1]。\n\n主要看点包括：\n\n- **评级与核心判断**：买入（维持）；短期扰动不改基本面，燃机订单超预期 + AIDC 一体化打开成长空间 [1]。\n- **成长性预测**：预计 2026E—2028E 营业总收入分别为 20,507 百万元、39,512 百万元、58,780 百万元，同比增速分别为 26.41%、92.67%、48.77%；归母净利润分别为 3,683 百万元、8,608 百万元、13,421 百万元，同比增速分别为 37.39%、133.74%、55.91% [1]。",
+      "reference": "收入企稳回升、净利润亏损幅度显著收窄。",
+      "related_docs": "H3_AP202609201829669604_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "vague",
+      "paired_case_id": "rr-single-007",
+      "chunk_ids": [
+        "6c24cf61149344231b51e698354dcff89c161faae7b3b4c0cb25c106f3262732"
+      ],
+      "sources": [
+        {
+          "id": "7c4b953aa951fb1b112b9534abd81fcdbb90e7fe698dd16904cd65bcebb52506",
+          "chunk_key": "7c4b953aa951fb1b112b9534abd81fcdbb90e7fe698dd16904cd65bcebb52506",
+          "parent_id": "3c7ba217d72f98a930b9474fbee28563e4a384c637c62eba39b3439b22572b9a",
+          "title": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间",
+          "source": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf",
+          "score": 1.0,
+          "rerank_score": 0.0342,
+          "content": "# 2026 中报点评：短期扰动不改基本面，燃机订单超预期+ AIDC 一体化打开成长空间\n\n买入（维持）\n\n<table><tr><td>盈利预测与估值</td><td>2024A</td><td>2025A</td><td>2026E</td><td>2027E</td><td>2028E</td></tr><tr><td>营业总收入（百万元）</td><td>13,355</td><td>16,223</td><td>20,507</td><td>39,512</td><td>58,780</td></tr><tr><td>同比（%）</td><td>(4.00)</td><td>21.48</td><td>26.41</td><td>92.67</td><td>48.77</td></tr><tr><td>归母净利润（百万元）</td><td>2,627</td><td>2,680</td><td>3,683</td><td>8,608</td><td>13,421</td></tr><tr><td>同比（%）</td><td>7.03</td><td>2.03</td><td"
+        },
+        {
+          "id": "5724f4b68204b04966443eb192a6defbb1b4c707a29efc68a7e5c99060b152cd",
+          "chunk_key": "5724f4b68204b04966443eb192a6defbb1b4c707a29efc68a7e5c99060b152cd",
+          "parent_id": "a7679b09e577efe7b76ce4f0d9454ff6d1b74bf099cdb7eddb7e2ed9d5123085",
+          "title": "H3_AP202609271829940631_1",
+          "source": "H3_AP202609271829940631_1.pdf",
+          "score": 0.6872,
+          "rerank_score": 0.0235,
+          "content": "## 相关研究\n\n《中国通号(688009)：2026 年半年报点评：业绩阶段性承压，积极打造低空经济第二曲线》\n\n2026-08-31\n\n《中国通号(688009)：2025 年三季报点评：加速聚焦主业，低空经济构筑新增长极》\n\n2025-10-29\n\n中国通号三大财务预测表"
+        },
+        {
+          "id": "3af6525224cabd32bc627f248540832db0348ccae420b0f2e6634d4909800619",
+          "chunk_key": "3af6525224cabd32bc627f248540832db0348ccae420b0f2e6634d4909800619",
+          "parent_id": "2b9e51e1a282e4d0d44ee76a339789417d5a370255497d0c78d0e6bf6d3c4b75",
+          "title": "H3_AP202609201829669604_1",
+          "source": "H3_AP202609201829669604_1.pdf",
+          "score": 0.162,
+          "rerank_score": 0.0055,
+          "content": "## ◆ 公司报告期内的业务进展情况"
+        }
+      ],
+      "retrieval_latency_ms": 1526.7029,
+      "generation_latency_ms": 15877.1293,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.2279,
+        "answer_relevancy": 0.8384,
+        "hit_rate": 1.0,
+        "mrr": 0.3333,
+        "ndcg": 0.5,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间;H3_AP202609271829940631_1;H3_AP202609201829669604_1",
+        "retrieved_chunk_ids": "7c4b953aa951fb1b112b9534abd81fcdbb90e7fe698dd16904cd65bcebb52506;5724f4b68204b04966443eb192a6defbb1b4c707a29efc68a7e5c99060b152cd;3af6525224cabd32bc627f248540832db0348ccae420b0f2e6634d4909800619"
+      }
+    },
+    {
+      "case_id": "rr-vague-008",
+      "tier": "gold",
+      "user_input": "近期一份宏观周报对美联储议息的核心判断是什么？",
+      "response": "该宏观周报对美联储议息的核心判断是：8月美国通胀数据超预期、核心CPI明显走升，进一步强化了美联储加息预期，利率期货隐含的9月加息概率已升至约九成，美联储或为维护信誉而被迫加息 [1][2]。后续需紧盯美国9月议息的结果和表态 [2]。",
+      "reference": "美国通胀超预期，加息已“箭在弦上”。",
+      "related_docs": "H3_AP202609251829896818_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "single_hop",
+      "stratum": "vague",
+      "paired_case_id": "rr-single-008",
+      "chunk_ids": [
+        "5c536ce77ff96430baafda376292448d6d640626c615a670edcfa8ffd0c917c4"
+      ],
+      "sources": [
+        {
+          "id": "5597cc8638400d2bc2bbc55e81505c16308fa1539e6790c7ccc3a067be606f51",
+          "chunk_key": "5597cc8638400d2bc2bbc55e81505c16308fa1539e6790c7ccc3a067be606f51",
+          "parent_id": "013762606a2e69644cf93fb52e13536c77b56bde15b708b09699e459e7441413",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.6387,
+          "content": "### 第一章 一周市场感悟\n\n本周海外宏观的扰动源进一步收敛为“地缘冲突”与“通胀数据”两条主线。美伊对抗转向海上“油轮战”，霍尔木兹海峡通航风险陡升，直接推高能源价格与通胀预期；而周四周五公布的美国8月通胀数据，成为美联储9月议息前最后也是最关键的一块拼图，市场对9月加息预期押注已经升至9成附近。国内则处于“外贸高增、物价温和、内需偏弱”的组合之中。"
+        },
+        {
+          "id": "fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c",
+          "chunk_key": "fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c",
+          "parent_id": "5008ad006f322a459ffda858d731263288d54078f2167e14e9d757f472240815",
+          "title": "H3_AP202609251829896818_1",
+          "source": "H3_AP202609251829896818_1.pdf",
+          "score": 0.6689,
+          "rerank_score": 0.4272,
+          "content": "## 主要观点\n\n本周全球宏观主线仍是“地缘风险升级、加息预期升温”两条主线交织。中东方面，美伊“油轮战”未平，红海方向又生变局，胡塞武装沿红海海岸闪电推进、控制穆哈港与哈尼什群岛，进一步收紧曼德海峡，与霍尔木兹形成“双要道”同时受压，全球能源运输咽喉被一并扼住，原油大幅飙升、通胀预期再度升温。与此同时，8月美国通胀数据超预期，核心CPI明显走升，进一步强化美联储加息预期，利率期货隐含的9月加息概率随之升至约九成，美联储或为维护信誉而被迫加息。国内方面，8月外贸延续两位数高增、物价温和修复，经济在“弱现实”中仍具结构性亮点，但地产与内需疲弱尚未根本扭转。大类资产上，能源受地缘溢价主导持续走强，贵金属和有色在加息压制下偏承压，美债遭遇猛烈抛售、收益率创多年新高；权益快速轮动、整体偏弱。后续需紧盯美国9月议息的结果和表态，以及中东局势变动。"
+        },
+        {
+          "id": "aef163b929904d2170b9ae39551d9c6e6c4ae45806b71387b3aaac881d29dccf",
+          "chunk_key": "aef163b929904d2170b9ae39551d9c6e6c4ae45806b71387b3aaac881d29dccf",
+          "parent_id": "c037c4062ea97c25a650aff880c1b9892cbe5b1f8bc77fc613b713d35c4e9a8f",
+          "title": "H3_AP202609211829713285_1",
+          "source": "H3_AP202609211829713285_1.pdf",
+          "score": 0.6487,
+          "rerank_score": 0.4143,
+          "content": "## 宏观周报"
+        }
+      ],
+      "retrieval_latency_ms": 1522.9743,
+      "generation_latency_ms": 10035.4217,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9634,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.6309,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609251829896818_1;H3_AP202609251829896818_1;H3_AP202609211829713285_1",
+        "retrieved_chunk_ids": "5597cc8638400d2bc2bbc55e81505c16308fa1539e6790c7ccc3a067be606f51;fd80e441fa8c8a89e18471edf31f412609593cce0e25930ac536255a7d28d65c;aef163b929904d2170b9ae39551d9c6e6c4ae45806b71387b3aaac881d29dccf"
+      }
+    },
+    {
+      "case_id": "rr-vague-009",
+      "tier": "gold",
+      "user_input": "算力需求增长和机房硬件改造，两边材料分别怎么解释基础设施需求被什么拉动？",
+      "response": "从检索材料看，两边对基础设施需求的拉动逻辑分别如下：\n\n**一、算力需求增长侧：基础设施需求被智能体规模化运行拉动**\n\n[1] 指出，智能体的规模化运行正在带来持续、刚性的算力需求，推动算力跃升为与水利、电网、铁路同等层级的国家战略基础设施。总量上，IDC预计2026年中国智能算力规模达到2,576.5 EFLOPS，同比增长87.9%，2030年达到10,524.3 EFLOPS；2025—2030年中国智能算力规模和通用算力规模复合增长率分别达50.3%和27.7%，较此前预测显著上调 [1]。\n\n[2] 进一步解释了智能体拉动算力基础设施需求的“三项乘数结构”：\n\n- **任务执行次数**：中国智能体年执行任务数将从2026年的178亿次增至2030年的39.41万亿次，全球从2,800亿次增至415.07万亿次；\n- **单任务Token消耗**：智能体任务从简单问答的数十个Token，增长到复杂文档分析的数万个、多轮决策的数十万个，单任务Token消耗增长数百倍；\n- **多智能体协同放大系数**：多智能体协同将任务分解为多个子任务，同时智能体之间的上下文传递和结果汇总延长任务链路，进一步推高Token消耗 [2]。\n\n因此，算力需求增长侧的基础设施需求，核心是被**智能体任务规模扩大、单任务复杂度上升、多智能体协同放大**共同拉动 [1][2]。\n\n**二、机房硬件改造侧：基础设施需求被AI硬件代际快速迭代拉动**\n\n[3] 显示，AI硬件技术迭代节奏持续加快，算力硬件代际更新周期不断缩短。如果已投运数据中心基础设施改造工程量大、周期长，会直接产生算力闲置机会成本，并延缓新一代算力集群部署。传统数据中心机电系统与初代硬件深度绑定，代际升级往往需要6～12个月甚至更久，且难以在线实施 [3]。\n\n因此，面向新一代AIDC，基础设施需要具备快速被改造的能力，通过模块化设计、容量预留、标准化接口和预制化改造单元，将改造周期压缩至3个月以内，部分仅更换IT硬件场景可缩短至数周 [3]。\n\n所以，机房硬件改造侧的基础设施需求，是由**AI算力硬件代际演进加快、硬件更新周期缩短**拉动的，要求基础设施具备更强的弹性兼容和快速改造能力 [3]。\n\n综上：一边是智能体规模化运行拉动算力基础设施总量和结构性增长；另一边是AI硬件代际快速迭代拉动数据中心基础设施的弹性兼容与改造能力升级。",
+      "reference": "IDC 报告从全球活跃智能体数量增长（2026 年 7,940 万个 → 2030 年 22.16 亿个）说明算力刚性需求；全球计算联盟 AIDC 白皮书从硬件层面说明 AI 算力指数级爆发驱动数据中心发生深刻变革。需分别注明出处。",
+      "related_docs": "H3_AP202609261829929943_1.pdf | H3_AP202609261829929869_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "vague",
+      "paired_case_id": "rr-multi-004",
+      "chunk_ids": [
+        "cbb7015ce437c5d25ef3da1f215c77552c1b7ea15ab6b9775e4e14e55f6a9e63",
+        "bb7dadb56524d8f5b2649ba39a4a588c9fea13288b12315d9c1c784e4f4712b7"
+      ],
+      "sources": [
+        {
+          "id": "eebec6d1f1ebed101a65be1a4f6b4b9b9ce74abf5fb019f997bd3a3a32a6f359",
+          "chunk_key": "eebec6d1f1ebed101a65be1a4f6b4b9b9ce74abf5fb019f997bd3a3a32a6f359",
+          "parent_id": "619b0886fdc5f968c42b931baf2ff454c77f584d5c35881152d17489d53dc0e3",
+          "title": "H3_AP202609261829929943_1",
+          "source": "H3_AP202609261829929943_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.8423,
+          "content": "## 算力跃升为国家战略基础设施，智能体拉动算力规模斜率大幅上调。\n\n智能体的规模化运行正在带来持续、刚性的算力需求，推动算力跃升为与水利、电网、铁路同等层级的国家战略基础设施。IDC数据显示，2026年中国智能算力规模将达到2,576.5 EFLOPS，同比增长87.9%，并在2030年达到10,524.3 EFLOPS。2025-2030年中国智能算力规模和通用算力规模的复合增长率分别达50.3%和27.7%，较上一版本预测值46.2%和18.8%有显著提升。"
+        },
+        {
+          "id": "619e6137b06719dd07e750368f07460cce5193e4013adaaf1010bdee9ba42ad7",
+          "chunk_key": "619e6137b06719dd07e750368f07460cce5193e4013adaaf1010bdee9ba42ad7",
+          "parent_id": "16b488fcd702fd202f83161a6d12f96b55ee446e112f9b8abda2efde36cf0706",
+          "title": "H3_AP202609261829929943_1",
+          "source": "H3_AP202609261829929943_1.pdf",
+          "score": 0.9234,
+          "rerank_score": 0.7778,
+          "content": "## 趋势三：智能体驱动算力需求结构性跃升——看得见的智能体应用，看不见的算力基础设施\n\n智能体规模化运行对算力需求的拉动，遵循一个清晰的三项乘数结构：\n\nToken消耗总量 = 任务执行次数 × 单任务Token消耗 × 多智能体协同放大系数\n\n任务执行次数：全球智能体年执行任务数将从2026年的2,800亿次增至2030年的415.07万亿次，复合年均增长率达520.5%；中国将从2026年的178亿次增至2030年的39.41万亿次，复合年均增长率达586.0%。每一次任务执行——无论是一次信息检索、一次数据分析还是一次跨系统操作——都需要调用算力资源。\n\n单任务Token消耗：单任务Token消耗由任务链路的长度与复杂度决定。一个完整的智能体任务不再是一次模型调用，而是包含任务规划、模型推理、工具调用、结果分析、再规划、再调用的循环往复过程，每一轮循环都产生新的Token消耗；随着大模型上下文窗口的扩展和推理能力的增强，单个任务所需的Token正从简单问答的数十个，增长到复杂文档分析的数万个，再到多轮对话与决策的数十万个，单任务Token消耗已增长数百倍。这意味着智能体的规模化"
+        },
+        {
+          "id": "a6a5871e0c8fb658a5ecca0cf22ae9ef97c6811a0ce732c5c5ec57ed7289ab7e",
+          "chunk_key": "a6a5871e0c8fb658a5ecca0cf22ae9ef97c6811a0ce732c5c5ec57ed7289ab7e",
+          "parent_id": "3ce032ac68c67c6ab876de6def3a5182e0babdba3f275ec78b374c85617333a0",
+          "title": "H3_AP202609261829929869_1",
+          "source": "H3_AP202609261829929869_1.pdf",
+          "score": 0.5742,
+          "rerank_score": 0.4837,
+          "content": "#### 第五节 维度四：弹性兼容\n\n名称：代际改造周期\n\n定义：代际改造周期指在单个算力集群边界内，从正式确定算力代际升级改造需求开始，到完成硬件更换、系统联调并实现业务可承载运行的全流程日历周期，用于衡量数据中心基础设施对算力硬件代际演进的弹性兼容能力。\n\nAI硬件技术迭代节奏持续加快，算力硬件代际更新周期不断缩短。对于已投运的数据中心，若基础设施改造工程量大、周期漫长，将直接产生算力闲置的机会成本，延缓新一代算力集群的部署节奏。传统数据中心受定制化设计约束，机电系统与初代硬件深度绑定，硬件代际升级往往涉及大量现场改造、线缆更换与系统调试，改造周期普遍长达6\\~12个月甚至更久，且难以实现在线实施。面向新一代AIDC，基础设施需要具备快速被改造的能力，通过模块化设计、容量预留、标准化接口和预制化改造单元，将改造周期压缩至3个月以内，部分仅更换IT硬件的场景可缩短至数周。改造周期越短，代表基础设施对未来算力代际更迭的弹性兼容能力越强，是衡量其长期投资价值和代际先进性的关键维度。\n\n代际改造周期覆盖从确定改造需求至业务可承载运行的全过程，按是否涉及机电系统改动分为两类场景分别统计：\n\n"
+        }
+      ],
+      "retrieval_latency_ms": 1574.0238,
+      "generation_latency_ms": 44400.9037,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.6505,
+        "hit_rate": 1.0,
+        "mrr": 1.0,
+        "ndcg": 1.3066,
+        "doc_coverage": 1.0,
+        "doc_recall": 1.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0,
+        "multi_hop_hit": 1.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609261829929943_1;H3_AP202609261829929943_1;H3_AP202609261829929869_1",
+        "retrieved_chunk_ids": "eebec6d1f1ebed101a65be1a4f6b4b9b9ce74abf5fb019f997bd3a3a32a6f359;619e6137b06719dd07e750368f07460cce5193e4013adaaf1010bdee9ba42ad7;a6a5871e0c8fb658a5ecca0cf22ae9ef97c6811a0ce732c5c5ec57ed7289ab7e"
+      }
+    },
+    {
+      "case_id": "rr-vague-010",
+      "tier": "gold",
+      "user_input": "两篇个股点评分别拿什么事实支撑投资评级？",
+      "response": "现有知识库中暂未检索到相关内容。",
+      "reference": "华鑫证券新锐股份报告依据凿岩工具龙头地位与产能瓶颈突破；东吴证券中国通号报告依据中标三项铁路项目合计 9.76 亿元、为后续收入提供支撑。需分别注明出处。",
+      "related_docs": "H3_AP202609241829833777_1.pdf | H3_AP202609271829940631_1.pdf",
+      "test_type": "standard",
+      "difficulty": "medium",
+      "question_type": "multi_hop",
+      "stratum": "vague",
+      "paired_case_id": "rr-multi-009",
+      "chunk_ids": [
+        "d5ec92dfd7abff483e8b85b6e8285bf8df46ec8068697c965aff1f7bf1c5b168",
+        "66d16addcd00ee861a7d42c1ed33879fb4f31885ef9aec8c24d00599385d7d27"
+      ],
+      "sources": [
+        {
+          "id": "d60740cf23df805966677cb2ade6e93abe3f99a19b403df1aba46a14a5e2a594",
+          "chunk_key": "d60740cf23df805966677cb2ade6e93abe3f99a19b403df1aba46a14a5e2a594",
+          "parent_id": "14b491c7f97c2427c4d18941d8602fc4d24b0f0b9945c1fc6cd47830bbdcb754",
+          "title": "H3_AP202609281829953173_1",
+          "source": "H3_AP202609281829953173_1.pdf",
+          "score": 1.0,
+          "rerank_score": 0.0826,
+          "content": "## 投资评级说明\n\n<table><tr><td>行业评级</td><td colspan=\"2\">以报告日后的6个月内，证券相对于沪深300指数的涨跌幅为标准，投资建议的评级标准为：</td></tr><tr><td rowspan=\"3\"></td><td>看好：</td><td>行业指数相对于沪深300指数表现+10%以上</td></tr><tr><td>中性：</td><td>行业指数相对于沪深300指数表现 - 10%~+10%以上</td></tr><tr><td>看淡：</td><td>行业指数相对于沪深 300 指数表现 - 10%以下</td></tr><tr><td rowspan=\"2\">公司评级</td><td></td><td>以报告日后的6个月内，行业指数相对于沪深300指数的涨跌幅为标准，投资建议的评级标准为：</td></tr><tr><td>买入：</td><td>相对于沪深 300指数表现+ 20%以上</td></tr><tr><td></td><td>增持：</td><td>相对于沪深 300 指数表现+10%~ +20%</td></tr>"
+        },
+        {
+          "id": "61e2d6a42616f87dcde43e661f41a60ad5309aa52972d8528db427e8b9c3431d",
+          "chunk_key": "61e2d6a42616f87dcde43e661f41a60ad5309aa52972d8528db427e8b9c3431d",
+          "parent_id": "51e359dac9a6a326f39c86c0392158799fcadf635600b54c7b3d07198a4674da",
+          "title": "H3_AP202609281829951050_1",
+          "source": "H3_AP202609281829951050_1.pdf",
+          "score": 0.9435,
+          "rerank_score": 0.078,
+          "content": "## 股票投资评级说明\n\n<table><tr><td rowspan=1 colspan=1></td><td rowspan=1 colspan=1>评级</td><td rowspan=1 colspan=1>说明</td></tr><tr><td rowspan=4 colspan=1>证券评级</td><td rowspan=1 colspan=1>买入（Buy）</td><td rowspan=1 colspan=1>预计相对强于市场表现20%以上；</td></tr><tr><td rowspan=1 colspan=1>增持（Outperform）</td><td rowspan=1 colspan=1>预计相对强于市场表现 5%~20%;</td></tr><tr><td rowspan=1 colspan=1>中性（Neutral）</td><td rowspan=1 colspan=1>预计相对市场表现在-5%~+5%之间波动；</td></tr><tr><td rowspan=1 colspan=1>减持（Underperform）</td><td rowspa"
+        },
+        {
+          "id": "d35e5fae2b4c054bab03038857281532543af2f8b7cf38bafb4c187d5ca9541b",
+          "chunk_key": "d35e5fae2b4c054bab03038857281532543af2f8b7cf38bafb4c187d5ca9541b",
+          "parent_id": "4db1456b674f1c2e959ca8f4059188dc4408e7a183b24b880d40db21c467ba69",
+          "title": "H3_AP202609231829798847_1",
+          "source": "H3_AP202609231829798847_1.pdf",
+          "score": 0.8209,
+          "rerank_score": 0.0678,
+          "content": "## ▌ 证券投资评级说明\n\n股票投资评级说明：\n<table><tr><td rowspan=1 colspan=1>投资建议       预测个股相对同期证券市场代表性指数涨幅</td></tr><tr><td rowspan=1 colspan=1>1               买入                                 &gt; 20%</td></tr><tr><td rowspan=1 colspan=1>2               增持                             10% — 20%</td></tr><tr><td rowspan=1 colspan=1>3               中性                             -10% — 10%</td></tr><tr><td rowspan=1 colspan=1>4               卖出                                &lt; -10%</td></tr></table>\n\n行业投资评级说"
+        },
+        {
+          "id": "05ca6f8e9cfe32188a96278c5c9195022877812fb219cbb8d709a1a3bc6024c1",
+          "chunk_key": "05ca6f8e9cfe32188a96278c5c9195022877812fb219cbb8d709a1a3bc6024c1",
+          "parent_id": "fc77f32f5f9182c947a0db3ab710f2a4360d3fe4a9ba3530109871b6a8c9d811",
+          "title": "H3_AP202609241829833777_1",
+          "source": "H3_AP202609241829833777_1.pdf",
+          "score": 0.8209,
+          "rerank_score": 0.0678,
+          "content": "## ▌ 证券投资评级说明\n\n股票投资评级说明：\n<table><tr><td rowspan=1 colspan=1>投资建议       预测个股相对同期证券市场代表性指数涨幅</td></tr><tr><td rowspan=1 colspan=1>1               买入                                &gt; 20%</td></tr><tr><td rowspan=1 colspan=1>2               增持                             10% — 20%</td></tr><tr><td rowspan=1 colspan=1>3               中性                            -10% — 10%</td></tr><tr><td rowspan=1 colspan=1>4               卖出                                &lt; -10%</td></tr></table>\n\n行业投资评级说明："
+        },
+        {
+          "id": "e6edbed9eded71066846afe3efa238f2fcfe387fb0493cffe237c78a94fd5209",
+          "chunk_key": "e6edbed9eded71066846afe3efa238f2fcfe387fb0493cffe237c78a94fd5209",
+          "parent_id": "26d5356dcce2b0fbd3ad88a94c48099e73fdc88e4fe7082da301e39fd68989aa",
+          "title": "H3_AP202609271829939976_1",
+          "source": "H3_AP202609271829939976_1.pdf",
+          "score": 0.57,
+          "rerank_score": 0.0471,
+          "content": "## 国信证券投资评级\n\n<table><tr><td rowspan=1 colspan=1>投资评级标准</td><td rowspan=1 colspan=1>类别</td><td rowspan=1 colspan=1>级别</td><td rowspan=1 colspan=1>说明</td></tr><tr><td rowspan=7 colspan=1>报告中投资建议所涉及的评级（如有）分为股票评级和行业评级（另有说明的除外）。评级标准为报告发布日后6到12个月内的相对市场表现，也即报告发布日后的6到12个月内公司股价(或行业指数)相对同期相关证券市场代表性指数的涨跌幅作为基准。A股市场以沪深 300指数（000300.SH)作为基准；新三板市场以三板成指（899001.CSI）为基准；香港市场以恒生指数(HSI.HI)作为基准；美国市场以标普 500 指数(SPX.GI)或纳斯达克指数(IXIC.GI)为基准。</td><td rowspan=4 colspan=1>股票投资评级</td><td rowspan=1 colspan=1>优于大市</td><td rows"
+        }
+      ],
+      "retrieval_latency_ms": 1574.5657,
+      "generation_latency_ms": 6345.0122,
+      "errors": [],
+      "metrics": {
+        "answer_correctness": null,
+        "faithfulness": 0.0,
+        "answer_relevancy": 0.0,
+        "hit_rate": 1.0,
+        "mrr": 0.25,
+        "ndcg": 0.2641,
+        "doc_coverage": 0.5,
+        "doc_recall": 0.0,
+        "evidence_hit": 0.0,
+        "evidence_coverage": 0.0,
+        "evidence_all_in_topk": 0.0,
+        "recall_at_5": 0.0,
+        "precision_at_5": 0.0,
+        "chunk_mrr": 0.0,
+        "multi_hop_hit": 0.0
+      },
+      "diagnostics": {
+        "evidence_rank": 6.0,
+        "retrieved_doc_stems": "H3_AP202609281829953173_1;H3_AP202609281829951050_1;H3_AP202609231829798847_1;H3_AP202609241829833777_1;H3_AP202609271829939976_1",
+        "retrieved_chunk_ids": "d60740cf23df805966677cb2ade6e93abe3f99a19b403df1aba46a14a5e2a594;61e2d6a42616f87dcde43e661f41a60ad5309aa52972d8528db427e8b9c3431d;d35e5fae2b4c054bab03038857281532543af2f8b7cf38bafb4c187d5ca9541b;05ca6f8e9cfe32188a96278c5c9195022877812fb219cbb8d709a1a3bc6024c1;e6edbed9eded71066846afe3efa238f2fcfe387fb0493cffe237c78a94fd5209"
+      }
+    }
+  ],
+  "metric_errors": {
+    "answer_correctness": "'OnnxEmbedder' object has no attribute 'aembed_documents'"
+  },
+  "fallback_metrics": [
+    "faithfulness"
+  ],
+  "ragas_latency_ms": 2950601.5757,
+  "success": true,
+  "created_at": "2026-09-29T21:51:33.514366+08:00"
+}

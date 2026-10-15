@@ -1,5 +1,42 @@
+from sqlalchemy import create_engine, text
+
 from finance_rag.src.infrastructure.relational_db.parent_store import ParentStoreRepository
 from finance_rag.src.rag.retrieval.parent_store import ParentStore
+
+
+def test_legacy_table_gets_heading_path_column_added(tmp_path):
+    """旧表（无 heading_path 列）应被自动补列，升级后写入不再报「列不存在」。"""
+    database_url = f"sqlite:///{tmp_path / 'legacy.db'}"
+    engine = create_engine(database_url)
+    with engine.begin() as connection:
+        connection.execute(
+            text(
+                "CREATE TABLE parent_chunks ("
+                "collection VARCHAR(64) NOT NULL, "
+                "id VARCHAR(64) NOT NULL, "
+                "content TEXT NOT NULL, "
+                "heading VARCHAR(512) NOT NULL DEFAULT '', "
+                "source VARCHAR(512) NOT NULL DEFAULT '', "
+                "PRIMARY KEY (collection, id))"
+            )
+        )
+
+    repository = ParentStoreRepository(database_url)
+    repository.upsert_many(
+        "kb_a",
+        [
+            {
+                "id": "p1",
+                "content": "父块",
+                "heading": "第一条 目的",
+                "heading_path": "第一章 总则 > 第一条 目的",
+                "source": "doc.md",
+            }
+        ],
+    )
+
+    row = repository.get_one("kb_a", "p1")
+    assert row["heading_path"] == "第一章 总则 > 第一条 目的"
 
 
 def test_parent_store_repository_round_trip(tmp_path):
@@ -38,5 +75,6 @@ def test_parent_store_to_dict_strips_collection():
         "id": "p1",
         "content": "c",
         "heading": "h",
+        "heading_path": "",
         "source": "s",
     }

@@ -41,6 +41,7 @@ from finance_rag.src.infrastructure.vector_store.milvus_kb import (
     get_knowledge_base,
 )
 from finance_rag.src.rag.models.document_category import merge_category_into_metadata
+from finance_rag.src.rag.ingestion.public_metadata import resolve_public_metadata
 from finance_rag.src.services.task_service import TaskStatus, get_task_manager
 
 logger = logging.getLogger(__name__)
@@ -198,33 +199,14 @@ def date_from_file_mtime(path: Path) -> str | None:
 
 
 def resolve_document_date(parsed: ParsedDocument) -> str:
-    """解析文档日期，优先级：显式 metadata['date'] > 文件名 > 内容提取 > 文件修改时间。
-
-    Returns:
-        YYYY-MM-DD 字符串；全部失败返回 ""。
-    """
-    explicit = (parsed.metadata or {}).get("date")
-    if explicit:
-        return str(explicit)
-
-    # 1. 文件名提取（最高自动优先级，文件名通常包含发布日期且不易误匹配）
-    fn_date = extract_date_from_filename(parsed.path.name if parsed.path else parsed.source)
-    if fn_date:
-        return fn_date
-
-    # 2. 内容提取：优先用整篇 markdown；无 markdown 时用前几个切块拼接
+    """兼容日期入口：只委托可信公共解析器，临时路径仅用于只读 PDF。"""
     markdown = getattr(parsed.chunks, "markdown", None)
     if not markdown:
         markdown = "\n".join(
-            chunk.page_content for chunk in parsed.chunks.chunks[:5]
+            chunk.page_content for chunk in getattr(parsed.chunks, "chunks", ())[:5]
         )
-
-    extracted = extract_date_from_text(markdown)
-    if extracted:
-        return extracted
-
-    # 3. 文件修改时间兜底
-    return date_from_file_mtime(parsed.path) or ""
+    return resolve_public_metadata(parsed.source, markdown or "", pdf_path=parsed.path,
+                                   explicit=parsed.metadata).date
 
 
 class DocumentManager:
@@ -267,7 +249,9 @@ class DocumentManager:
         """
         kb = self.kb
         source = filename
-        title = Path(filename).stem
+        from finance_rag.src.rag.ingestion.metadata_extractor import resolve_report_title
+
+        title = resolve_report_title(temp_path, filename)
 
         # 分类作为 metadata 的强制字段统一合并
         merged_metadata = merge_category_into_metadata(metadata, category)
@@ -282,13 +266,14 @@ class DocumentManager:
             metadata=merged_metadata,
         )
 
-        # 文档日期自动补全：显式 metadata > 内容提取 > 文件修改时间
-        doc_date = resolve_document_date(parsed)
-        if doc_date:
-            merged_metadata["date"] = doc_date
-            # ParsedDocument 是 frozen dataclass，用 replace 重建实例
-            parsed = replace(parsed, metadata=merged_metadata)
-            logger.info("文档日期解析：%s -> %s", filename, doc_date)
+        resolved = resolve_public_metadata(
+            parsed.source, parsed.chunks.markdown or "", pdf_path=parsed.path,
+            explicit=metadata,
+        )
+        merged_metadata.update(resolved.as_metadata())
+        parsed = replace(parsed, metadata=merged_metadata)
+        logger.info("公共元数据解析：%s -> date=%s broker=%s review=%s", filename,
+                    resolved.date, resolved.broker, resolved.needs_review)
 
         return parsed
 
@@ -728,44 +713,15 @@ class DocumentManager:
             logger.info("嵌入图片上传完成：%s（%d 张）", parsed.source, uploaded)
 
     def update_document_metadata(
-        self, source: str, metadata: dict[str, Any]
+        self, source: str, metadata: dict[str, Any], *, update_source: str = "manual",
+        metadata_audit: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         """人工修正某篇文档的研报元数据。
 
-        值走与入库、检索过滤同一套校验器：非法值直接丢弃（留空），
-        因为写进去一个不能用于过滤的值，只会让行业/标的维度静默失效。
-        ``meta_source`` 固定为 ``manual``、``needs_review`` 置否——
-        这是「人已经确认过」的语义。
+        读取、合并与完整校验由 KB 在集合写锁内完成，避免并发修改丢失。
         """
-        from finance_rag.src.rag.ingestion.metadata_extractor import (
-            validate_metadata_field,
-        )
-
-        cleaned: dict[str, Any] = {}
-        dropped: list[str] = []
-        for field in (
-            "security_code", "security_name", "industry_l1",
-            "industry_l2", "report_type", "broker",
-        ):
-            if field not in metadata:
-                continue
-            value = validate_metadata_field(field, metadata.get(field))
-            if metadata.get(field) not in (None, "") and not value:
-                dropped.append(field)
-            cleaned[field] = value
-        if dropped:
-            raise ValueError(
-                f"元数据取值非法：{', '.join(dropped)}（行业须为申万标准名，"
-                "代码须为 6 位 A 股代码）"
-            )
-        cleaned["meta_source"] = "manual"
-        cleaned["needs_review"] = False
-
-        result = self.kb.update_document_metadata(source, cleaned)
-        result["metadata"] = {
-            key: value for key, value in cleaned.items()
-        }
-        return result
+        return self.kb.update_document_metadata(source, metadata, update_source=update_source,
+                                                metadata_audit=metadata_audit)
 
     async def process_object_event(
         self, temp_path: Path, filename: str, version_id: str

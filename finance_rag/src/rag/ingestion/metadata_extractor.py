@@ -7,48 +7,40 @@
 - **行业只由 LLM 抽取**，但必须落在申万 2021 版受控词表内，并校验
   「二级属于所选一级」。理由：检索过滤走精确匹配（``==`` / ``in``），
   LLM 若输出「白酒」（申万二级实为「白酒Ⅱ」），过滤会**静默漏召**。
-- **抽不到就留空**。空值不参与过滤，因此不会误收窄召回；
-  非法值一律丢弃并把 ``needs_review`` 置真，交给人工在文档页修正。
+- **类型与类型必填字段必须齐备**，否则拒绝文档；原始抽取异类字段丢弃。
 """
 
 from __future__ import annotations
 
 import json
+import copy
 import logging
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Callable
 
+from finance_rag.src.rag.ingestion.public_metadata import (
+    public_audit_needs_review,
+    validate_public_metadata_audit,
+    validate_publication_date,
+)
+
 logger = logging.getLogger(__name__)
 
 REPORT_TYPES: tuple[str, ...] = ("个股", "行业", "宏观")
-
-# A 股 6 位代码首位只可能是 0/3/4/6/8（深/沪/北）。
-# 收紧到前缀而不是 ``\d{6}``，可以挡住把日期片段（如 ``202608``）当成代码。
-_SECURITY_CODE_RE = re.compile(r"^(?:0|3|4|6|8)\d{5}$")
-
-
-def is_valid_security_code(value: Any) -> bool:
-    """校验是否为合法的 A 股 6 位代码。"""
-    return bool(_SECURITY_CODE_RE.fullmatch(str(value or "").strip()))
 
 _TAXONOMY_PATH = (
     Path(__file__).resolve().parents[4] / "assets" / "taxonomy" / "sw_industry.json"
 )
 
 # ``贵州茅台(600519)`` / ``贵州茅台（600519）``
-_NAME_CODE_RE = re.compile(r"([\u4e00-\u9fffA-Za-z0-9*]{2,12})[（(](\d{6})[)）]")
-# 兜底：裸 6 位代码（前后不能再接数字，避免命中日期里的片段）
-_BARE_CODE_RE = re.compile(r"(?<!\d)(\d{6})(?!\d)")
+_SECURITY_NAME_RE = re.compile(r"([\u4e00-\u9fffA-Za-z0-9*]{2,12})[（(]\d{6}[)）]")
 # ``-中信证券-`` / ``_中信证券`` 等
 _BROKER_RE = re.compile(r"([\u4e00-\u9fff]{2,6}证券)")
-# 文件名里的 8 位日期（如 20260815）不应被当成证券代码
-_DATE_RE = re.compile(r"(?<!\d)(20\d{6})(?!\d)")
 
 _FIELD_LIMITS = {
-    "security_code": 32,
     "security_name": 64,
     "industry_l1": 32,
     "industry_l2": 32,
@@ -59,29 +51,29 @@ _FIELD_LIMITS = {
 _LLM_PROMPT = """你是金融研报元数据抽取器。请只输出 JSON，不要解释、不要代码块。
 
 字段与取值要求：
-- security_code：6 位 A 股代码；行业研报与宏观研报留空字符串。
-- security_name：证券简称；无法确定留空字符串。
+- 先判断研究对象：单家公司属于个股，特定产业/技术/医疗科技的研究或白皮书属于行业，经济总量/政策/大类资产属于宏观。
+- 非券商白皮书也按研究对象分类；缺少股票代码或跨产业应用不意味着宏观。行业主题必须根据主要研究对象选择最相关的申万一级，二级不确定可省略。
+- security_name：个股报告必填证券简称，行业与宏观报告不得包含此字段。
 - report_type：只能取 "个股" / "行业" / "宏观" 之一。
 - broker：发布机构名称，如 "中信证券"；无法确定留空字符串。
-- industry_l1：**必须**从下面的一级行业清单中原样选择，不得改写、不得自创；无法确定留空字符串。
-- industry_l2：**必须**是所填 industry_l1 对应二级清单中的一项；无法确定留空字符串。
+- industry_l1：行业报告必填，**必须**从下面的一级行业清单中原样选择；个股与宏观报告不得包含此字段。
+- industry_l2：行业报告可选，**必须**属于所填 industry_l1；个股与宏观报告不得包含此字段。
 
 一级行业 -> 二级行业清单：
 {taxonomy}
 
 研报文件名：{filename}
+研报标题：{title}
 研报正文开头：
 {head}
 
-输出 JSON 模板：{{"security_code": "", "security_name": "", "report_type": "",
-"broker": "", "industry_l1": "", "industry_l2": ""}}"""
+请按 report_type 只输出适用字段。例如宏观：{{"report_type": "宏观", "broker": ""}}。"""
 
 
 @dataclass(frozen=True)
 class ExtractedMetadata:
     """一篇研报的元数据抽取结果。"""
 
-    security_code: str = ""
     security_name: str = ""
     industry_l1: str = ""
     industry_l2: str = ""
@@ -89,11 +81,11 @@ class ExtractedMetadata:
     broker: str = ""
     meta_source: str = "regex"
     needs_review: bool = False
+    type_metadata_audit: dict[str, Any] = field(default_factory=dict)
 
     def as_metadata(self) -> dict[str, Any]:
         """并入文档级 metadata 的字典形式。"""
-        return {
-            "security_code": self.security_code,
+        values = {
             "security_name": self.security_name,
             "industry_l1": self.industry_l1,
             "industry_l2": self.industry_l2,
@@ -102,6 +94,117 @@ class ExtractedMetadata:
             "meta_source": self.meta_source,
             "needs_review": self.needs_review,
         }
+        if self.type_metadata_audit:
+            values["type_metadata_audit"] = self.type_metadata_audit
+        return build_canonical_metadata(values)
+
+
+_TYPE_FIELDS = frozenset({"security_name", "industry_l1", "industry_l2"})
+_APPLICABLE_FIELDS = {
+    "个股": frozenset({"security_name"}),
+    "行业": frozenset({"industry_l1", "industry_l2"}),
+    "宏观": frozenset(),
+}
+
+
+def build_canonical_metadata(
+    metadata: dict[str, Any], *, explicit_fields: set[str] | None = None
+) -> dict[str, Any]:
+    """完整校验文档元数据；人工明确提交的异类字段拒绝，抽取残留丢弃。"""
+    report_type = str(metadata.get("report_type") or "").strip()
+    if report_type not in REPORT_TYPES:
+        raise ValueError("report_type 必填且仅允许 个股/行业/宏观")
+    applicable = _APPLICABLE_FIELDS[report_type]
+    foreign = (explicit_fields or set()) & (_TYPE_FIELDS - applicable)
+    if foreign:
+        raise ValueError(f"{report_type} 不允许提交字段：{', '.join(sorted(foreign))}")
+    result: dict[str, Any] = {
+        "report_type": report_type,
+        "broker": _clip(metadata.get("broker"), "broker"),
+        "meta_source": str(metadata.get("meta_source") or "regex").strip()[:16],
+        "needs_review": bool(metadata.get("needs_review", False)),
+    }
+    if "public_metadata_audit" in metadata:
+        audit = validate_public_metadata_audit(metadata["public_metadata_audit"])
+        result["public_metadata_audit"] = audit
+        result["needs_review"] |= public_audit_needs_review(audit)
+    if "type_metadata_audit" in metadata:
+        result["type_metadata_audit"] = copy.deepcopy(metadata["type_metadata_audit"])
+        result["needs_review"] |= bool(result["type_metadata_audit"])
+    for field, limit in (("category", 64), ("date", 32)):
+        if field in metadata:
+            raw_value = metadata[field]
+            value = "" if raw_value is None else str(raw_value)
+            if len(value.encode("utf-8")) > limit:
+                raise ValueError(f"{field} 不能超过 {limit} 个 UTF-8 字节")
+            if field == "date":
+                value = validate_publication_date(value)
+            result[field] = value
+    if "version" in metadata:
+        result["version"] = metadata["version"]
+    if report_type == "个股":
+        name = _clip(metadata.get("security_name"), "security_name")
+        if not name:
+            raise ValueError("个股 report_type 必须有 security_name")
+        result["security_name"] = name
+    elif report_type == "行业":
+        taxonomy = load_industry_taxonomy()
+        level1 = str(metadata.get("industry_l1") or "").strip()
+        level2 = str(metadata.get("industry_l2") or "").strip()
+        if not level1 and level2:
+            parents = [name for name, children in taxonomy.items() if level2 in children]
+            if len(parents) == 1:
+                level1 = parents[0]
+        if level1 not in taxonomy:
+            raise ValueError("行业 report_type 必须有合法的 industry_l1（申万一级行业）")
+        result["industry_l1"] = level1
+        if level2:
+            if level2 in taxonomy[level1]:
+                result["industry_l2"] = level2
+            else:
+                result["needs_review"] = True
+                result["type_metadata_audit"] = {"industry_l2": {
+                    "status": "unknown", "value": level2,
+                    "reasons": ["industry_l2_outside_selected_l1"],
+                }}
+    return result
+
+
+def merge_metadata_patch(current: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
+    """类型切换先清理旧字段，再合并显式提交值并执行完整校验。"""
+    allowed = _TYPE_FIELDS | {"report_type", "broker", "category", "date"}
+    unknown = set(patch) - allowed
+    if unknown:
+        raise ValueError(f"未知元数据字段：{', '.join(sorted(unknown))}")
+    merged = dict(current)
+    if "report_type" in patch and patch["report_type"] != current.get("report_type"):
+        for field in _TYPE_FIELDS:
+            merged.pop(field, None)
+    merged.update(patch)
+    merged["meta_source"] = "manual"
+    if "public_metadata_audit" in current:
+        audit = validate_public_metadata_audit(current["public_metadata_audit"])
+        for field in ("date", "broker"):
+            if field in patch:
+                value = validate_publication_date(patch[field]) if field == "date" else _clip(patch[field], "broker")
+                item = audit["fields"][field]
+                item.update(value=value, status="manual", reasons=["manual_patch"])
+                item["evidence"].append({"raw": str(patch[field] or ""), "value": value,
+                                         "page": None, "location": None, "source": "manual_patch"})
+        merged["public_metadata_audit"] = audit
+    type_audit = copy.deepcopy(current.get("type_metadata_audit", {}))
+    if "report_type" in patch and patch["report_type"] != current.get("report_type"):
+        type_audit = {}
+    elif set(patch) & {"industry_l1", "industry_l2"}:
+        type_audit.pop("industry_l2", None)
+    if type_audit:
+        merged["type_metadata_audit"] = type_audit
+    else:
+        merged.pop("type_metadata_audit", None)
+    untracked_review = bool(current.get("needs_review")) and not (
+        current.get("public_metadata_audit") or current.get("type_metadata_audit"))
+    merged["needs_review"] = bool(type_audit) or untracked_review
+    return build_canonical_metadata(merged, explicit_fields=set(patch))
 
 
 @lru_cache(maxsize=1)
@@ -126,22 +229,35 @@ def load_industry_taxonomy(path: str | Path | None = None) -> dict[str, frozense
 
 
 def _clip(value: Any, field: str) -> str:
-    return str(value or "").strip()[: _FIELD_LIMITS[field]]
+    text = str(value or "").strip()
+    if len(text.encode("utf-8")) > _FIELD_LIMITS[field]:
+        raise ValueError(f"{field} 不能超过 {_FIELD_LIMITS[field]} 个 UTF-8 字节")
+    return text
 
 
-def _regex_security(filename: str, title: str) -> tuple[str, str]:
-    """从文件名/标题解析 ``(证券代码, 证券简称)``。"""
+def resolve_report_title(path: str | Path, source: str) -> str:
+    """优先读取 PDF 内置标题；元数据缺失或文件不可读时退回源文件名。"""
+    if Path(path).suffix.lower() == ".pdf":
+        try:
+            import fitz
+
+            with fitz.open(path) as document:
+                title = str((document.metadata or {}).get("title") or "").strip()
+                if title:
+                    return title
+        except Exception as exc:  # noqa: BLE001 - 标题不能使解析入口失败
+            logger.debug("PDF 标题不可读（%s）：%s", source, exc)
+    return Path(source).stem
+
+
+def _regex_security_name(filename: str, title: str) -> str:
+    """从文件名/标题解析证券简称。"""
     scopes = [filename, title]
     for scope in scopes:
-        match = _NAME_CODE_RE.search(scope or "")
+        match = _SECURITY_NAME_RE.search(scope or "")
         if match:
-            return match.group(2), match.group(1)
-    for scope in scopes:
-        stripped = _DATE_RE.sub(" ", scope or "")
-        match = _BARE_CODE_RE.search(stripped)
-        if match:
-            return match.group(1), ""
-    return "", ""
+            return match.group(1)
+    return ""
 
 
 def _regex_broker(filename: str, title: str) -> str:
@@ -152,7 +268,7 @@ def _regex_broker(filename: str, title: str) -> str:
     return ""
 
 
-def _regex_report_type(filename: str, title: str, security_code: str) -> str:
+def _regex_report_type(filename: str, title: str, security_name: str) -> str:
     """报告类型只用文件名/标题判定。
 
     正文开头常常罗列一堆股票代码，用它判类型会把行业研报误判成个股研报。
@@ -162,7 +278,7 @@ def _regex_report_type(filename: str, title: str, security_code: str) -> str:
         return "宏观"
     if "行业" in text:
         return "行业"
-    if security_code:
+    if security_name:
         return "个股"
     return ""
 
@@ -211,7 +327,7 @@ def _parse_json_payload(raw: Any) -> dict[str, Any]:
     return payload if isinstance(payload, dict) else {}
 
 
-def _llm_extract(*, filename: str, head: str, taxonomy: dict[str, frozenset[str]]) -> dict[str, Any]:
+def _llm_extract(*, filename: str, head: str, taxonomy: dict[str, frozenset[str]], title: str = "") -> dict[str, Any]:
     """让轻量模型抽取字段。任何失败都返回空字典，由调用方降级。"""
     from finance_rag.src.core.config import get_model, get_rewrite_model
 
@@ -224,55 +340,10 @@ def _llm_extract(*, filename: str, head: str, taxonomy: dict[str, frozenset[str]
     prompt = _LLM_PROMPT.format(
         taxonomy=listing or "（词表不可用，全部留空）",
         filename=filename or "",
+        title=title or "",
         head=(head or "")[:2000],
     )
     return _parse_json_payload(model.invoke(prompt))
-
-
-def _validate(
-    payload: dict[str, Any], taxonomy: dict[str, frozenset[str]]
-) -> tuple[dict[str, str], list[str]]:
-    """校验并清洗抽取结果；返回 ``(合法字段, 被丢弃的字段名)``。"""
-    cleaned: dict[str, str] = {}
-    rejected: list[str] = []
-
-    code = _clip(payload.get("security_code"), "security_code")
-    if code:
-        if is_valid_security_code(code):
-            cleaned["security_code"] = code
-        else:
-            rejected.append("security_code")
-
-    name = _clip(payload.get("security_name"), "security_name")
-    if name:
-        cleaned["security_name"] = name
-
-    report_type = _clip(payload.get("report_type"), "report_type")
-    if report_type:
-        if report_type in REPORT_TYPES:
-            cleaned["report_type"] = report_type
-        else:
-            rejected.append("report_type")
-
-    broker = _clip(payload.get("broker"), "broker")
-    if broker:
-        cleaned["broker"] = broker
-
-    level1 = _clip(payload.get("industry_l1"), "industry_l1")
-    if level1:
-        if level1 in taxonomy:
-            cleaned["industry_l1"] = level1
-            level2 = _clip(payload.get("industry_l2"), "industry_l2")
-            if level2:
-                if level2 in taxonomy[level1]:
-                    cleaned["industry_l2"] = level2
-                else:
-                    # 二级不属于所选一级：丢二级、留一级，并标记待确认
-                    rejected.append("industry_l2")
-        else:
-            rejected.append("industry_l1")
-
-    return cleaned, rejected
 
 
 def extract_metadata(
@@ -284,57 +355,38 @@ def extract_metadata(
 ) -> ExtractedMetadata:
     """抽取一篇研报的元数据。
 
-    ``enable_llm=False`` 时只走正则（行业必然为空、``needs_review`` 为真），
-    让无模型环境仍可入库，同时把缺失显式暴露出来而不是装作正常。
+    模型不可用时降级到正则；仍缺少类型必填字段时明确拒绝文档。
     """
     taxonomy = load_industry_taxonomy()
 
-    code, name = _regex_security(filename, title)
+    name = _regex_security_name(filename, title)
     values: dict[str, str] = {}
-    if code:
-        values["security_code"] = code
     if name:
         values["security_name"] = name
     broker = _regex_broker(filename, title)
     if broker:
         values["broker"] = broker
-    report_type = _regex_report_type(filename, title, code)
+    report_type = _regex_report_type(filename, title, name)
     if report_type:
         values["report_type"] = report_type
 
-    rejected: list[str] = []
     used_llm = False
     if enable_llm:
         try:
-            payload = _llm_extract(filename=filename, head=markdown_head, taxonomy=taxonomy)
+            payload = _llm_extract(filename=filename, title=title, head=markdown_head, taxonomy=taxonomy)
         except Exception as exc:  # noqa: BLE001 - 模型不可用不得阻断入库
             logger.warning("研报元数据 LLM 抽取失败，降级为正则结果：%s", exc)
             payload = {}
         if payload:
-            cleaned, rejected = _validate(payload, taxonomy)
             # 正则拿到的值优先（可解释、可复现），LLM 只补空缺
-            for key, value in cleaned.items():
-                if not values.get(key):
+            for key in _FIELD_LIMITS:
+                value = payload.get(key)
+                if value and not values.get(key):
                     values[key] = value
                     used_llm = True
 
-    needs_review = bool(rejected)
-    if not values.get("industry_l1"):
-        # 行业缺失：行业/宏观研报靠 industry 维度兜底召回，缺了这条路就断了
-        needs_review = True
-    if not values.get("security_code") and values.get("report_type") == "个股":
-        needs_review = True
-
-    return ExtractedMetadata(
-        security_code=values.get("security_code", ""),
-        security_name=values.get("security_name", ""),
-        industry_l1=values.get("industry_l1", ""),
-        industry_l2=values.get("industry_l2", ""),
-        report_type=values.get("report_type", ""),
-        broker=values.get("broker", ""),
-        meta_source="llm" if used_llm else "regex",
-        needs_review=needs_review,
-    )
+    canonical = build_canonical_metadata({**values, "meta_source": "llm" if used_llm else "regex"})
+    return ExtractedMetadata(**canonical)
 
 
 def metadata_field_validators() -> dict[str, Callable[[str], bool]]:
@@ -345,7 +397,6 @@ def metadata_field_validators() -> dict[str, Callable[[str], bool]]:
     """
     taxonomy = load_industry_taxonomy()
     return {
-        "security_code": is_valid_security_code,
         "security_name": lambda value: 0 < len(value) <= 64,
         "industry_l1": lambda value: value in taxonomy,
         "industry_l2": lambda value: any(value in children for children in taxonomy.values()),
@@ -377,7 +428,13 @@ def apply_metadata(
     """把抽取结果并入文档级 metadata（不改动调用方传入的字典）。"""
     merged = dict(metadata or {})
     merged.update(extracted.as_metadata())
-    return merged
+    if metadata and "public_metadata_audit" in metadata:
+        audit = validate_public_metadata_audit(metadata["public_metadata_audit"])
+        # unknown/conflict 也不能用 LLM 身份猜测填空。
+        merged["broker"] = audit["fields"]["broker"]["value"]
+        merged["date"] = audit["fields"]["date"]["value"]
+    merged["needs_review"] = bool((metadata or {}).get("needs_review")) or extracted.needs_review
+    return build_canonical_metadata(merged)
 
 
 __all__ = [
@@ -385,7 +442,8 @@ __all__ = [
     "ExtractedMetadata",
     "apply_metadata",
     "extract_metadata",
-    "is_valid_security_code",
+    "build_canonical_metadata",
+    "merge_metadata_patch",
     "load_industry_taxonomy",
     "metadata_field_validators",
     "validate_metadata_field",

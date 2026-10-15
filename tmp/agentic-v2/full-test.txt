@@ -1,0 +1,77 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+........................................................................ [ 43%]
+........................................................................ [ 51%]
+........................................................................ [ 58%]
+........................................................................ [ 65%]
+........................................................................ [ 72%]
+........................................................................ [ 80%]
+........................................................................ [ 87%]
+........................................................................ [ 94%]
+....................................................                     [100%]
+============================== warnings summary ===============================
+finance_rag\src\eval\test_set.py:94
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\test_set.py:94: PytestCollectionWarning: cannot collect test class 'TestSetLoader' because it has a __init__ constructor (from: tests/unit/test_evaluation_dataset.py)
+    class TestSetLoader:
+
+finance_rag\src\eval\test_set.py:25
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\test_set.py:25: PytestCollectionWarning: cannot collect test class 'TestSetEntry' because it has a __init__ constructor (from: tests/unit/test_testset_generator.py)
+    @dataclass
+
+finance_rag\src\eval\test_set.py:94
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\test_set.py:94: PytestCollectionWarning: cannot collect test class 'TestSetLoader' because it has a __init__ constructor (from: tests/unit/test_testset_generator.py)
+    class TestSetLoader:
+
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\ragas_eval.py:363: DeprecationWarning: Importing AnswerRelevancy from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import AnswerRelevancy
+    from ragas.metrics import (
+
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\ragas_eval.py:363: DeprecationWarning: Importing ContextPrecision from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import ContextPrecision
+    from ragas.metrics import (
+
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\ragas_eval.py:363: DeprecationWarning: Importing Faithfulness from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import Faithfulness
+    from ragas.metrics import (
+
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\ragas_eval.py:363: DeprecationWarning: Importing LLMContextRecall from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import LLMContextRecall
+    from ragas.metrics import (
+
+tests/unit/test_testset_generator.py::TestTestSetLoader::test_parse_single_entry
+  F:\python project\finance-rag-retrieval\tests\unit\test_testset_generator.py:47: DeprecationWarning: Markdown ���Լ������ã���Ǩ�Ƶ��汾�� JSONL����ǰ���ṩֻ�����ݡ�
+    entries = TestSetLoader(md).load_test_set()
+
+tests/unit/test_testset_generator.py::TestTestSetLoader::test_parse_multi_hop_with_two_chunks
+  F:\python project\finance-rag-retrieval\tests\unit\test_testset_generator.py:66: DeprecationWarning: Markdown ���Լ������ã���Ǩ�Ƶ��汾�� JSONL����ǰ���ṩֻ�����ݡ�
+    entries = TestSetLoader(md).load_test_set()
+
+tests/unit/test_testset_generator.py::TestTestSetLoader::test_negative_allows_empty_ground_truth
+  F:\python project\finance-rag-retrieval\tests\unit\test_testset_generator.py:79: DeprecationWarning: Markdown ���Լ������ã���Ǩ�Ƶ��汾�� JSONL����ǰ���ṩֻ�����ݡ�
+    entries = TestSetLoader(md).load_test_set()
+
+tests/unit/test_testset_generator.py::TestTestSetLoader::test_multi_hop_with_one_chunk_raises
+  F:\python project\finance-rag-retrieval\tests\unit\test_testset_generator.py:97: DeprecationWarning: Markdown ���Լ������ã���Ǩ�Ƶ��汾�� JSONL����ǰ���ṩֻ�����ݡ�
+    TestSetLoader(md).load_test_set()
+
+tests/unit/test_testset_generator.py::TestTestSetLoader::test_missing_ground_truth_raises
+  F:\python project\finance-rag-retrieval\tests\unit\test_testset_generator.py:116: DeprecationWarning: Markdown ���Լ������ã���Ǩ�Ƶ��汾�� JSONL����ǰ���ṩֻ�����ݡ�
+    TestSetLoader(md).load_test_set()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+988 passed, 24 deselected, 24 warnings in 49.76s

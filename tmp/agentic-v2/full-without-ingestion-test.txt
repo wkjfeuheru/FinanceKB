@@ -1,0 +1,70 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 22%]
+........................................................................ [ 29%]
+........................................................................ [ 37%]
+........................................................................ [ 44%]
+........................................................................ [ 52%]
+........................................................................ [ 59%]
+........................................................................ [ 67%]
+........................................................................ [ 74%]
+........................................................................ [ 81%]
+........................................................................ [ 89%]
+................F
+================================== FAILURES ===================================
+_ test_production_multiple_filter_attempts_have_no_invented_global_coarse_rank _
+tests\unit\test_retrieval_diagnostics_eval.py:131: in test_production_multiple_filter_attempts_have_no_invented_global_coarse_rank
+    output = build_retrieval_strategy(object(), "PRODUCTION").retrieve("ԭ����")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+finance_rag\src\eval\retrieval.py:135: in retrieve
+    return adapt_production_output(pipeline(query))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+finance_rag\src\eval\retrieval.py:158: in adapt_production_output
+    raise RuntimeError(pipeline["retrieval_error"])
+E   RuntimeError: ��ǰģ��δ֧�ּ������ߵ��ã��뱣��Agent����δ����
+============================== warnings summary ===============================
+finance_rag\src\eval\test_set.py:94
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\test_set.py:94: PytestCollectionWarning: cannot collect test class 'TestSetLoader' because it has a __init__ constructor (from: tests/unit/test_evaluation_dataset.py)
+    class TestSetLoader:
+
+finance_rag\src\eval\test_set.py:25
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\test_set.py:25: PytestCollectionWarning: cannot collect test class 'TestSetEntry' because it has a __init__ constructor (from: tests/unit/test_testset_generator.py)
+    @dataclass
+
+finance_rag\src\eval\test_set.py:94
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\test_set.py:94: PytestCollectionWarning: cannot collect test class 'TestSetLoader' because it has a __init__ constructor (from: tests/unit/test_testset_generator.py)
+    class TestSetLoader:
+
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\ragas_eval.py:363: DeprecationWarning: Importing AnswerRelevancy from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import AnswerRelevancy
+    from ragas.metrics import (
+
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\ragas_eval.py:363: DeprecationWarning: Importing ContextPrecision from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import ContextPrecision
+    from ragas.metrics import (
+
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\ragas_eval.py:363: DeprecationWarning: Importing Faithfulness from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import Faithfulness
+    from ragas.metrics import (
+
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+tests/unit/test_generation_metrics_catalog.py::test_ragas_metric_set_is_identical_for_fast_and_full
+  F:\python project\finance-rag-retrieval\finance_rag\src\eval\ragas_eval.py:363: DeprecationWarning: Importing LLMContextRecall from 'ragas.metrics' is deprecated and will be removed in v1.0. Please use 'ragas.metrics.collections' instead. Example: from ragas.metrics.collections import LLMContextRecall
+    from ragas.metrics import (
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/unit/test_retrieval_diagnostics_eval.py::test_production_multiple_filter_attempts_have_no_invented_global_coarse_rank
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!
+1 failed, 880 passed, 24 deselected, 19 warnings in 35.04s

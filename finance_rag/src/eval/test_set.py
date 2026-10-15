@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import logging
 import re
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -44,6 +45,7 @@ class TestSetEntry:
     question_id: int = 0
     ground_truth: str = ""
     related_docs: str = ""
+    related_doc_names: tuple[str, ...] = ()
     related_sections: str = ""
     required_facts: tuple[str, ...] = ()
     test_type: str = "standard"
@@ -55,6 +57,10 @@ class TestSetEntry:
     expected_behavior: str = ""
     question_type: str = "single_hop"
     chunk_ids: tuple[str, ...] = ()
+    tier: str = "gold"
+    review_status: str = "approved"
+    stratum: str = ""
+    paired_case_id: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -63,6 +69,7 @@ class TestSetEntry:
             "query": self.query,
             "ground_truth": self.ground_truth,
             "related_docs": self.related_docs,
+            "related_doc_names": list(self.related_doc_names),
             "related_sections": self.related_sections,
             "required_facts": list(self.required_facts),
             "test_type": self.test_type,
@@ -73,6 +80,10 @@ class TestSetEntry:
             "expected_behavior": self.expected_behavior,
             "question_type": self.question_type,
             "chunk_ids": list(self.chunk_ids),
+            "tier": self.tier,
+            "review_status": self.review_status,
+            "stratum": self.stratum,
+            "paired_case_id": self.paired_case_id,
         }
 
 
@@ -105,14 +116,54 @@ class TestSetLoader:
         self._file_path = file_path or _TEST_SET_FILE
 
     def load_test_set(self) -> list[TestSetEntry]:
-        """从 ``data/evaluation_qa.md`` 解析加载测试集。"""
+        """加载测试集；JSONL 为权威格式，Markdown 仅用于只读兼容。"""
         if not self._file_path.exists():
             logger.warning("测试集文件不存在：%s", self._file_path)
             return []
 
+        if self._file_path.suffix.lower() == ".jsonl":
+            return self._load_jsonl()
+
+        warnings.warn(
+            "Markdown 测试集已弃用，请迁移到版本化 JSONL；当前仅提供只读兼容。",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         text = self._file_path.read_text(encoding="utf-8")
         entries = self._parse(text)
         self._validate(entries)
+        return entries
+
+    def _load_jsonl(self) -> list[TestSetEntry]:
+        """把统一 EvalCase 映射为旧执行器可消费的只读结构。"""
+        from .dataset import EvaluationDataset
+
+        dataset = EvaluationDataset.load(self._file_path)
+        entries: list[TestSetEntry] = []
+        for index, case in enumerate(dataset.cases, 1):
+            sources = list(dict.fromkeys(item.source for item in case.evidence))
+            entries.append(TestSetEntry(
+                question_id=index,
+                unique_id=case.id,
+                query=case.query,
+                ground_truth=case.reference_answer,
+                # 使用竖线仅为旧接口展示；文件名中的中英文逗号均保持原样。
+                related_docs=" | ".join(sources),
+                related_doc_names=tuple(sources),
+                required_facts=case.required_facts,
+                difficulty=case.difficulty,
+                expected_answer_type=case.answer_type,
+                min_chunks=max(1, len(case.evidence)),
+                evidence_snippets=tuple(item.quote for item in case.evidence),
+                expected_behavior=case.expected_behavior,
+                question_type=case.question_type,
+                chunk_ids=tuple(item.chunk_id for item in case.evidence),
+                tier=case.tier,
+                review_status=case.review_status,
+                stratum=str((case.provenance or {}).get("stratum") or ""),
+                paired_case_id=str((case.provenance or {}).get("paired_case_id") or ""),
+            ))
+        logger.info("从 %s 加载到 %d 条 JSONL 测试查询", self._file_path, len(entries))
         return entries
 
     def has_ground_truth(self) -> bool:

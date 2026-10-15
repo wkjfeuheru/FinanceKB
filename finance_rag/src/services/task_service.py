@@ -30,6 +30,8 @@ class Task:
     filename: str = ""
     result: dict[str, Any] | None = None
     error: str | None = None
+    # 入库流水线阶段进度（如 {"stage": "chunked", "chunks": 42}），可选
+    progress: dict[str, Any] | None = None
 
 
 class TaskManager:
@@ -54,6 +56,7 @@ class TaskManager:
         status: TaskStatus | None = None,
         result: dict[str, Any] | None = None,
         error: str | None = None,
+        progress: dict[str, Any] | None = None,
     ) -> Task | None:
         task = self._tasks.get(task_id)
         if task is None:
@@ -64,6 +67,11 @@ class TaskManager:
             task.result = result
         if error is not None:
             task.error = error
+        if progress is not None:
+            # 阶段进度与既有进度合并：流水线各阶段只上报自己关心的键
+            merged = dict(task.progress or {})
+            merged.update(progress)
+            task.progress = merged
         task.updated_at = time.time()
         return task
 

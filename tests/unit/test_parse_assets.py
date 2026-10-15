@@ -83,6 +83,7 @@ def test_parse_result_defaults_to_empty_assets():
 
     assert result.images == ()
     assert result.blocks == ()
+    assert result.figure_captions == {}
 
 
 def test_text_shortcut_parses_without_assets():

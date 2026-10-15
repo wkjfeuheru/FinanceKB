@@ -21,6 +21,19 @@ TIERS = {"gold", "silver"}
 REVIEW_STATUSES = {"pending", "approved", "rejected", "auto_pass"}
 DIFFICULTIES = {"easy", "medium", "hard"}
 ANSWER_TYPES = {"factual", "list", "comparison", "procedural"}
+STRATA = {"explicit", "cross_doc", "vague", "negative"}
+
+
+def case_stratum(case: "EvalCase") -> str:
+    """分层标签。显式写入 ``provenance.stratum`` 时优先，否则按问题类型推断。"""
+    raw = str((case.provenance or {}).get("stratum") or "").strip()
+    if raw:
+        return raw
+    if case.question_type == "negative":
+        return "negative"
+    if case.question_type == "multi_hop":
+        return "cross_doc"
+    return "explicit"
 
 
 class DatasetValidationError(ValueError):
@@ -33,6 +46,11 @@ class EvidenceRef:
     document_version: str
     chunk_id: str
     quote: str
+    evidence_id: str = ""
+    document_sha256: str = ""
+    quote_start: int | None = None
+    quote_end: int | None = None
+    location: dict[str, Any] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> "EvidenceRef":
@@ -41,6 +59,29 @@ class EvidenceRef:
             document_version=str(value.get("document_version", "")).strip(),
             chunk_id=str(value.get("chunk_id", "")).strip(),
             quote=str(value.get("quote", "")).strip(),
+            evidence_id=str(value.get("evidence_id", "")).strip(),
+            document_sha256=str(value.get("document_sha256", "")).strip(),
+            quote_start=value.get("quote_start"),
+            quote_end=value.get("quote_end"),
+            location=dict(value.get("location") or {}),
+        )
+
+
+@dataclass(frozen=True)
+class FactRequirement:
+    id: str
+    statement: str
+    allowed_sources: tuple[str, ...]
+    aliases: tuple[tuple[str, ...], ...]
+    acceptable_evidence_sets: tuple[tuple[str, ...], ...]
+
+    @classmethod
+    def from_dict(cls, value: dict[str, Any]) -> "FactRequirement":
+        return cls(
+            str(value.get("id", "")).strip(), str(value.get("statement", "")).strip(),
+            tuple(str(item).strip() for item in value.get("allowed_sources", [])),
+            tuple(tuple(str(item).strip() for item in group) for group in value.get("aliases", [])),
+            tuple(tuple(str(item).strip() for item in group) for group in value.get("acceptable_evidence_sets", [])),
         )
 
 
@@ -60,6 +101,8 @@ class EvalCase:
     reviewer: str
     review_note: str
     provenance: dict[str, Any] = field(default_factory=dict)
+    schema_version: str = "1.0"
+    facts: tuple[FactRequirement, ...] = ()
 
     @classmethod
     def from_dict(cls, value: dict[str, Any]) -> "EvalCase":
@@ -78,12 +121,19 @@ class EvalCase:
             reviewer=str(value.get("reviewer", "")).strip(),
             review_note=str(value.get("review_note", "")).strip(),
             provenance=dict(value.get("provenance") or {}),
+            schema_version=str(value.get("schema_version", "1.0")),
+            facts=tuple(FactRequirement.from_dict(item) for item in value.get("facts", [])),
         )
 
     def to_dict(self) -> dict[str, Any]:
         value = asdict(self)
         value["required_facts"] = list(self.required_facts)
         value["evidence"] = [asdict(item) for item in self.evidence]
+        value["facts"] = [{"id": item.id, "statement": item.statement,
+                           "allowed_sources": list(item.allowed_sources),
+                           "aliases": [list(group) for group in item.aliases],
+                           "acceptable_evidence_sets": [list(group) for group in item.acceptable_evidence_sets]}
+                          for item in self.facts]
         return value
 
 
@@ -96,6 +146,32 @@ class DatasetAudit:
 
 
 EvidenceResolver = Callable[[str], dict[str, Any] | None]
+
+
+def _safe_quote_boundaries(content: str, start: int, end: int) -> bool:
+    """禁止从数值/英文 token 内取引文或切开 HTML 标签。"""
+    import re
+    for boundary in (start, end):
+        if 0 < boundary < len(content):
+            left, right = content[boundary - 1], content[boundary]
+            if left.isascii() and right.isascii() and (left.isalnum() or left in "_.%+-") and (right.isalnum() or right in "_.%+-"):
+                return False
+        if content.rfind("<", 0, boundary) > content.rfind(">", 0, boundary):
+            return False
+    quote = content[start:end]
+    tags = re.findall(r"<\s*(/?)\s*([A-Za-z][\w:-]*)[^>]*>", quote)
+    stack: list[str] = []
+    void = {"br", "hr", "img", "input", "meta", "link", "wbr"}
+    for close, name in tags:
+        name = name.lower()
+        if name in void:
+            continue
+        if close:
+            if not stack or stack.pop() != name:
+                return False
+        else:
+            stack.append(name)
+    return not stack
 
 
 class EvaluationDataset:
@@ -146,6 +222,7 @@ class EvaluationDataset:
         self,
         *,
         evidence_resolver: EvidenceResolver | None = None,
+        resolve_evidence: Callable[[EvidenceRef], dict[str, Any] | None] | None = None,
     ) -> DatasetAudit:
         errors: list[str] = []
         seen_ids: set[str] = set()
@@ -165,6 +242,9 @@ class EvaluationDataset:
             seen_queries.add(case.query)
             if case.question_type not in QUESTION_TYPES:
                 errors.append(f"{prefix}: question_type 非法")
+            stratum = str((case.provenance or {}).get("stratum") or "").strip()
+            if stratum and stratum not in STRATA:
+                errors.append(f"{prefix}: stratum 非法：{stratum}")
             if case.tier not in TIERS:
                 errors.append(f"{prefix}: tier 非法")
             if case.review_status not in REVIEW_STATUSES:
@@ -173,6 +253,8 @@ class EvaluationDataset:
                 errors.append(f"{prefix}: difficulty 非法")
             if case.answer_type not in ANSWER_TYPES:
                 errors.append(f"{prefix}: answer_type 非法")
+            if case.schema_version not in {"1.0", "2.0"}:
+                errors.append(f"{prefix}: schema_version 非法")
             if case.question_type == "negative":
                 if not case.expected_behavior:
                     errors.append(f"{prefix}: 负样本缺少 expected_behavior")
@@ -181,8 +263,28 @@ class EvaluationDataset:
                 continue
             if not case.reference_answer:
                 errors.append(f"{prefix}: 正例缺少 reference_answer")
-            if not case.required_facts:
+            if not case.required_facts and not case.facts:
                 errors.append(f"{prefix}: 正例缺少 required_facts")
+            evidence_by_id = {item.evidence_id: item for item in case.evidence if item.evidence_id}
+            if case.schema_version == "2.0":
+                if len(evidence_by_id) != len(case.evidence):
+                    errors.append(f"{prefix}: evidence_id 缺失或重复")
+                if not case.facts:
+                    errors.append(f"{prefix}: schema2 正例缺少 facts")
+                if len({fact.id for fact in case.facts}) != len(case.facts):
+                    errors.append(f"{prefix}: fact id 重复")
+                for fact in case.facts:
+                    if not fact.id or not fact.statement or not fact.allowed_sources or not fact.aliases or not fact.acceptable_evidence_sets:
+                        errors.append(f"{prefix}: fact 字段不完整：{fact.id}")
+                    if any(not group or any(not phrase for phrase in group) for group in fact.aliases):
+                        errors.append(f"{prefix}: aliases 空组合：{fact.id}")
+                    for group in fact.acceptable_evidence_sets:
+                        if not group or len(set(group)) != len(group):
+                            errors.append(f"{prefix}: evidence set 空或重复：{fact.id}")
+                        for ref_id in group:
+                            ref = evidence_by_id.get(ref_id)
+                            if ref is None or ref.source not in fact.allowed_sources:
+                                errors.append(f"{prefix}: fact evidence 不存在或 source 不允许：{ref_id}")
             required_evidence = 2 if case.question_type == "multi_hop" else 1
             if len(case.evidence) < required_evidence:
                 errors.append(f"{prefix}: 证据数量不足")
@@ -191,14 +293,22 @@ class EvaluationDataset:
             for evidence in case.evidence:
                 if (
                     not evidence.source or not evidence.document_version
-                    or not evidence.chunk_id or not evidence.quote
+                    or (not evidence.chunk_id and not (case.schema_version == "2.0" and (evidence.location.get("mapping_status") == "unmapped" or (evidence.location.get("kind") in {"parent", "table"} and evidence.location.get("anchor_id"))))) or not evidence.quote
                 ):
                     errors.append(f"{prefix}: evidence 缺少 source/document_version/chunk_id/quote")
                     continue
-                if evidence_resolver is None:
+                if case.schema_version == "2.0" and not evidence.document_sha256:
+                    errors.append(f"{prefix}: document_sha256 缺失：{evidence.evidence_id}")
+                if evidence_resolver is None and resolve_evidence is None:
                     continue
                 checked_evidence += 1
-                actual = evidence_resolver(evidence.chunk_id)
+                if resolve_evidence is not None:
+                    actual = resolve_evidence(evidence)
+                elif evidence.location.get("kind", "chunk") != "chunk":
+                    errors.append(f"{prefix}: 非chunk证据需要 resolve_evidence：{evidence.evidence_id}")
+                    continue
+                else:
+                    actual = evidence_resolver(evidence.chunk_id)
                 if not actual:
                     errors.append(f"{prefix}: chunk 不存在：{evidence.chunk_id}")
                     continue
@@ -206,6 +316,18 @@ class EvaluationDataset:
                     errors.append(f"{prefix}: chunk/source 不匹配：{evidence.chunk_id}")
                 if evidence.quote not in str(actual.get("content", "")):
                     errors.append(f"{prefix}: quote 无法在 chunk 中定位：{evidence.chunk_id}")
+                if case.schema_version == "2.0":
+                    from .metrics import compute_text_coverage
+                    content = str(actual.get("content", ""))
+                    start, end = evidence.quote_start, evidence.quote_end
+                    if actual.get("document_sha256") != evidence.document_sha256:
+                        errors.append(f"{prefix}: SHA 不匹配：{evidence.evidence_id}")
+                    if not isinstance(start, int) or not isinstance(end, int) or not (0 <= start < end <= len(content)) or content[start:end] != evidence.quote:
+                        errors.append(f"{prefix}: quote offset 不匹配：{evidence.evidence_id}")
+                    elif not _safe_quote_boundaries(content, start, end):
+                        errors.append(f"{prefix}: quote 截断数字/ASCII/HTML：{evidence.evidence_id}")
+                    if compute_text_coverage([content], [evidence.quote]) != 1.0:
+                        errors.append(f"{prefix}: selfcompute_text_coverage != 1：{evidence.evidence_id}")
         if errors:
             raise DatasetValidationError("；".join(errors))
         return DatasetAudit(True, len(self.cases), checked_evidence)

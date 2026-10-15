@@ -84,14 +84,14 @@ def test_truncated_table_is_announced_in_context():
 
 def test_sources_surface_page_block_type_and_metadata():
     _, sources = build_context(
-        [_doc(block_type="table", security_code="600519", industry_l1="食品饮料")]
+        [_doc(block_type="table", report_type="行业", industry_l1="食品饮料")]
     )
 
     source = sources[0]
     assert source["start_page"] == 4
     assert source["end_page"] == 5
     assert source["block_type"] == "table"
-    assert source["security_code"] == "600519"
+    assert source["report_type"] == "行业"
     assert source["industry_l1"] == "食品饮料"
 
 

@@ -86,48 +86,98 @@ def build_context(docs):
 # ---------------------------------------------------------------------------
 
 class TestCliffDetection:
+    """断崖三条约束：绝对差距 / 相对跌幅 / 兜底下限。
+
+    分数尺度的事实决定了各规则的作用面——稠密/COSINE 分在 [-1, 1]，0.8 才可达；
+    RRF 融合分上界约 2/61≈0.033，绝对规则永不可达。因此多数用例用相对跌幅构造。
+    """
+
     def test_no_cliff(self):
+        # 最大相邻差距 0.05（远低于 0.8），最大跌幅 5.3%（低于 40%）
         c = [{"score": 0.95}, {"score": 0.90}, {"score": 0.88}, {"score": 0.85}]
-        assert len(_apply_cliff_detection(c, threshold=0.35, min_results=1)) == 4
+        assert len(_apply_cliff_detection(c, min_top_k=1)) == 4
 
-    def test_cliff_detected(self):
+    def test_relative_rule_triggers(self):
+        # i=2：0.90 → 0.30，跌幅 66.7% >= 40%（差距 0.60 < 0.8，只有相对规则命中）
         c = [{"score": 0.95}, {"score": 0.92}, {"score": 0.90}, {"score": 0.30}, {"score": 0.25}]
-        assert len(_apply_cliff_detection(c, threshold=0.35, min_results=1)) == 3
+        assert len(_apply_cliff_detection(c, min_top_k=1)) == 3
 
-    def test_min_results(self):
+    def test_absolute_rule_alone_can_trigger(self):
+        # 0.95 → 0.10：差距 0.85 >= 0.8。关掉相对规则后仍命中，
+        # 证明绝对规则本身可用（分数 <=1 时它其实被相对规则蕴含，见实现注释）
         c = [{"score": 0.95}, {"score": 0.10}]
-        assert len(_apply_cliff_detection(c, threshold=0.35, min_results=2)) == 2
+        assert len(
+            _apply_cliff_detection(c, rel_threshold=0, abs_threshold=0.8, min_top_k=1)
+        ) == 1
 
-    def test_high_threshold_truncates_less(self):
-        """阈值方向：判据是「相对落差 > 阈值」，因此阈值越高越不容易截断。"""
-        # 相邻落差 0.95→0.55 = 42%（>0.35 触发），0.55→0.40 = 27%（两档都不触发）
-        c = [{"score": 0.95}, {"score": 0.55}, {"score": 0.40}]
-        assert len(_apply_cliff_detection(c, threshold=0.35, min_results=1)) == 1
-        assert len(_apply_cliff_detection(c, threshold=0.70, min_results=1)) == 3
+    def test_relative_boundary_is_inclusive(self):
+        """「跌幅 >= 40%」含等号：恰好 40% 命中，39% 不命中。"""
+        hit = [{"score": 0.50}, {"score": 0.30}]      # 0.20/0.50 = 40%
+        miss = [{"score": 0.50}, {"score": 0.305}]    # 0.195/0.50 = 39%
 
-    def test_extreme_cliff_keeps_default_floor(self):
-        """极端断崖（首条即 99% 落差）下仍至少保留 RERANKER_CLIFF_MIN_RESULTS 条。
+        assert len(_apply_cliff_detection(hit, min_top_k=1)) == 1
+        assert len(_apply_cliff_detection(miss, min_top_k=1)) == 2
 
-        回归点：默认下限曾为 1，实测出现过 20 条候选在首条之后直接截到只剩 1 条，
-        一旦该条不相关就没有任何兜底上下文。
-        """
-        from finance_rag.src.core.config import RERANKER_CLIFF_MIN_RESULTS
+    def test_absolute_boundary_is_inclusive(self):
+        hit = [{"score": 1.00}, {"score": 0.20}]      # 差距 0.80
+        miss = [{"score": 1.00}, {"score": 0.21}]     # 差距 0.79
 
-        assert RERANKER_CLIFF_MIN_RESULTS >= 3
-        # 首条 0.95，其余全部接近 0：断崖落在 i=0，若无下限则只保留 1 条
+        assert len(_apply_cliff_detection(hit, rel_threshold=0, min_top_k=1)) == 1
+        assert len(_apply_cliff_detection(miss, rel_threshold=0, min_top_k=1)) == 2
+
+    def test_floor_keeps_min_top_k(self):
+        """兜底：断崖落在首条之后，仍至少保留 min_top_k 条。"""
         c = [{"score": 0.95}] + [{"score": 0.005}] * 19
-        kept = _apply_cliff_detection(c)  # 不传参 -> 使用生产默认值
-        assert len(kept) == RERANKER_CLIFF_MIN_RESULTS
 
-    def test_disabled(self):
+        assert len(_apply_cliff_detection(c, min_top_k=5)) == 5
+
+    def test_default_floor_is_five(self):
+        """生产默认下限为 5（回归点：曾为 3，极端断崖下重排候选过少）。"""
+        from finance_rag.src.core.config import RERANKER_CLIFF_MIN_TOP_K
+
+        assert RERANKER_CLIFF_MIN_TOP_K == 5
+        c = [{"score": 0.95}] + [{"score": 0.005}] * 19
+
+        assert len(_apply_cliff_detection(c)) == RERANKER_CLIFF_MIN_TOP_K
+
+    def test_earliest_cliff_wins_single_scan(self):
+        """单次扫描、最早断崖优先：不做「找最深落差」。
+
+        这里 i=0 与 i=2 都命中；取最早一处则截到 2（受 min_top_k=2 托底），
+        若按「最深落差」实现会截到 3。
+        """
+        c = [{"score": 0.95}, {"score": 0.30}, {"score": 0.29}, {"score": 0.02}]
+
+        assert len(_apply_cliff_detection(c, min_top_k=2)) == 2
+
+    def test_rule_level_disable(self):
+        """规则级禁用：只关相对规则时，绝对规则单独生效（此例差距 0.40 < 0.8 不命中）。"""
+        c = [{"score": 0.95}, {"score": 0.55}, {"score": 0.40}]
+
+        assert len(_apply_cliff_detection(c, rel_threshold=0, min_top_k=1)) == 3
+
+    def test_disabled_when_both_thresholds_off(self):
+        """整体禁用：两条阈值都 <= 0 时原样返回（旧的「threshold<=0 即禁用」已不适用）。"""
         c = [{"score": 0.95}, {"score": 0.10}]
-        assert len(_apply_cliff_detection(c, threshold=0, min_results=1)) == 2
+
+        assert len(
+            _apply_cliff_detection(c, rel_threshold=0, abs_threshold=0, min_top_k=1)
+        ) == 2
+
+    def test_non_positive_score_is_skipped(self):
+        """非正分数不做相对跌幅判定（避免除零），但仍可被绝对规则命中。"""
+        c = [{"score": 0.0}, {"score": -0.5}]
+
+        assert len(_apply_cliff_detection(c, min_top_k=1)) == 2
+        assert len(
+            _apply_cliff_detection(c, rel_threshold=0, abs_threshold=0.4, min_top_k=1)
+        ) == 1
 
     def test_empty(self):
-        assert _apply_cliff_detection([], threshold=0.35, min_results=1) == []
+        assert _apply_cliff_detection([], min_top_k=1) == []
 
     def test_single(self):
-        assert len(_apply_cliff_detection([{"score": 0.95}], threshold=0.35, min_results=1)) == 1
+        assert len(_apply_cliff_detection([{"score": 0.95}], min_top_k=1)) == 1
 
 
 class TestFingerprintStore:

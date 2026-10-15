@@ -289,7 +289,7 @@ def _write_report(
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="检索 Top-K 与重排序 Top-K 网格扫描评估")
-    parser.add_argument("--k-list", default="3,5,10,15,20", help="检索 top-k 候选值（逗号分隔，默认 3,5,10,15,20）")
+    parser.add_argument("--k-list", default="5,10,20,50", help="检索 top-k 候选值（逗号分隔，默认 5,10,20,50）")
     parser.add_argument("--rtn-list", default="3,5,10", help="重排序 top-k 候选值（逗号分隔，默认 3,5,10）")
     parser.add_argument("--testset", default=str(DEFAULT_TESTSET), help="测试集路径")
     parser.add_argument("--sample", type=int, default=0, help="抽样条目数（0=全量）")

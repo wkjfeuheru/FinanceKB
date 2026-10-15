@@ -13,6 +13,16 @@ class TestParseLlmQa:
         assert query == "什么是适当性管理？"
         assert answer == "适当性管理是指对客户进行风险等级评估的完整流程。"
 
+    def test_compact_markdown_is_accepted(self):
+        raw = "## 问题 什么是适当性管理？ ### 标准答案 适当性管理是指完整流程。"
+        assert _parse_llm_qa(raw) == (
+            "什么是适当性管理？", "适当性管理是指完整流程。"
+        )
+
+    def test_short_numeric_answer_is_accepted(self):
+        raw = "## 问题 该产品的最低认购金额是多少？ ### 标准答案 1万元"
+        assert _parse_llm_qa(raw) == ("该产品的最低认购金额是多少？", "1万元")
+
     def test_missing_answer_returns_none(self):
         assert _parse_llm_qa("## 问题\n什么是X？") is None
 
@@ -132,3 +142,18 @@ class TestFilterEntriesByKb:
         kept, removed = filter_entries_by_kb(entries, kb, allow_missing=True)
         assert len(kept) == 1
         assert removed == []
+
+    def test_comma_inside_filename_is_one_document(self):
+        title = "2026中报点评：短期扰动不改基本面，燃机订单超预期.pdf"
+        entries = [type("E", (), {"related_docs": title})()]
+        kb = self._fake_kb([title])
+        kept, removed = filter_entries_by_kb(entries, kb)
+        assert len(kept) == 1
+        assert removed == []
+
+    def test_comma_separated_docs_still_drop_the_missing_one(self):
+        entries = [type("E", (), {"related_docs": "doc.pdf，missing.pdf"})()]
+        kb = self._fake_kb(["doc.pdf"])
+        kept, removed = filter_entries_by_kb(entries, kb)
+        assert kept == []
+        assert removed[0][1] == ["missing.pdf"]

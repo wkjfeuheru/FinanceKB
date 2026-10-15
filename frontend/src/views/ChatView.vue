@@ -7,6 +7,7 @@ import { ElMessage } from 'element-plus'
 import { useChatStore } from '../store/chat'
 import { chatStream, fetchDocumentPage } from '../api'
 import { categoryLabel } from '../constants/categories'
+import { answerStatusLabel } from '../utils/answer'
 
 const store = useChatStore()
 
@@ -32,7 +33,8 @@ const stageLabels = {
   retrieving: '正在检索知识库...',
   hyde: '正在生成假设回答...',
   reranking: '正在重排序...',
-  generating: '正在生成回答...'
+  generating: '正在生成回答...',
+  verifying: '正在核验事实与引用...'
 }
 
 const blockTypeLabels = { table: '表格', image: '图片', text: '' }
@@ -43,9 +45,6 @@ function filterChips(filters) {
   const chips = []
   if (filters.category?.length) {
     chips.push({ key: 'category', text: `分类：${filters.category.map(categoryLabel).join('/')}` })
-  }
-  if (filters.security_code?.length) {
-    chips.push({ key: 'security_code', text: `标的：${filters.security_code.join('/')}` })
   }
   if (filters.industry_l1?.length) {
     chips.push({ key: 'industry_l1', text: `行业：${filters.industry_l1.join('/')}` })
@@ -58,6 +57,9 @@ function filterChips(filters) {
   }
   if (filters.broker?.length) {
     chips.push({ key: 'broker', text: `机构：${filters.broker.join('/')}` })
+  }
+  if (Array.isArray(filters.date) && filters.date.length) {
+    chips.push({ key: 'date', text: `日期：${filters.date.join('/')}` })
   }
   if (filters.date?.gte) chips.push({ key: 'date_gte', text: `不早于 ${filters.date.gte}` })
   if (filters.date?.lte) chips.push({ key: 'date_lte', text: `不晚于 ${filters.date.lte}` })
@@ -144,7 +146,7 @@ async function sendMessage() {
 
   // 过滤条件由后端 LLM 根据问题自动推断（Self-querying）；
   // 分析师点掉 chip 后置 infer_filters=false，避免又被推断回来。
-  // k/rerank_top_n 交由后端默认值/动态 K 决定
+  // k/rerank_top_n 交由后端默认值决定（粗排 50 / 精排 5）
   const payload = {
     query,
     history,
@@ -172,6 +174,8 @@ async function sendMessage() {
           msg.appliedFilters = event.filters || null
           // 幻觉治理状态：此前前端完全没有读取，可信与否在界面上不可见
           msg.citationValidation = event.citation_validation || null
+          msg.answerStatus = event.answer_status || 'unverified'
+          msg.missingItems = event.missing_items || []
           msg.answerRejected = !!event.answer_rejected
           msg.lowConfidence = !!event.low_confidence
         } else if (event.type === 'error') {
@@ -271,11 +275,10 @@ onUnmounted(() => {
 
           <!-- 幻觉治理状态：拒答 / 低置信 / 引用校验 -->
           <div v-if="msg.role === 'assistant' && (msg.answerRejected || msg.lowConfidence || msg.citationValidation)" class="credibility-row">
-            <el-tag v-if="msg.answerRejected" type="danger" size="small">已拒答：检索证据不足</el-tag>
-            <el-tag v-else-if="msg.lowConfidence" type="warning" size="small">
-              低置信：引用校验未达标，请核对原文
+            <el-tag v-if="answerStatusLabel(msg)" :type="msg.answerStatus === 'refused' ? 'danger' : msg.answerStatus === 'complete' ? 'success' : 'warning'" size="small">
+              {{ answerStatusLabel(msg) }}
             </el-tag>
-            <span v-if="msg.citationValidation" class="citation-score">
+            <span v-if="msg.citationValidation?.status === 'verified'" class="citation-score">
               引用校验：{{ msg.citationValidation.verified_citations ?? 0 }}/{{ msg.citationValidation.total_citations ?? 0 }} 条通过（得分 {{ msg.citationValidation.score ?? '—' }}）
             </span>
           </div>

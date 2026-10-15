@@ -97,6 +97,11 @@ def _document_version(chunk: dict) -> str:
     return str(chunk.get("version") or "").strip() or str(chunk.get("source") or "").strip()
 
 
+def automated_review(reviewer: str) -> dict:
+    """自动构建不是人工批准；金标必须由明确的人工审核导入产生。"""
+    return {"tier": "silver", "review_status": "auto_pass", "reviewer": reviewer}
+
+
 def _find_evidence(grouped: dict[str, list[dict]], hint: dict) -> tuple[dict, str] | None:
     """在真实块里定位一条证据；返回 ``(chunk, quote)``，定位不到返回 None。
 
@@ -115,13 +120,9 @@ def _find_evidence(grouped: dict[str, list[dict]], hint: dict) -> tuple[dict, st
             position = content.find(quote_hint)
             if position < 0:
                 continue
-            # 引文取上下文窗口，便于人工复核；不改变原文
-            start = max(0, position - 20)
-            end = min(len(content), position + len(quote_hint) + 20)
-            quote = content[start:end].strip()
-            if len(quote) < MIN_QUOTE_CHARS:
-                quote = content[max(0, position - 40) : position + 80].strip()
-            hits.append((chunk, quote[:MAX_QUOTE_CHARS]))
+            from scripts.revise_research_evaluation import locate_quote
+            quote, _, _ = locate_quote(content, [quote_hint])
+            hits.append((chunk, quote))
     if len(hits) != 1:
         return None
     return hits[0]
@@ -172,8 +173,7 @@ def main(argv: list[str] | None = None) -> int:
                 "reference_answer": item.get("reference_answer", ""),
                 "required_facts": item.get("required_facts", []),
                 "evidence": [], "expected_behavior": behavior,
-                "tier": item.get("tier", "gold"), "review_status": "approved",
-                "reviewer": args.reviewer,
+                **automated_review(args.reviewer),
                 "review_note": "negative 题按 expected_behavior 判定，无证据块",
                 "provenance": dict(PROVENANCE, kind="negative"),
             })
@@ -222,8 +222,7 @@ def main(argv: list[str] | None = None) -> int:
             "reference_answer": item.get("reference_answer", ""),
             "required_facts": item.get("required_facts", []),
             "evidence": resolved, "expected_behavior": "",
-            "tier": item.get("tier", "gold"), "review_status": "approved",
-            "reviewer": args.reviewer,
+            **automated_review(args.reviewer),
             "review_note": "证据由脚本在真实 chunk 中定位，引文为原文片段",
             "provenance": dict(PROVENANCE, kind="evidence"),
         })

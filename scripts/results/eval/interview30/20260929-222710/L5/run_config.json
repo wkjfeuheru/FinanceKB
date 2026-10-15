@@ -1,0 +1,14 @@
+{
+  "dataset_fingerprint": "7dc10e8ab2be1c470c33f240455aa44bc61282d837202a184c34da2d80b28066",
+  "metadata": {},
+  "mode": "retrieval",
+  "strategy": "L5",
+  "strategy_config": {
+    "cliff_detection": true,
+    "k": 20,
+    "name": "混合检索 + BGE + 断崖检测",
+    "top_k": 5,
+    "use_dense_only": false,
+    "use_rerank": true
+  }
+}

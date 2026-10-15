@@ -20,10 +20,25 @@ class ParentStore:
         self._collection = collection
         self._repo = ParentStoreRepository()
 
-    def store(self, parent_id: str, content: str, heading: str = "", source: str = "") -> None:
+    def store(
+        self,
+        parent_id: str,
+        content: str,
+        heading: str = "",
+        source: str = "",
+        heading_path: str = "",
+    ) -> None:
         self._repo.upsert_many(
             self._collection,
-            [{"id": parent_id, "content": content, "heading": heading, "source": source}],
+            [
+                {
+                    "id": parent_id,
+                    "content": content,
+                    "heading": heading,
+                    "heading_path": heading_path,
+                    "source": source,
+                }
+            ],
         )
 
     def store_batch(self, items: list[dict[str, Any]]) -> None:
@@ -46,5 +61,6 @@ class ParentStore:
             "id": row["id"],
             "content": row["content"],
             "heading": row.get("heading", ""),
+            "heading_path": row.get("heading_path", ""),
             "source": row.get("source", ""),
         }

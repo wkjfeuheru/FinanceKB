@@ -1,0 +1,587 @@
+{
+  "collection": "finance_kb",
+  "schema": {
+    "collection_name": "finance_kb",
+    "auto_id": false,
+    "num_shards": 1,
+    "description": "",
+    "fields": [
+      {
+        "field_id": 100,
+        "name": "id",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 64
+        },
+        "is_primary": true
+      },
+      {
+        "field_id": 101,
+        "name": "content",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 8192,
+          "enable_analyzer": "true"
+        }
+      },
+      {
+        "field_id": 102,
+        "name": "source",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 512
+        }
+      },
+      {
+        "field_id": 103,
+        "name": "title",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 128
+        }
+      },
+      {
+        "field_id": 104,
+        "name": "chunk",
+        "description": "",
+        "type": 5,
+        "params": {}
+      },
+      {
+        "field_id": 105,
+        "name": "parent_id",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 64
+        }
+      },
+      {
+        "field_id": 106,
+        "name": "chunk_key",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 64
+        }
+      },
+      {
+        "field_id": 107,
+        "name": "content_hash",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 64
+        }
+      },
+      {
+        "field_id": 108,
+        "name": "heading_path",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 1024
+        }
+      },
+      {
+        "field_id": 109,
+        "name": "tenant_id",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 64
+        }
+      },
+      {
+        "field_id": 110,
+        "name": "category",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 64
+        }
+      },
+      {
+        "field_id": 111,
+        "name": "date",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 32
+        }
+      },
+      {
+        "field_id": 112,
+        "name": "version",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 32
+        }
+      },
+      {
+        "field_id": 113,
+        "name": "ingested_at",
+        "description": "",
+        "type": 5,
+        "params": {}
+      },
+      {
+        "field_id": 114,
+        "name": "is_current",
+        "description": "",
+        "type": 1,
+        "params": {}
+      },
+      {
+        "field_id": 115,
+        "name": "is_deleted",
+        "description": "",
+        "type": 1,
+        "params": {}
+      },
+      {
+        "field_id": 116,
+        "name": "security_code",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 32
+        }
+      },
+      {
+        "field_id": 117,
+        "name": "security_name",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 64
+        }
+      },
+      {
+        "field_id": 118,
+        "name": "industry_l1",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 32
+        }
+      },
+      {
+        "field_id": 119,
+        "name": "industry_l2",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 32
+        }
+      },
+      {
+        "field_id": 120,
+        "name": "report_type",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 16
+        }
+      },
+      {
+        "field_id": 121,
+        "name": "broker",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 64
+        }
+      },
+      {
+        "field_id": 122,
+        "name": "meta_source",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 16
+        }
+      },
+      {
+        "field_id": 123,
+        "name": "block_type",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 16
+        }
+      },
+      {
+        "field_id": 124,
+        "name": "start_page",
+        "description": "",
+        "type": 5,
+        "params": {}
+      },
+      {
+        "field_id": 125,
+        "name": "end_page",
+        "description": "",
+        "type": 5,
+        "params": {}
+      },
+      {
+        "field_id": 126,
+        "name": "image_key",
+        "description": "",
+        "type": 21,
+        "params": {
+          "max_length": 256
+        }
+      },
+      {
+        "field_id": 127,
+        "name": "needs_review",
+        "description": "",
+        "type": 1,
+        "params": {}
+      },
+      {
+        "field_id": 128,
+        "name": "dense_vector",
+        "description": "",
+        "type": 101,
+        "params": {
+          "dim": 1024
+        }
+      },
+      {
+        "field_id": 129,
+        "name": "sparse_vector",
+        "description": "",
+        "type": 104,
+        "params": {},
+        "is_function_output": true
+      }
+    ],
+    "functions": [
+      {
+        "name": "bm25_fn",
+        "id": 100,
+        "description": "",
+        "type": 1,
+        "params": {},
+        "input_field_names": "['content']",
+        "input_field_ids": "[101]",
+        "output_field_names": "['sparse_vector']",
+        "output_field_ids": "[129]"
+      }
+    ],
+    "aliases": [],
+    "collection_id": 469455819458217556,
+    "consistency_level": 0,
+    "consistency_level_name": "Strong",
+    "properties": {
+      "timezone": "UTC"
+    },
+    "num_partitions": 1,
+    "enable_dynamic_field": false,
+    "enable_namespace": false,
+    "created_timestamp": 469455849914105874,
+    "update_timestamp": 469455849914105874
+  },
+  "stats": {
+    "row_count": 1504
+  },
+  "fingerprint": "fd61a57ccf4171b0e8351bbd014472733ea237d3db210445cbe219469f392c7d",
+  "documents": [
+    {
+      "source": "H3_AP202609261829930314_1.pdf",
+      "title": "H3_AP202609261829930314_1",
+      "category": "investment_research",
+      "date": "2026-09-01",
+      "chunk_count": 229,
+      "version": "",
+      "versions": [],
+      "report_type": "宏观",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "计算机",
+      "needs_review": false,
+      "broker": "易观分析",
+      "industry_l2": "IT服务Ⅱ"
+    },
+    {
+      "source": "H3_AP202609261829929943_1.pdf",
+      "title": "H3_AP202609261829929943_1",
+      "category": "investment_research",
+      "date": "2026-10-01",
+      "chunk_count": 178,
+      "version": "",
+      "versions": [],
+      "report_type": "宏观",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "",
+      "needs_review": true,
+      "broker": "",
+      "industry_l2": ""
+    },
+    {
+      "source": "H3_AP202609261829929869_1.pdf",
+      "title": "H3_AP202609261829929869_1",
+      "category": "investment_research",
+      "date": "2026-09-01",
+      "chunk_count": 102,
+      "version": "",
+      "versions": [],
+      "report_type": "宏观",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "",
+      "needs_review": true,
+      "broker": "",
+      "industry_l2": ""
+    },
+    {
+      "source": "H3_AP202609281829951050_1.pdf",
+      "title": "H3_AP202609281829951050_1",
+      "category": "investment_research",
+      "date": "2026-09-28",
+      "chunk_count": 160,
+      "version": "",
+      "versions": [],
+      "report_type": "个股",
+      "security_name": "横店东磁",
+      "meta_source": "llm",
+      "industry_l1": "电子",
+      "needs_review": false,
+      "broker": "kysec",
+      "industry_l2": "消费电子"
+    },
+    {
+      "source": "H3_AP202609261829929547_1.pdf",
+      "title": "H3_AP202609261829929547_1",
+      "category": "investment_research",
+      "date": "2026-10-01",
+      "chunk_count": 46,
+      "version": "",
+      "versions": [],
+      "report_type": "行业",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "医药生物",
+      "needs_review": false,
+      "broker": "安永",
+      "industry_l2": "医疗器械"
+    },
+    {
+      "source": "H3_AP202609271829935298_1.pdf",
+      "title": "H3_AP202609271829935298_1",
+      "category": "investment_research",
+      "date": "2026-07-01",
+      "chunk_count": 115,
+      "version": "",
+      "versions": [],
+      "report_type": "宏观",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "通信",
+      "needs_review": false,
+      "broker": "中信科移动通信技术股份有限公司",
+      "industry_l2": "通信设备"
+    },
+    {
+      "source": "H3_AP202609241829864267_1.pdf",
+      "title": "H3_AP202609241829864267_1",
+      "category": "investment_research",
+      "date": "2002-01-01",
+      "chunk_count": 92,
+      "version": "",
+      "versions": [],
+      "report_type": "宏观",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "",
+      "needs_review": true,
+      "broker": "格林大华期货",
+      "industry_l2": ""
+    },
+    {
+      "source": "H3_AP202609281829951153_1.pdf",
+      "title": "H3_AP202609281829951153_1",
+      "category": "investment_research",
+      "date": "2026-10-01",
+      "chunk_count": 96,
+      "version": "",
+      "versions": [],
+      "report_type": "行业",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "电力设备",
+      "needs_review": false,
+      "broker": "中信证券",
+      "industry_l2": "光伏设备"
+    },
+    {
+      "source": "H3_AP202609271829939976_1.pdf",
+      "title": "H3_AP202609271829939976_1",
+      "category": "investment_research",
+      "date": "2026-09-19",
+      "chunk_count": 72,
+      "version": "",
+      "versions": [],
+      "report_type": "宏观",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "",
+      "needs_review": true,
+      "broker": "国信证券",
+      "industry_l2": ""
+    },
+    {
+      "source": "H3_AP202609211829713285_1.pdf",
+      "title": "H3_AP202609211829713285_1",
+      "category": "investment_research",
+      "date": "2026-09-14",
+      "chunk_count": 124,
+      "version": "",
+      "versions": [],
+      "report_type": "宏观",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "",
+      "needs_review": true,
+      "broker": "",
+      "industry_l2": ""
+    },
+    {
+      "source": "H3_AP202609241829833777_1.pdf",
+      "title": "H3_AP202609241829833777_1",
+      "category": "investment_research",
+      "date": "2026-06-30",
+      "chunk_count": 36,
+      "version": "",
+      "versions": [],
+      "report_type": "个股",
+      "security_name": "新锐股份",
+      "meta_source": "llm",
+      "industry_l1": "机械设备",
+      "needs_review": false,
+      "broker": "华鑫证券",
+      "industry_l2": "专用设备"
+    },
+    {
+      "source": "H3_AP202609251829896818_1.pdf",
+      "title": "H3_AP202609251829896818_1",
+      "category": "investment_research",
+      "date": "2026-09-12",
+      "chunk_count": 48,
+      "version": "",
+      "versions": [],
+      "report_type": "宏观",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "",
+      "needs_review": true,
+      "broker": "南华期货",
+      "industry_l2": ""
+    },
+    {
+      "source": "H3_AP202609271829940631_1.pdf",
+      "title": "H3_AP202609271829940631_1",
+      "category": "investment_research",
+      "date": "2026-09-27",
+      "chunk_count": 22,
+      "version": "",
+      "versions": [],
+      "report_type": "个股",
+      "security_name": "中国通号",
+      "meta_source": "llm",
+      "industry_l1": "机械设备",
+      "needs_review": false,
+      "broker": "中信证券",
+      "industry_l2": "轨交设备Ⅱ"
+    },
+    {
+      "source": "H3_AP202609201829669604_1.pdf",
+      "title": "H3_AP202609201829669604_1",
+      "category": "investment_research",
+      "date": "2026-09-18",
+      "chunk_count": 43,
+      "version": "",
+      "versions": [],
+      "report_type": "个股",
+      "security_name": "信科移动",
+      "meta_source": "llm",
+      "industry_l1": "通信",
+      "needs_review": false,
+      "broker": "中信证券",
+      "industry_l2": "通信设备"
+    },
+    {
+      "source": "H3_AP202609281829953173_1.pdf",
+      "title": "H3_AP202609281829953173_1",
+      "category": "investment_research",
+      "date": "2026-10-01",
+      "chunk_count": 60,
+      "version": "",
+      "versions": [],
+      "report_type": "个股",
+      "security_name": "",
+      "meta_source": "llm",
+      "industry_l1": "电子",
+      "needs_review": true,
+      "broker": "未知",
+      "industry_l2": "消费电子"
+    },
+    {
+      "source": "H3_AP202609231829798847_1.pdf",
+      "title": "H3_AP202609231829798847_1",
+      "category": "investment_research",
+      "date": "2026-09-22",
+      "chunk_count": 33,
+      "version": "",
+      "versions": [],
+      "report_type": "个股",
+      "security_name": "百普赛斯",
+      "meta_source": "llm",
+      "industry_l1": "医药生物",
+      "needs_review": false,
+      "broker": "中信证券",
+      "industry_l2": "医疗器械"
+    },
+    {
+      "source": "H3_AP202609261829925702_1.pdf",
+      "title": "H3_AP202609261829925702_1",
+      "category": "investment_research",
+      "date": "2026-10-01",
+      "chunk_count": 23,
+      "version": "",
+      "versions": [],
+      "report_type": "个股",
+      "security_name": "国机汽车",
+      "meta_source": "llm",
+      "industry_l1": "汽车",
+      "needs_review": false,
+      "broker": "太平洋证券",
+      "industry_l2": "汽车零部件"
+    },
+    {
+      "source": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf",
+      "title": "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间",
+      "category": "investment_research",
+      "date": "2026-08-14",
+      "chunk_count": 25,
+      "version": "",
+      "versions": [],
+      "report_type": "个股",
+      "security_name": "杰瑞股份",
+      "meta_source": "llm",
+      "industry_l1": "机械设备",
+      "needs_review": false,
+      "broker": "",
+      "industry_l2": "专用设备"
+    }
+  ]
+}

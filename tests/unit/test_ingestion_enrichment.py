@@ -42,8 +42,8 @@ async def test_enrich_merges_metadata_into_document(monkeypatch):
     )
 
     assert metadata["category"] == "investment_research"   # 原有字段保留
-    assert metadata["security_code"] == "600519"
-    assert metadata["industry_l2"] == "白酒Ⅱ"
+    assert metadata["security_name"] == "贵州茅台"
+    assert "industry_l2" not in metadata
     assert metadata["meta_source"] == "llm"
 
 
@@ -66,7 +66,7 @@ async def test_enrich_honours_config_switch_when_llm_not_specified(monkeypatch):
     )
 
     assert calls == []
-    assert metadata["security_code"] == "600519"   # 正则结果仍然可用
+    assert metadata["security_name"] == "贵州茅台"   # 正则结果仍然可用
     assert metadata["meta_source"] == "regex"
 
 
@@ -78,7 +78,7 @@ async def test_enrich_appends_image_chunks_after_text_chunks(monkeypatch):
 
     enriched, _ = await enrich_chunks(
         source="研报.pdf",
-        title="研报",
+        title="宏观研报",
         markdown="正文",
         chunks=chunks,
         metadata={},
@@ -102,7 +102,7 @@ async def test_enrich_keeps_image_chunk_when_caption_fails(monkeypatch):
     )
 
     enriched, _ = await enrich_chunks(
-        source="研报.pdf", title="研报", markdown="正文", chunks=chunks,
+        source="研报.pdf", title="宏观研报", markdown="正文", chunks=chunks,
         metadata={}, enable_llm=False,
     )
 
@@ -111,9 +111,41 @@ async def test_enrich_keeps_image_chunk_when_caption_fails(monkeypatch):
     assert "第 7 页" in placeholder.page_content
 
 
+async def test_enrich_passes_figure_captions_to_image_chunks(monkeypatch):
+    """原文图注经 enrich_chunks 流入图片块：与视觉描述拼接成索引文本。"""
+    monkeypatch.setattr(image_captioner, "caption_image", lambda *a, **k: "订单结构图")
+    chunks = _chunks(
+        images=[ImageAsset(key_hint="4-0", page=4, data=b"\x89PNG", ext="png")],
+        figure_captions={4: ["图12 燃机订单结构"]},
+    )
+
+    enriched, _ = await enrich_chunks(
+        source="研报.pdf", title="宏观研报", markdown="正文", chunks=chunks,
+        metadata={}, enable_llm=False,
+    )
+
+    assert enriched.chunks[-1].page_content == "订单结构图\n原文图注：图12 燃机订单结构"
+
+
+async def test_enrich_figure_caption_rescues_uncaptioned_image(monkeypatch):
+    """视觉描述失败时，图注仍让图片块保有可召回的语义。"""
+    monkeypatch.setattr(image_captioner, "caption_image", lambda *a, **k: "")
+    chunks = _chunks(
+        images=[ImageAsset(key_hint="7-0", page=7, data=b"\x89PNG", ext="png")],
+        figure_captions={7: ["图13 盈利预测"]},
+    )
+
+    enriched, _ = await enrich_chunks(
+        source="研报.pdf", title="宏观研报", markdown="正文", chunks=chunks,
+        metadata={}, enable_llm=False,
+    )
+
+    assert "图13 盈利预测" in enriched.chunks[-1].page_content
+
+
 async def test_enrich_without_images_does_not_add_chunks(monkeypatch):
     enriched, _ = await enrich_chunks(
-        source="研报.pdf", title="研报", markdown="正文", chunks=_chunks(),
+        source="研报.pdf", title="宏观研报", markdown="正文", chunks=_chunks(),
         metadata={}, enable_llm=False,
     )
 
@@ -126,11 +158,11 @@ async def test_image_chunk_ids_are_stable_across_reingest(monkeypatch):
     assets = [ImageAsset(key_hint="4-0", page=4, data=b"\x89PNG", ext="png")]
 
     first, _ = await enrich_chunks(
-        source="研报.pdf", title="研报", markdown="正文",
+        source="研报.pdf", title="宏观研报", markdown="正文",
         chunks=_chunks(images=list(assets)), metadata={}, enable_llm=False,
     )
     second, _ = await enrich_chunks(
-        source="研报.pdf", title="研报", markdown="正文",
+        source="研报.pdf", title="宏观研报", markdown="正文",
         chunks=_chunks(images=list(assets)), metadata={}, enable_llm=False,
     )
 

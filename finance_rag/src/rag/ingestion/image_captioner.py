@@ -172,6 +172,38 @@ def caption_image(data: bytes, *, ext: str = "png", source: str = "") -> str:
 
 
 _IMAGE_PLACEHOLDER = "[图片] 第 {page} 页（未能生成描述，可点击查看原图）"
+# 视觉描述缺失但有原文图注时的降级文本：图注本身就是可召回的语义
+_FIGURE_ONLY_PLACEHOLDER = "第 {page} 页图表：{caption}（未能生成视觉描述，可点击查看原图）"
+
+
+def _asset_area(asset: Any) -> float:
+    """图片面积（外发预算的优先级依据）；尺寸未知返回 inf（视为最大）。
+
+    尺寸「量不出来」不能成为把图排到最后的原因——宁可优先外发。
+    """
+    dimensions = _image_dimensions(getattr(asset, "data", b"") or b"")
+    if dimensions is None:
+        return float("inf")
+    return float(dimensions[0]) * float(dimensions[1])
+
+
+def _figure_caption_text(
+    captions_by_page: dict[int, list[str]],
+    page: int,
+    position_on_page: int,
+    images_on_page: int,
+) -> str:
+    """取某张图对应的原文图注（页级对齐）。
+
+    页内图片数与图注数相等 → 按出现顺序 1:1 对应；不等（MinerU 漏抽了
+    图注或图注挂在整页）→ 该页全部图注拼接赋给页内每张图——宁重复，不丢语义。
+    """
+    page_captions = captions_by_page.get(page) or []
+    if not page_captions:
+        return ""
+    if len(page_captions) == images_on_page:
+        return page_captions[position_on_page]
+    return "；".join(page_captions)
 
 
 def build_image_chunks(
@@ -181,35 +213,73 @@ def build_image_chunks(
     title: str = "",
     start_index: int = 0,
     max_captions: int | None = None,
+    figure_captions: dict[int, list[str]] | None = None,
 ) -> list[Any]:
     """为每张图片生成一个可检索的子块。
 
-    块内容 = 视觉模型的中文描述；描述失败时退化为人可读的占位文本，
-    **仍然入索引**——图存在但描述失败，分析师至少还能通过页码跳转看到原图。
-    块 id 只由 ``source + 图片在文中的位置`` 决定，因此重复入库是覆盖而非新增。
+    块内容按证据强度降级：
+
+    1. **视觉描述（+ 原文图注拼接）**——content_list 的 ``img_caption`` /
+       ``chart_caption`` 与视觉模型描述互补，两者都有则拼接；
+    2. **仅原文图注**——视觉描述失败、图片过小被拦或超外发上限的图，
+       至少还能靠图注被语义召回，而不是只剩无语义的占位文本；
+    3. **占位文本**——两种来源都缺失，图存在但不可语义召回，
+       分析师仍能通过页码跳转看到原图。
 
     ``max_captions`` 限制**调用视觉模型**的图片数量（默认取
     ``IMAGE_CAPTION_MAX_IMAGES``）：研报动辄几十张图，逐张外发既慢又贵。
-    超出上限的图片仍然建块（内容为占位文本），因此不会从索引里消失，
-    分析师依旧能通过页码跳转看到原图。
+    预算按**图片面积降序**分配——小图（印章/图标）信息量低，大图（财务
+    图表）才是召回价值所在；尺寸未知的图视为最大，不因「量不出来」被排后。
+    超出上限的图片仍然建块（内容为图注或占位文本），不会从索引里消失。
+
+    块 id 只由 ``source + 图片在文中的位置`` 决定，与描述内容、外发预算
+    均无关，因此重复入库是覆盖而非新增；预算排序也不影响块身份。
     """
     from langchain_core.documents import Document
 
     from finance_rag.src.rag.ingestion.pdf_assets import image_object_key
 
-    limit = config.IMAGE_CAPTION_MAX_IMAGES if max_captions is None else max_captions
+    limit = max(0, int(config.IMAGE_CAPTION_MAX_IMAGES if max_captions is None else max_captions))
+    captions_by_page = figure_captions or {}
+
+    # 外发预算按面积降序分配；面积相同按原文顺序（确定性，便于复现）
+    order_by_area = sorted(
+        range(len(assets)), key=lambda i: (-_asset_area(assets[i]), i)
+    )
+    egress_set = set(order_by_area[:limit])
+    if len(assets) > limit:
+        logger.info(
+            "图片数 %d 超过外发上限 %d，按面积优先选取 %d 张，其余仅用图注/占位文本：%s",
+            len(assets), limit, limit, source,
+        )
+
+    # 页级对齐需要每页图片数与页内序号
+    page_image_counts: dict[int, int] = {}
+    for asset in assets:
+        page_image_counts[asset.page] = page_image_counts.get(asset.page, 0) + 1
+    page_seen: dict[int, int] = {}
+
     chunks: list[Any] = []
     for offset, asset in enumerate(assets):
-        if offset < max(0, int(limit)):
+        if offset in egress_set:
             caption = caption_image(asset.data, ext=asset.ext, source=source)
         else:
             caption = ""
-            if offset == max(0, int(limit)):
-                logger.info(
-                    "图片描述已达上限（%s 张），其余 %d 张仅建占位块：%s",
-                    limit, len(assets) - offset, source,
-                )
-        text = caption or _IMAGE_PLACEHOLDER.format(page=asset.page)
+        position_on_page = page_seen.get(asset.page, 0)
+        page_seen[asset.page] = position_on_page + 1
+        fig_text = _figure_caption_text(
+            captions_by_page, asset.page, position_on_page,
+            page_image_counts.get(asset.page, 0),
+        )
+
+        if caption and fig_text:
+            text = f"{caption}\n原文图注：{fig_text}"
+        elif caption:
+            text = caption
+        elif fig_text:
+            text = _FIGURE_ONLY_PLACEHOLDER.format(page=asset.page, caption=fig_text)
+        else:
+            text = _IMAGE_PLACEHOLDER.format(page=asset.page)
         digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
         chunk_id = hashlib.sha256(
             f"{source}:image:{asset.key_hint}".encode("utf-8")

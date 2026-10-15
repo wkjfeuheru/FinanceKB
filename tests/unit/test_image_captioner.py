@@ -179,3 +179,99 @@ def test_png_and_jpeg_dimensions_are_parsed():
         + b"\xff\xd9"
     )
     assert image_captioner._image_dimensions(jpeg) == (37, 19)
+
+
+# --- 原文图注（content_list）参与索引文本组装 --------------------------------
+
+def test_image_chunk_combines_caption_with_figure_caption(monkeypatch):
+    """视觉描述与原文图注拼接：两条语义来源互补，互为兜底。"""
+    _open_limits(monkeypatch)
+    monkeypatch.setattr(image_captioner, "caption_image", lambda *a, **k: "订单结构图")
+    assets = [pdf_assets.ImageAsset(key_hint="4-0", page=4, data=b"\x89PNG", ext="png")]
+
+    chunks = image_captioner.build_image_chunks(
+        assets, source="研报.pdf", figure_captions={4: ["图12 燃机订单结构"]},
+    )
+
+    assert chunks[0].page_content == "订单结构图\n原文图注：图12 燃机订单结构"
+
+
+def test_figure_caption_rescues_uncaptioned_image(monkeypatch):
+    """视觉描述失败/超外发上限的图，至少还能靠原文图注被语义召回。"""
+    _open_limits(monkeypatch)
+    monkeypatch.setattr(image_captioner, "caption_image", lambda *a, **k: "")
+    assets = [pdf_assets.ImageAsset(key_hint="7-0", page=7, data=b"\x89PNG", ext="png")]
+
+    chunks = image_captioner.build_image_chunks(
+        assets, source="研报.pdf", figure_captions={7: ["图13 盈利预测"]},
+    )
+
+    text = chunks[0].page_content
+    assert "第 7 页图表" in text
+    assert "图13 盈利预测" in text
+    assert "未能生成视觉描述" in text
+
+
+def test_page_level_caption_alignment_one_to_one(monkeypatch):
+    """页内图片数与图注数相等 → 按序 1:1；不等 → 整页图注拼接（宁重复不丢）。"""
+    _open_limits(monkeypatch)
+    monkeypatch.setattr(image_captioner, "caption_image", lambda *a, **k: "")
+    assets = [
+        pdf_assets.ImageAsset(key_hint="3-0", page=3, data=b"a", ext="png"),
+        pdf_assets.ImageAsset(key_hint="3-1", page=3, data=b"b", ext="png"),
+        pdf_assets.ImageAsset(key_hint="5-0", page=5, data=b"c", ext="png"),
+        pdf_assets.ImageAsset(key_hint="5-1", page=5, data=b"d", ext="png"),
+    ]
+
+    chunks = image_captioner.build_image_chunks(
+        assets, source="研报.pdf",
+        figure_captions={3: ["图A", "图B"], 5: ["只有一条图注"]},
+    )
+
+    assert "图A" in chunks[0].page_content and "图B" not in chunks[0].page_content
+    assert "图B" in chunks[1].page_content and "图A" not in chunks[1].page_content
+    # 页 5 有两张图但只有一条图注：整页图注赋给两张图，两张都能命中
+    assert "只有一条图注" in chunks[2].page_content
+    assert "只有一条图注" in chunks[3].page_content
+
+
+def test_egress_budget_prefers_larger_images(monkeypatch):
+    """外发预算按面积降序：大图优先得到视觉描述，小图靠图注/占位兜底。"""
+    _open_limits(monkeypatch)
+    calls: list[bytes] = []
+    monkeypatch.setattr(
+        image_captioner, "caption_image",
+        lambda data, **kw: calls.append(data) or "描述",
+    )
+    small = _png(10, 10)
+    large = _png(400, 300)
+    # 顺序故意把小图放前面：面积优先必须越过它
+    assets = [
+        pdf_assets.ImageAsset(key_hint="1-0", page=1, data=small, ext="png"),
+        pdf_assets.ImageAsset(key_hint="2-0", page=2, data=large, ext="png"),
+    ]
+
+    chunks = image_captioner.build_image_chunks(assets, source="研报.pdf", max_captions=1)
+
+    assert calls == [large]                     # 只有面积大的那张外发
+    assert chunks[0].page_content != "描述"      # 小图没得到描述（占位）
+    assert chunks[1].page_content == "描述"
+
+
+def test_image_chunk_ids_stable_under_area_priority(monkeypatch):
+    """预算排序只影响外发，不影响块 id：重复入库仍是覆盖而非新增。"""
+    _open_limits(monkeypatch)
+    monkeypatch.setattr(image_captioner, "caption_image", lambda *a, **k: "图")
+    small = pdf_assets.ImageAsset(key_hint="1-0", page=1, data=_png(10, 10), ext="png")
+    large = pdf_assets.ImageAsset(key_hint="2-0", page=2, data=_png(400, 300), ext="png")
+
+    first = image_captioner.build_image_chunks(
+        [small, large], source="s.pdf", max_captions=1,
+    )
+    second = image_captioner.build_image_chunks(
+        [large, small], source="s.pdf", max_captions=1,
+    )
+
+    # key_hint（图在文中的位置）决定 id，与 assets 顺序、预算分配均无关
+    assert {c.metadata["id"] for c in first} == {c.metadata["id"] for c in second}
+    assert len(first) == len(second) == 2

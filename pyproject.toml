@@ -68,6 +68,9 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+markers = [
+    "slow: 需要导入重依赖或耗时的测试（默认不跑，用 -m slow 显式执行）",
+]
 
 [tool.mypy]
 python_version = "3.11"

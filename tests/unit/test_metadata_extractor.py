@@ -7,6 +7,8 @@
 所有用例都显式传 ``enable_llm``，避免测试意外触发真实模型调用。
 """
 
+import pytest
+
 from finance_rag.src.rag.ingestion import metadata_extractor
 from finance_rag.src.rag.ingestion.metadata_extractor import (
     apply_metadata,
@@ -20,7 +22,7 @@ def _llm(payload: dict):
     return lambda **_: dict(payload)
 
 
-def test_filename_regex_extracts_code_name_and_broker():
+def test_filename_regex_extracts_name_and_broker():
     meta = extract_metadata(
         "贵州茅台(600519)2026中报点评-中信证券-20260815.pdf",
         "贵州茅台2026中报点评",
@@ -28,7 +30,6 @@ def test_filename_regex_extracts_code_name_and_broker():
         enable_llm=False,
     )
 
-    assert meta.security_code == "600519"
     assert meta.security_name == "贵州茅台"
     assert meta.broker == "中信证券"
     assert meta.report_type == "个股"
@@ -43,18 +44,15 @@ def test_industry_outside_taxonomy_is_dropped(monkeypatch):
         _llm({"industry_l1": "白酒", "industry_l2": "白酒"}),
     )
 
-    meta = extract_metadata("研报.pdf", "研报", "正文", enable_llm=True)
-
-    assert meta.industry_l1 == ""
-    assert meta.industry_l2 == ""
-    assert meta.needs_review is True
+    with pytest.raises(ValueError, match="report_type"):
+        extract_metadata("研报.pdf", "研报", "正文", enable_llm=True)
 
 
 def test_industry_l2_must_belong_to_selected_l1(monkeypatch):
     monkeypatch.setattr(
         metadata_extractor,
         "_llm_extract",
-        _llm({"industry_l1": "食品饮料", "industry_l2": "半导体"}),
+        _llm({"report_type": "行业", "industry_l1": "食品饮料", "industry_l2": "半导体"}),
     )
 
     meta = extract_metadata("研报.pdf", "研报", "正文", enable_llm=True)
@@ -70,11 +68,9 @@ def test_valid_industry_passes_and_marks_llm_source(monkeypatch):
         "_llm_extract",
         _llm(
             {
-                "security_code": "600519",
-                "security_name": "贵州茅台",
                 "industry_l1": "食品饮料",
                 "industry_l2": "白酒Ⅱ",
-                "report_type": "个股",
+                "report_type": "行业",
             }
         ),
     )
@@ -93,9 +89,9 @@ def test_regex_values_are_kept_when_llm_returns_nothing(monkeypatch):
         "宁德时代(300750)深度报告-华泰证券-20260901.pdf", "", "", enable_llm=True
     )
 
-    assert meta.security_code == "300750"
+    assert meta.security_name == "宁德时代"
     assert meta.broker == "华泰证券"
-    assert meta.needs_review is True   # 行业缺失：行业研报的兜底召回路径失效
+    assert meta.needs_review is False   # 个股不要求行业字段
 
 
 def test_regex_wins_over_llm_for_deterministic_fields(monkeypatch):
@@ -103,29 +99,26 @@ def test_regex_wins_over_llm_for_deterministic_fields(monkeypatch):
     monkeypatch.setattr(
         metadata_extractor,
         "_llm_extract",
-        _llm({"security_code": "000001", "broker": "别的券商"}),
+        _llm({"security_name": "另一家公司", "broker": "别的券商"}),
     )
 
     meta = extract_metadata(
         "贵州茅台(600519)点评-中信证券.pdf", "", "", enable_llm=True
     )
 
-    assert meta.security_code == "600519"
+    assert meta.security_name == "贵州茅台"
     assert meta.broker == "中信证券"
 
 
-def test_invalid_code_and_report_type_are_dropped(monkeypatch):
+def test_invalid_report_type_is_rejected(monkeypatch):
     monkeypatch.setattr(
         metadata_extractor,
         "_llm_extract",
-        _llm({"security_code": "60051", "report_type": "策略"}),
+        _llm({"report_type": "策略"}),
     )
 
-    meta = extract_metadata("研报.pdf", "研报", "正文", enable_llm=True)
-
-    assert meta.security_code == ""
-    assert meta.report_type == ""
-    assert meta.needs_review is True
+    with pytest.raises(ValueError, match="report_type"):
+        extract_metadata("研报.pdf", "研报", "正文", enable_llm=True)
 
 
 def test_macro_report_type_comes_from_filename():
@@ -134,25 +127,21 @@ def test_macro_report_type_comes_from_filename():
     )
 
     assert meta.report_type == "宏观"
-    assert meta.security_code == ""
+    assert "security_name" not in meta.as_metadata()
 
 
 def test_industry_report_type_comes_from_filename():
-    meta = extract_metadata(
-        "白酒行业深度报告-招商证券-20260901.pdf", "", "", enable_llm=False
-    )
-
-    assert meta.report_type == "行业"
-    assert meta.broker == "招商证券"
+    with pytest.raises(ValueError, match="industry_l1"):
+        extract_metadata("白酒行业深度报告-招商证券-20260901.pdf", "", "", enable_llm=False)
 
 
-def test_disabled_llm_leaves_industry_empty_and_needs_review():
-    """无模型环境仍可入库，但必须把行业缺失显式标出来。"""
+def test_disabled_llm_allows_complete_single_stock_metadata():
+    """个股只要求简称，不要求行业。"""
     meta = extract_metadata("贵州茅台(600519)点评.pdf", "", "", enable_llm=False)
 
     assert meta.industry_l1 == ""
     assert meta.meta_source == "regex"
-    assert meta.needs_review is True
+    assert meta.needs_review is False
 
 
 def test_taxonomy_ships_full_sw2021_enum():
@@ -174,7 +163,7 @@ def test_llm_extraction_failure_degrades_to_regex(monkeypatch):
         "贵州茅台(600519)点评-中信证券.pdf", "", "", enable_llm=True
     )
 
-    assert meta.security_code == "600519"
+    assert meta.security_name == "贵州茅台"
     assert meta.industry_l1 == ""
     assert meta.meta_source == "regex"
 
@@ -200,14 +189,14 @@ class _FakeAIMessage:
 def test_parse_json_payload_unwraps_langchain_message():
     """实测踩过的坑：把 AIMessage 直接塞进解析器，首尾花括号切出来不是合法 JSON。"""
     message = _FakeAIMessage(
-        '{"security_code": "600335", "security_name": "国机汽车", '
+        '{"security_name": "国机汽车", '
         '"report_type": "个股", "broker": "太平洋证券", '
         '"industry_l1": "汽车", "industry_l2": "汽车零部件"}'
     )
 
     payload = metadata_extractor._parse_json_payload(message)
 
-    assert payload["security_code"] == "600335"
+    assert payload["security_name"] == "国机汽车"
     assert payload["industry_l2"] == "汽车零部件"
 
 
@@ -224,7 +213,7 @@ def test_llm_extraction_end_to_end_from_message(monkeypatch):
         "_llm_extract",
         lambda **_: metadata_extractor._parse_json_payload(
             _FakeAIMessage(
-                '{"security_code": "600335", "security_name": "国机汽车", '
+                '{"security_name": "国机汽车", '
                 '"report_type": "个股", "industry_l1": "汽车"}'
             )
         ),
@@ -232,8 +221,8 @@ def test_llm_extraction_end_to_end_from_message(monkeypatch):
 
     meta = extract_metadata("H3_AP202609261829925702_1.pdf", "", "首页正文", enable_llm=True)
 
-    assert meta.security_code == "600335"
-    assert meta.industry_l1 == "汽车"
+    assert meta.security_name == "国机汽车"
+    assert "industry_l1" not in meta.as_metadata()
     assert meta.meta_source == "llm"
     assert meta.needs_review is False
 
@@ -247,6 +236,19 @@ def test_apply_metadata_merges_without_mutating_input():
     merged = apply_metadata(original, extracted)
 
     assert merged["category"] == "investment_research"   # 原有字段保留
-    assert merged["security_code"] == "600519"
+    assert merged["security_name"] == "贵州茅台"
     assert merged["meta_source"] == "regex"
-    assert "security_code" not in original               # 不污染入参
+    assert "security_name" not in original               # 不污染入参
+def test_llm_receives_pdf_title_when_filename_is_opaque(monkeypatch):
+    prompts = []
+
+    class Model:
+        def invoke(self, prompt):
+            prompts.append(prompt)
+            return {"report_type": "行业", "industry_l1": "通信"}
+
+    monkeypatch.setattr("finance_rag.src.core.config.get_rewrite_model", lambda: Model())
+    title = "通信行业：Auto-RAN，意图驱动的6G无线自智网络"
+    result = metadata_extractor.extract_metadata("opaque.pdf", title, "空白封面")
+    assert title in prompts[0]
+    assert result.industry_l1 == "通信"

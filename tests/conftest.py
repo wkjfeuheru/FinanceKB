@@ -23,3 +23,15 @@ def _disable_metadata_llm(monkeypatch):
     from finance_rag.src.core import config
 
     monkeypatch.setattr(config, "ENABLE_METADATA_LLM", False)
+    # 新增规划/覆盖/声明核验同样不得读取真实key发起网络调用。
+    # 各用例可以在fixture之后显式注入离线模型替身。
+    import sys
+    for module_name in (
+        "finance_rag.src.core.config", "finance_rag.src.services.chat_service",
+        "finance_rag.src.orchestration.graph",
+    ):
+        module = sys.modules.get(module_name)
+        if module:
+            for name in ("get_model", "get_rewrite_model"):
+                if hasattr(module, name):
+                    monkeypatch.setattr(module, name, lambda: None)
