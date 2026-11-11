@@ -1,0 +1,1050 @@
+{
+  "revised_on": "2026-11-01",
+  "human_reviews_imported": 21,
+  "human_decisions": {
+    "approved": 20,
+    "rejected": 1
+  },
+  "retained_numeric_facts": [
+    "N01",
+    "N05",
+    "N06",
+    "N08",
+    "N13"
+  ],
+  "converted_numeric_calculations": [
+    "N02",
+    "N03",
+    "N04",
+    "N07",
+    "N09",
+    "N10",
+    "N11",
+    "N12",
+    "N14",
+    "N15"
+  ],
+  "case_ids_preserved": true,
+  "changes": [
+    {
+      "id": "pdf-20261031-F01",
+      "old_query": "东吴证券杰瑞股份2026中报点评认为，短期业绩承压的两个主要原因是什么？",
+      "new_query": "杰瑞股份2026年上半年业绩表现承压的两个主要原因是什么？",
+      "old_answer": "部分天然气设备交付延期、业绩确认后移；汇兑损失较大。",
+      "new_answer": "部分天然气设备交付延期、业绩确认后移；汇兑损失较大。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F02",
+      "old_query": "据杰瑞股份2026中报点评，公司预计燃机何时开始小批量和大批量交付？",
+      "new_query": "截至2026年8月，杰瑞股份预计燃机何时开始小批量和大批量交付？",
+      "old_answer": "预计2026年Q3开始小批量交付；2027年Q2起进入大批量交付。",
+      "new_answer": "预计2026年Q3开始小批量交付；2027年Q2起进入大批量交付。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F03",
+      "old_query": "诚通证券2026年9月19日宏观周报对A股配置的主要建议是什么？",
+      "new_query": "2026年9月中旬，海外加息落地、AI增长担忧缓解的背景下，A股配置应重点关注哪些方向？",
+      "old_answer": "把握反弹中的AI主线机会，尤其是AI上游硬件方向。",
+      "new_answer": "把握反弹中的AI主线机会，尤其是AI上游硬件方向；并适当关注其他行业轮动机会。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F04",
+      "old_query": "诚通证券2026年9月19日周报记载，美联储9月FOMC会议如何界定此次加息？",
+      "new_query": "2026年9月FOMC会议如何界定此次加息的性质？",
+      "old_answer": "将此次加息定性为“撤出一剂宽松”，而非收紧。",
+      "new_answer": "将此次加息定性为“撤出一剂宽松”，而非收紧。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F05",
+      "old_query": "华鑫证券百普赛斯事件点评称，公司拟出资参与基金后将成为什么类型的合伙人？",
+      "new_query": "百普赛斯2026年9月拟参与设立的医药投资基金，预计能给公司带来哪些好处？",
+      "old_answer": "有限合伙人。",
+      "new_answer": "预计有利于发挥百普赛斯在生命科学、医疗健康领域的专业优势，拓展投资渠道、获取投资收益；发掘培养与主营业务资源互补、战略协同的合作方，完善产业链布局、提升综合竞争力。上述为拟设基金的预期作用，不代表已实现收益。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F06",
+      "old_query": "百普赛斯事件点评提到，公司为AI设计抗体分子提供服务依托哪两种真核表达体系？",
+      "new_query": "百普赛斯为AI设计抗体分子提供服务依托哪两种真核表达体系？",
+      "old_answer": "HEK293和CHO真核表达体系。",
+      "new_answer": "HEK293和CHO真核表达体系。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F07",
+      "old_query": "新锐股份公司动态研究报告中，高性能数控刀片产业园的实施主体是谁？",
+      "new_query": "新锐股份的高性能数控刀片产业园的实施主体是谁？",
+      "old_answer": "控股子公司株洲韦凯。",
+      "new_answer": "控股子公司株洲韦凯。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "approved"
+    },
+    {
+      "id": "pdf-20261031-F08",
+      "old_query": "据新锐股份公司动态研究报告，公司收购智利Drillco发生在何时？",
+      "new_query": "新锐股份收购智利Drillco发生在何时？",
+      "old_answer": "2025年2月。",
+      "new_answer": "2025年2月。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "approved"
+    },
+    {
+      "id": "pdf-20261031-F09",
+      "old_query": "格林大华期货2026年9月24日周报称，Nebius新一轮GPU云服务提价何时生效？",
+      "new_query": "Nebius在2026年9月宣布的新一轮GPU云服务提价何时生效？覆盖哪些芯片型号？",
+      "old_answer": "10月1日起。",
+      "new_answer": "预计2026年10月1日起生效；覆盖H100、H200、B200及B300芯片型号。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F10",
+      "old_query": "格林大华期货周报称，Nebius客户已预订到哪个时间段的算力？",
+      "new_query": "截至2026年9月，Nebius管理层透露客户已预订到哪个时间段的算力？",
+      "old_answer": "2028年第一季度和第二季度。",
+      "new_answer": "2028年第一季度和第二季度。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F11",
+      "old_query": "南华期货2026年9月12日宏观周报概括的两条全球宏观主线是什么？",
+      "new_query": "2026年9月上旬，全球宏观市场主要受哪两条主线影响？",
+      "old_answer": "地缘风险升级；加息预期升温。",
+      "new_answer": "地缘风险升级；加息预期升温。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F12",
+      "old_query": "按南华期货9月12日周报，美国8月核心CPI环比是否高于预期？",
+      "new_query": "美国2026年8月核心CPI环比是否高于预期？",
+      "old_answer": "高于预期：实际0.3%，预期0.2%。",
+      "new_answer": "高于预期：实际0.3%，预期0.2%。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F13",
+      "old_query": "太平洋证券国机汽车2026H1点评将哪项业务称为公司的核心业务？",
+      "new_query": "国机汽车主要有哪三个业务？哪个是其核心业务？",
+      "old_answer": "汽车工程系统服务。",
+      "new_answer": "汽车工程系统服务，汽车流通服务，汽车租赁服务；汽车工程系统服务是公司的核心业务。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "approved"
+    },
+    {
+      "id": "pdf-20261031-F14",
+      "old_query": "据国机汽车2026H1点评，汽车租赁服务主要面向哪两类市场？",
+      "new_query": "国机汽车的汽车租赁服务主要面向哪两类市场？",
+      "old_answer": "国内ToB和ToG市场。",
+      "new_answer": "国内ToB和ToG市场。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "approved"
+    },
+    {
+      "id": "pdf-20261031-F15",
+      "old_query": "《2026年的医疗科技》引言称，医疗器械公司正在优先选择什么类型的供应商建立长期合作？",
+      "new_query": "医疗器械公司正在优先选择什么类型的供应商建立长期合作？",
+      "old_answer": "具备垂直整合能力、可在同一体系提供多个部件或服务的供应商。",
+      "new_answer": "具备垂直整合能力、可在同一体系提供多个部件或服务的供应商。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "approved"
+    },
+    {
+      "id": "pdf-20261031-F16",
+      "old_query": "《2026年的医疗科技》引言引用的调查中，哪项政策位居未来12个月最具影响力宏观趋势之首？",
+      "new_query": "2025年第四季度的医疗器械行业调查中，哪项政策位居未来12个月最具影响力宏观趋势之首？",
+      "old_answer": "美国关税政策。",
+      "new_answer": "美国关税政策。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F17",
+      "old_query": "《新一代AIDC定义与实践研究报告》建议以什么作为基础评价单元？",
+      "new_query": "评估新一代AIDC时，建议以什么作为基础评价单元？",
+      "old_answer": "单个算力集群。",
+      "new_answer": "单个算力集群。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F18",
+      "old_query": "《新一代AIDC定义与实践研究报告》是否将3D数据中心设定为唯一技术路线？",
+      "new_query": "新一代AIDC评价中的“标准机柜功率”具体指什么？使用哪些计量单位？",
+      "old_answer": "否；3D数据中心是最佳实践架构之一，其他技术路径也可实现同等指标水平。",
+      "new_answer": "标准机柜内IT设备的最大功率；单位为kW或MW。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F19",
+      "old_query": "IDC《2026中国人工智能计算力发展评估报告》预计，中国2026年智能算力规模达到多少？",
+      "new_query": "2026年中国智能算力规模预计达到多少EFLOPS？",
+      "old_answer": "2,576.5 EFLOPS；这是报告中的预测。",
+      "new_answer": "预计达到2,576.5 EFLOPS；这是2026年规模预测，不能表述为已确认的全年实际值。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F20",
+      "old_query": "IDC计算力报告对金融智能体未来的自主执行与人工监督关系作出什么判断？",
+      "new_query": "金融智能体未来可能的应用模式是什么？哪个金融业态表现出相对更快的智能体渗透？",
+      "old_answer": "更可能形成“高自主执行、强人工监督”的模式，而非完全无人化。",
+      "new_answer": "“高自主执行、强人工监督”的模式，而非完全无人化；量化交易表现出相对更快的智能体渗透。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "approved"
+    },
+    {
+      "id": "pdf-20261031-F21",
+      "old_query": "Auto-RAN白皮书中，Auto-RAN英文全称及中文含义是什么？",
+      "new_query": "Auto-RAN英文全称及中文含义是什么？",
+      "old_answer": "Autonomous Radio Access Network，自智无线接入网。",
+      "new_answer": "Autonomous Radio Access Network，自智无线接入网。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "approved"
+    },
+    {
+      "id": "pdf-20261031-F22",
+      "old_query": "Auto-RAN白皮书如何约束多个任务对同一网络对象的同时控制？",
+      "new_query": "Auto-RAN如何约束多个任务对同一网络对象的同时控制？",
+      "old_answer": "同一网络对象在同一时刻由一个有效策略实施控制。",
+      "new_answer": "同一网络对象在同一时刻由一个有效策略实施控制。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F23",
+      "old_query": "国信证券《政策资金加速落地》怎样判断居民消费的修复状态？",
+      "new_query": "截至2026年9月下旬，中国居民消费是否已经形成稳定修复趋势？",
+      "old_answer": "居民消费尚未形成稳定修复趋势。",
+      "new_answer": "居民消费尚未形成稳定修复趋势。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F24",
+      "old_query": "国信证券2026年9月27日宏观周报如何描述资金面的总体状态？",
+      "new_query": "2026年9月下旬，国内资金面及跨季、跨节流动性的总体状态如何？",
+      "old_answer": "总体宽松，跨季、跨节流动性预期保持稳定。",
+      "new_answer": "总体宽松，跨季、跨节流动性预期保持稳定。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F25",
+      "old_query": "中国通号2026年9月27日点评中，西渝高铁相关项目规划装备哪一级列控系统？",
+      "new_query": "中国通号2026年7—8月中标的西渝高铁相关项目规划装备哪一级列控系统？",
+      "old_answer": "CTCS-3级列控系统。",
+      "new_answer": "CTCS-3级列控系统。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F26",
+      "old_query": "中国通号2026年9月27日点评指出，三个中标项目要在什么条件下逐步转化为收入？",
+      "new_query": "中国通号2026年7—8月中标的三个铁路项目，要在什么条件下逐步转化为收入？",
+      "old_answer": "项目顺利签约并实施，随建设和交付进度逐步转化为收入。",
+      "new_answer": "项目顺利签约并实施，随建设和交付进度逐步转化为收入。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F27",
+      "old_query": "开源证券横店东磁首次覆盖报告称，铜铁共烧电感产品处于什么供货阶段？",
+      "new_query": "截至2026年9月，横店东磁的铜铁共烧电感产品处于什么供货阶段？",
+      "old_answer": "已进入批量供货阶段。",
+      "new_answer": "已进入批量供货阶段。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F28",
+      "old_query": "横店东磁首次覆盖报告列举了哪两种主要的小圆柱锂电池型号？",
+      "new_query": "横店东磁主要聚焦哪两种型号的小圆柱锂电池？",
+      "old_answer": "18650、21700。",
+      "new_answer": "18650、21700。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F29",
+      "old_query": "国金证券2026年9月27日电新周报称，英伟达将哪类储能纳入首批DSX Ready认证？",
+      "new_query": "截至2026年9月，英伟达将哪类储能纳入首批DSX Ready认证？",
+      "old_answer": "电池储能BESS。",
+      "new_answer": "电池储能BESS。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-F30",
+      "old_query": "源达信息PCB行业专题研究二指出，覆铜板承担哪三大功能？",
+      "new_query": "覆铜板在印制电路板中承担哪三大功能？",
+      "old_answer": "导电、绝缘、支撑。",
+      "new_answer": "导电、绝缘、支撑。",
+      "old_business_type": "事实",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N01",
+      "old_query": "请列出杰瑞股份2026H1营业收入、归母净利润、扣非归母净利润及各自同比变化。",
+      "new_query": "杰瑞股份2026H1营业收入、归母净利润、扣非归母净利润及各自同比变化分别是多少？",
+      "old_answer": "营业收入76.5亿元、同比+10.8%；归母净利润12.0亿元、同比-3.6%；扣非归母净利润11.4亿元、同比-7.4%。",
+      "new_answer": "营业收入76.5亿元、同比+10.8%；归母净利润12.0亿元、同比-3.6%；扣非归母净利润11.4亿元、同比-7.4%。",
+      "old_business_type": "数值读取",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N02",
+      "old_query": "按诚通证券9月19日宏观周报，上周上证综指、创业板指和沪深300分别如何变化？",
+      "new_query": "2026年9月14日至19日这一周，创业板指的涨跌幅比沪深300高多少个百分点？",
+      "old_answer": "上证综指上涨0.6%；创业板指上涨1.5%；沪深300下跌0.1%。",
+      "new_answer": "创业板指上涨1.5%，沪深300下跌0.1%；差值=1.5%−(−0.1%)=1.6个百分点。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N03",
+      "old_query": "华鑫证券对百普赛斯2026—2028年收入和EPS的预测各是多少？",
+      "new_query": "按2026年9月的盈利预测，百普赛斯2026—2028年三年的预计收入合计是多少亿元？",
+      "old_answer": "收入分别为10.87、13.65、16.78亿元；EPS分别为1.28、1.77、2.35元。均为预测值。",
+      "new_answer": "2026—2028年收入预测分别为10.87、13.65、16.78亿元；三年合计=10.87+13.65+16.78=41.30亿元，仍属于预测合计。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N04",
+      "old_query": "新锐股份数控刀片产业园的拟投入募集资金上限、建设期、达产产能和税后内部收益率分别是多少？",
+      "new_query": "假设新锐股份高性能数控刀片产业园达产后全部年产能均售出，用达产年预计销售收入测算，每片刀片的平均售价是多少元？",
+      "old_answer": "不超过4.83亿元；36个月；年产5,000万片；税后内部收益率14.31%。",
+      "new_answer": "达产年预计销售收入7.80亿元，年产能5,000万片；假设全部售出，均价=7.80亿元÷5,000万片=15.60元/片。不是实际成交单价。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N05",
+      "old_query": "格林大华期货周报列示Nebius H100、H200、B200、B300提价后的每GPU小时价格各是多少？",
+      "new_query": "Nebius计划于2026年10月生效的H100、H200、B200、B300每GPU小时价格分别是多少？",
+      "old_answer": "H100为4.50美元；H200为5.40美元；B200为8.50美元；B300为9.50美元。",
+      "new_answer": "H100为4.50美元；H200为5.40美元；B200为8.50美元；B300为9.50美元。",
+      "old_business_type": "数值读取",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N06",
+      "old_query": "南华期货9月12日周报列出的美国8月PPI同比、环比及CPI同比、环比各是多少？",
+      "new_query": "美国2026年8月PPI同比、环比及CPI同比、环比分别是多少？",
+      "old_answer": "PPI同比+5.4%、环比+0.4%；CPI同比+3.4%、环比+0.4%。",
+      "new_answer": "PPI同比+5.4%、环比+0.4%；CPI同比+3.4%、环比+0.4%。",
+      "old_business_type": "数值读取",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N07",
+      "old_query": "国机汽车2026H1点评披露的营收、归母净利润及各自同比变化是多少？",
+      "new_query": "用国机汽车2026H1的营业收入和归母净利润，计算归母净利润占营业收入的比例。",
+      "old_answer": "营收153.62亿元、同比-8.71%；归母净利润2.58亿元、同比+21.08%。",
+      "new_answer": "归母净利润2.58亿元、营业收入153.62亿元；归母净利润/营业收入=2.58÷153.62×100%=1.68%。分子为归母净利润，不是合并净利润。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N08",
+      "old_query": "《2026年的医疗科技》引言图表中，微创器械和远程患者监测的影响评分、样本量和量表范围分别是什么？",
+      "new_query": "2025年第四季度医疗器械行业趋势调查中，微创器械和远程患者监测的影响评分、样本量及量表范围分别是什么？",
+      "old_answer": "微创器械4.14；远程患者监测4.11；N=81；量表1—5，1为无影响、5为高影响。",
+      "new_answer": "微创器械4.14；远程患者监测4.11；N=81；量表1—5，1为无影响、5为高影响。",
+      "old_business_type": "数值读取",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N09",
+      "old_query": "IDC报告预测全球活跃智能体在2026年、2030年的数量及复合增长率分别是多少？",
+      "new_query": "按2026年的全球智能体数量预测，2030年活跃智能体数量约为2026年的多少倍？",
+      "old_answer": "2026年7,940万个；2030年22.16亿个；复合增长率129.8%。",
+      "new_answer": "2030年22.16亿个=221,600万个，2026年7,940万个；221,600÷7,940≈27.91倍。这是总量倍数，不是增加27.91倍。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N10",
+      "old_query": "IDC报告中医疗企业进入智能体试点、主动规划多智能体协同、研发设计智能体优先级三个比例是多少？",
+      "new_query": "2026年医疗企业中，进入智能体试点的比例比主动规划多智能体协同的比例高多少个百分点？这是否说明两类企业互斥？",
+      "old_answer": "分别为56.7%、36.7%、90.0%；三者指标口径不同。",
+      "new_answer": "56.7%−36.7%=20.0个百分点；两项调查指标不同，不能据此认为试点企业与规划多智能体协同的企业互斥，也不能相减推算互斥人数。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N11",
+      "old_query": "国信证券9月27日宏观周报称，9月以来政策性金融工具资金投放额和支持项目总投资额各是多少？",
+      "new_query": "对2026年9月以来的新型政策性金融工具，以已披露投放额的门槛值作为测算基数，资金与所支持项目总投资之比约是多少？实际投放比例与该测算基准是什么关系？",
+      "old_answer": "三家政策性银行投放资金超1000亿元；支持项目总投资约2.1万亿元。",
+      "new_answer": "投放资金披露为超1000亿元、支持项目总投资约2.1万亿元；按1000亿元门槛测算：1000÷21000×100%≈4.76%。若固定约2.1万亿元作为分母，实际比例高于该基准；由于总投资是近似值，不能断言精确比例或严格数值下界。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N12",
+      "old_query": "中国通号2026年7—8月三个铁路中标项目的金额及总额分别是多少？",
+      "new_query": "中国通号2026年7—8月三个中标项目中，温福高铁5G改造与西渝高铁设备供货合计占中标总额的比例是多少？",
+      "old_answer": "铁路专用线5.29亿元；温福高铁公网5G改造2.90亿元；西渝高铁轨道电路供货1.57亿元；总额9.76亿元。",
+      "new_answer": "两项中标金额合计=2.90+1.57=4.47亿元；占比=4.47÷9.76×100%≈45.80%。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N13",
+      "old_query": "横店东磁首次覆盖报告列示2026H1光伏、锂电、磁材、器件收入各是多少？",
+      "new_query": "横店东磁2026H1光伏、锂电、磁材和器件业务的收入分别是多少？",
+      "old_answer": "光伏73.7亿元；锂电17.5亿元；磁材21.8亿元；器件8.1亿元。",
+      "new_answer": "光伏73.7亿元；锂电17.5亿元；磁材21.8亿元；器件8.1亿元。",
+      "old_business_type": "数值读取",
+      "new_business_type": "事实",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N14",
+      "old_query": "国金证券9月27日电新周报列出的特高压设备前四批招标金额、全年预计金额和十五五直流规划数量分别是多少？",
+      "new_query": "截至2026年9月，特高压设备前四批招标之后，若全年招标金额要突破400亿元，还需新增超过多少亿元？",
+      "old_answer": "前四批329亿元；全年预计突破400亿元；十五五规划建成投产直流15回以上。",
+      "new_answer": "前四批招标金额329亿元；突破400亿元要求新增额>400−329=71亿元，即超过71亿元，而不是恰好71亿元。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-N15",
+      "old_query": "源达PCB专题研究二列出的CCL成本中铜箔、树脂、玻纤布占比分别是多少？",
+      "new_query": "若将覆铜板自身总成本视为100%，扣除铜箔、树脂和玻纤布三项后，其余成本约占多少？",
+      "old_answer": "铜箔42%、树脂26%、玻纤布19%；这是CCL自身成本构成口径。",
+      "new_answer": "铜箔42%、树脂26%、玻纤布19%；其余成本=100%−42%−26%−19%=13%。分母是CCL自身成本，不是PCB成本。",
+      "old_business_type": "数值读取",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-C01",
+      "old_query": "用杰瑞股份2026中报点评的半年与单Q2收入，计算2026Q1营业收入。",
+      "new_query": "根据杰瑞股份2026H1和单Q2的营业收入，计算2026Q1营业收入。",
+      "old_answer": "76.5−43.6=32.9亿元。",
+      "new_answer": "76.5−43.6=32.9亿元。",
+      "old_business_type": "计算",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-C02",
+      "old_query": "按百普赛斯拟出资金额与认购份额比例，测算拟设立基金的总规模。",
+      "new_query": "根据百普赛斯2026年9月拟出资金额及认购比例，测算拟设立基金的总规模。",
+      "old_answer": "15,000万元÷30%=50,000万元，即5亿元；假设份额按同一出资口径计算，非已实缴规模。",
+      "new_answer": "15,000万元÷30%=50,000万元，即5亿元；假设份额按同一出资口径计算，非已实缴规模。",
+      "old_business_type": "计算",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-C03",
+      "old_query": "用新锐股份报告中2024年与2025年切削工具收入，计算2025年该业务同比增速。",
+      "new_query": "新锐股份2025年切削工具收入相对2024年增长了多少？请计算同比增速。",
+      "old_answer": "(3.63÷2.45−1)×100%=48.16%。",
+      "new_answer": "(3.63÷2.45−1)×100%=48.16%。",
+      "old_business_type": "计算",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-C04",
+      "old_query": "按格林大华期货报告所列Nebius H100提价前后价格，计算每GPU小时价格增加额及涨幅。",
+      "new_query": "Nebius在2026年10月拟执行的H100每GPU小时价格，相对调价前增加了多少美元、上涨了百分之多少？",
+      "old_answer": "增加4.50−3.85=0.65美元；涨幅(4.50÷3.85−1)×100%=16.88%。",
+      "new_answer": "增加4.50−3.85=0.65美元；涨幅(4.50÷3.85−1)×100%=16.88%。",
+      "old_business_type": "计算",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-C05",
+      "old_query": "以国机汽车2026H1汽车工程系统服务收入和毛利润，计算该业务毛利率。",
+      "new_query": "用国机汽车2026H1汽车工程系统服务的收入和毛利润，计算该业务毛利率。",
+      "old_answer": "9.35÷70×100%=13.36%。",
+      "new_answer": "9.35÷70×100%=13.36%。",
+      "old_business_type": "计算",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-C06",
+      "old_query": "按IDC报告，中国2026年智能体部署渗透率比全球领先水平高多少个百分点？",
+      "new_query": "2026年中国智能体部署渗透率比全球领先水平高多少个百分点？",
+      "old_answer": "81.0%−78.1%=2.9个百分点，不能写成同比增长2.9%。",
+      "new_answer": "81.0%−78.1%=2.9个百分点，不能写成同比增长2.9%。",
+      "old_business_type": "计算",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-C07",
+      "old_query": "按中国通号点评的合同额，计算2026H1智能低空新签合同占总新签合同的比例。",
+      "new_query": "计算中国通号2026H1智能低空新签合同额占全部新签合同额的比例。",
+      "old_answer": "1.71÷177.15×100%=0.9653%，约0.97%。",
+      "new_answer": "1.71÷177.15×100%=0.9653%，约0.97%。",
+      "old_business_type": "计算",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-C08",
+      "old_query": "按横店东磁报告的光伏平均售价数据，计算2022年至2025年售价累计降幅。",
+      "new_query": "横店东磁光伏产品平均售价从2022年到2025年累计下降了百分之多少？",
+      "old_answer": "(1.57−0.57)÷1.57×100%=63.69%，约64%。",
+      "new_answer": "(1.57−0.57)÷1.57×100%=63.69%，约64%。",
+      "old_business_type": "计算",
+      "new_business_type": "计算",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M01",
+      "old_query": "比较杰瑞股份与国机汽车2026H1的收入、归母净利润同比方向，哪家增收不增利，哪家收入下降但利润增长？",
+      "new_query": "比较杰瑞股份与国机汽车2026H1的收入、归母净利润同比方向，哪家增收不增利，哪家收入下降但利润增长？",
+      "old_answer": "杰瑞股份收入+10.8%、归母净利润-3.6%，增收不增利；国机汽车收入-8.71%、归母净利润+21.08%，收入下降但利润增长。",
+      "new_answer": "杰瑞股份收入+10.8%、归母净利润-3.6%，增收不增利；国机汽车收入-8.71%、归母净利润+21.08%，收入下降但利润增长。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M02",
+      "old_query": "华鑫证券对百普赛斯和新锐股份2026年的收入及EPS预测分别是什么？请分公司列示。",
+      "new_query": "截至2026年9月，百普赛斯与新锐股份各自2026年的收入及EPS预测是多少？请分公司列示。",
+      "old_answer": "百普赛斯收入10.87亿元、EPS 1.28元；新锐股份收入46.21亿元、EPS 2.50元。均为2026年预测。",
+      "new_answer": "百普赛斯收入10.87亿元、EPS 1.28元；新锐股份收入46.21亿元、EPS 2.50元。均为2026年预测。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M03",
+      "old_query": "南华期货9月12日周报与诚通证券9月19日周报关于美联储9月加息的叙述，有什么时点区别？",
+      "new_query": "2026年9月12日至19日，美联储9月加息从市场预期到实际决议发生了什么变化？",
+      "old_answer": "9月12日南华叙述加息预期、概率约九成；9月19日诚通记载9月16日已加息25个基点。预期与事后记载不可混用。",
+      "new_answer": "9月12日南华叙述加息预期、概率约九成；9月19日诚通记载9月16日已加息25个基点。预期与事后记载不可混用。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M04",
+      "old_query": "杰瑞股份与横店东磁切入AI基础设施的产品或方案分别是什么？",
+      "new_query": "杰瑞股份与横店东磁分别通过哪些产品或方案切入AI基础设施？",
+      "old_answer": "杰瑞以燃机供电并向AIDC设计、模块化生产、施工安装的EPC一体化方案延伸；横店东磁以铜铁共烧芯片电感切入VRM低压大电流供电，已批量供货。",
+      "new_answer": "杰瑞以燃机供电并向AIDC设计、模块化生产、施工安装的EPC一体化方案延伸；横店东磁以铜铁共烧芯片电感切入VRM低压大电流供电，已批量供货。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M05",
+      "old_query": "AIDC定义报告与IDC计算力报告分别从什么角度讨论系统能力，而不只看单一设备？",
+      "new_query": "新一代AIDC的基础设施评价，与能力型智算、容量型智算的能力划分，分别从什么角度衡量系统能力？",
+      "old_answer": "AIDC报告用单柜功率、集群规模、交付速度、弹性兼容、运维方式、综合能效评价基础设施；IDC讨论能力型智算用超节点、HBM、高速互连提升承载与复杂任务能力，容量型智算提升Token吞吐及资源利用率。",
+      "new_answer": "AIDC报告用单柜功率、集群规模、交付速度、弹性兼容、运维方式、综合能效评价基础设施；IDC讨论能力型智算用超节点、HBM、高速互连提升承载与复杂任务能力，容量型智算提升Token吞吐及资源利用率。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M06",
+      "old_query": "IDC金融智能体论述与Auto-RAN可信执行流程对人工监督各有什么要求？",
+      "new_query": "金融智能体与Auto-RAN网络智能体各如何保留人工监督或接管机制？",
+      "old_answer": "IDC强调高自主执行、强人工监督以及可干预、可回滚；Auto-RAN对中高风险任务必要时人工审批，对无法自动处置、影响扩大或关键业务异常转人工接管。",
+      "new_answer": "IDC强调高自主执行、强人工监督以及可干预、可回滚；Auto-RAN对中高风险任务必要时人工审批，对无法自动处置、影响扩大或关键业务异常转人工接管。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M07",
+      "old_query": "百普赛斯报告与医疗科技白皮书分别如何描述专业合作方的价值？",
+      "new_query": "百普赛斯拟参与设立医药基金与医疗器械企业选择垂直整合供应商，分别看重专业合作方的哪些价值？",
+      "old_answer": "百普赛斯拟通过基金寻找与主营业务资源互补、战略协同的合作方；医疗科技白皮书强调垂直整合供应商简化物流、缩短上市时间，并以协同工程提升性能。",
+      "new_answer": "百普赛斯拟通过基金寻找与主营业务资源互补、战略协同的合作方；医疗科技白皮书强调垂直整合供应商简化物流、缩短上市时间，并以协同工程提升性能。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M08",
+      "old_query": "中国通号与横店东磁报告分别指出了什么新增长方向？对应2026H1规模是什么？",
+      "new_query": "中国通号的智能低空与横店东磁的器件业务，2026H1的规模和增速各是多少？两者能否直接作收入规模排名？",
+      "old_answer": "中国通号智能低空新签合同1.71亿元、同比+472.88%；横店东磁器件收入8.1亿元、同比+86.5%。合同额与收入不是同一指标，不能直接作收入排名。",
+      "new_answer": "中国通号智能低空新签合同1.71亿元、同比+472.88%；横店东磁器件收入8.1亿元、同比+86.5%。合同额与收入不是同一指标，不能直接作收入排名。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M09",
+      "old_query": "格林大华GPU云服务段落与源达CCL报告分别给出哪些AI供应紧张的证据？",
+      "new_query": "2026年9月，GPU云服务与高端覆铜板上游分别有哪些供给紧张的迹象？请各举例说明。",
+      "old_answer": "前者称Nebius自10月1日起平均提价约20%、客户预订2028年上半年算力；后者称高端电子布织机年产能2400台且排期至2030年、HVLP4仅三家可供。",
+      "new_answer": "前者称Nebius自10月1日起平均提价约20%、客户预订2028年上半年算力；后者称高端电子布织机年产能2400台且排期至2030年、HVLP4仅三家可供。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M10",
+      "old_query": "国金电新周报与横店东磁首次覆盖报告分别如何提到VPD？",
+      "new_query": "从2026年9月AIDC产业动态和横店东磁产品布局看，VPD商业化进展与芯片电感升级机会之间有什么联系？",
+      "old_answer": "国金将VPD列为AIDC新兴架构机会，提到Vicor上调Q3收入指引、VPD商业化加速；横店东磁称VPD垂直供电等架构导入有望推动芯片电感升级并提升用量与价值量。",
+      "new_answer": "国金将VPD列为AIDC新兴架构机会，提到Vicor上调Q3收入指引、VPD商业化加速；横店东磁称VPD垂直供电等架构导入有望推动芯片电感升级并提升用量与价值量。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M11",
+      "old_query": "诚通9月19日与国信9月27日宏观周报对消费修复的描述有哪些共同点？",
+      "new_query": "比较2026年9月中旬和下旬对中国消费修复的判断：有哪些共同点，分别有哪些依据？",
+      "old_answer": "诚通称消费者信心待提振、社零同比从0.6%降至0.4%；国信称居民消费未形成稳定修复趋势。共同点是消费修复仍偏弱，不能概括为全面强劲复苏。",
+      "new_answer": "诚通称消费者信心待提振、社零同比从0.6%降至0.4%；国信称居民消费未形成稳定修复趋势。共同点是消费修复仍偏弱，不能概括为全面强劲复苏。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M12",
+      "old_query": "新锐股份与国机汽车报告分别如何描述海外市场布局？",
+      "new_query": "新锐股份与国机汽车分别如何布局海外市场？请区分子公司及产品覆盖和汽车出口服务布局。",
+      "old_answer": "新锐截至2026年6月末有17家境外控股子公司，产品销往五大洲60多个国家或地区；国机汽车出口覆盖东欧、中亚、中东、南非等市场。",
+      "new_answer": "新锐截至2026年6月末有17家境外控股子公司，产品销往五大洲60多个国家或地区；国机汽车出口覆盖东欧、中亚、中东、南非等市场。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M13",
+      "old_query": "AIDC评价口径与Auto-RAN控制机制分别如何防止边界不统一造成问题？",
+      "new_query": "新一代AIDC的评价与Auto-RAN的任务控制，各用什么机制约束边界、避免口径或策略冲突？",
+      "old_answer": "AIDC六项指标在同一算力集群边界评价，共享设施按设计容量分摊；Auto-RAN统一配置权限、资源、动作等边界，同一对象同一时刻一个有效策略控制，边界变化重新编排。",
+      "new_answer": "AIDC六项指标在同一算力集群边界评价，共享设施按设计容量分摊；Auto-RAN统一配置权限、资源、动作等边界，同一对象同一时刻一个有效策略控制，边界变化重新编排。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M14",
+      "old_query": "医疗科技白皮书和IDC医疗健康章节分别强调了怎样的协作？",
+      "new_query": "医疗器械供应链协作与医疗智能体多专业协作分别强调什么？后者如何保留人的责任？",
+      "old_answer": "医疗科技白皮书强调与战略供应商协同工程、共享创新；IDC称36.7%的医疗企业主动规划多智能体协同，诊疗涉及多专业合作，同时坚持人工智能辅助、医生负责。",
+      "new_answer": "医疗科技白皮书强调与战略供应商协同工程、共享创新；IDC称36.7%的医疗企业主动规划多智能体协同，诊疗涉及多专业合作，同时坚持人工智能辅助、医生负责。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-M15",
+      "old_query": "对中国通号中标额与源达报告中的未来CCL需求量，回答时应分别保留什么事实状态？",
+      "new_query": "中国通号2026年7—8月铁路项目金额与2025—2027年AI相关CCL需求量，分别是什么业务口径？能否直接当作已实现收入或销量？",
+      "old_answer": "通号9.76亿元是中标金额，需顺利签约实施后逐步转收入；CCL 2025—2027年2256、5665、11899万张是报告测算，不能当作已实现销量。",
+      "new_answer": "通号9.76亿元是中标金额，需顺利签约实施后逐步转收入；CCL 2025—2027年2256、5665、11899万张是报告测算，不能当作已实现销量。",
+      "old_business_type": "跨文档",
+      "new_business_type": "跨文档",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L01",
+      "old_query": "列出杰瑞股份中报点评明确写出的模块化产品覆盖环节。",
+      "new_query": "杰瑞股份AIDC模块化产品覆盖哪些环节？",
+      "old_answer": "配电；储能；液冷；冷源；IT；弱电控制。",
+      "new_answer": "配电；储能；液冷；冷源；IT；弱电控制。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L02",
+      "old_query": "百普赛斯报告提及9月10日正式发布了哪些服务或平台？",
+      "new_query": "百普赛斯2026年9月10日正式发布了哪些服务或平台？",
+      "old_answer": "CHO-Direct快速高通量亲和力验证服务；ACROAIx；ACRO出海平台。",
+      "new_answer": "CHO-Direct快速高通量亲和力验证服务；ACROAIx；ACRO出海平台。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L03",
+      "old_query": "汇总新锐股份本次募资拟投向的三个项目及对应金额。",
+      "new_query": "新锐股份2026年9月拟以募集资金推进哪些项目？请列出三个项目及各自金额。",
+      "old_answer": "高性能数控刀片产业园不超过4.83亿元；高性能凿岩工具生产项目3.18亿元；精密刀具研发检测中心及总部管理中心1.50亿元。",
+      "new_answer": "高性能数控刀片产业园不超过4.83亿元；高性能凿岩工具生产项目3.18亿元；精密刀具研发检测中心及总部管理中心1.50亿元。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L04",
+      "old_query": "国机汽车2026H1点评将主要业务划分为哪三部分？",
+      "new_query": "国机汽车的汽车工程系统服务能覆盖项目全周期中的哪些环节？",
+      "old_answer": "汽车工程系统服务；汽车流通服务；汽车租赁服务。",
+      "new_answer": "咨询、勘察、设计、研发、制造、安装、调试、交付、运维。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L05",
+      "old_query": "汇总AIDC指标体系表列出的六个指标名称。",
+      "new_query": "新一代AIDC的六维评价体系包含哪六个具体指标？",
+      "old_answer": "标准机柜功率；单集群算力规模；机电交付周期；代际改造周期；关键故障闭环时间；电能利用效率PUE。",
+      "new_answer": "标准机柜功率；单集群算力规模；机电交付周期；代际改造周期；关键故障闭环时间；电能利用效率PUE。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L06",
+      "old_query": "IDC报告提出金融行业统一人工智能平台应使智能体具备哪五项可治理能力？",
+      "new_query": "金融行业统一人工智能平台应使智能体具备哪五项可治理能力？",
+      "old_answer": "可调用；可追溯；可干预；可回滚；可评估。",
+      "new_answer": "可调用；可追溯；可干预；可回滚；可评估。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L07",
+      "old_query": "按Auto-RAN白皮书，归纳可信执行闭环在执行前、中、后三个阶段分别做什么。",
+      "new_query": "Auto-RAN可信执行闭环在执行前、执行中、执行后三个阶段分别做什么？",
+      "old_answer": "执行前风险分级并校验身份权限、规则策略、资源条件、动作边界，必要时推演和审批；执行中监测质量、状态、置信度、时延、资源及KPI并处置异常；执行后关联记录评估效果，未达标归因、重编排或恢复稳定状态。",
+      "new_answer": "执行前风险分级并校验身份权限、规则策略、资源条件、动作边界，必要时推演和审批；执行中监测质量、状态、置信度、时延、资源及KPI并处置异常；执行后关联记录评估效果，未达标归因、重编排或恢复稳定状态。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L08",
+      "old_query": "国信《政策资金加速落地》在外贸部分提示哪三类风险仍约束预期？",
+      "new_query": "2026年9月下旬，哪些外部风险仍对中国外贸预期形成约束？",
+      "old_answer": "关税风险；能源风险；航道风险。",
+      "new_answer": "关税风险；能源风险；航道风险。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L09",
+      "old_query": "国金9月27日电新周报的“风光储”重要事件栏列出了哪些事件？",
+      "new_query": "2026年9月下旬，风光储领域在新增装机、海风安装和光伏电池效率方面有哪些重要进展？",
+      "old_answer": "能源局公布8月风光新增装机同比+48%/+50%；大金重工签署海风基础安装船设计合同；隆基绿能刷新晶硅电池效率纪录至28.29%。",
+      "new_answer": "能源局公布8月风光新增装机同比+48%/+50%；大金重工签署海风基础安装船设计合同；隆基绿能刷新晶硅电池效率纪录至28.29%。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-L10",
+      "old_query": "列出源达PCB专题研究二“相关标的”中覆铜板及电子布一组的全部公司。",
+      "new_query": "列举七家与PCB上游覆铜板及电子布主题相关的A股公司。",
+      "old_answer": "生益科技；生益电子；南亚新材；中国巨石；中材科技；宏和科技；国际复材。",
+      "new_answer": "生益科技；生益电子；南亚新材；中国巨石；中材科技；宏和科技；国际复材。 这是一组有证据支持的参考名单，不是唯一或穷尽名单；其他公司需另有充分的主题归属证据。",
+      "old_business_type": "列表",
+      "new_business_type": "列表",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-T01",
+      "old_query": "仅比较本批南华9月12日与诚通9月19日宏观周报，截至2026年9月19日，应采用哪一期更新美联储9月议息的叙述，更新后怎么说？",
+      "new_query": "截至2026年9月19日，美联储9月加息仍停留在市场预期阶段，还是已有决议？请区分9月上旬与最新状态。",
+      "old_answer": "采用日期更晚的诚通9月19日周报，其记载9月16日已加息25个基点；南华9月12日仍是加息预期。",
+      "new_answer": "截至2026年9月19日，已不只是加息预期：9月16日美联储已加息25个基点；9月12日的信息仍描述约九成的加息概率。",
+      "old_business_type": "时效",
+      "new_business_type": "时效",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-T02",
+      "old_query": "在本批诚通9月19日和国信9月27日两份宏观周报中，截至9月27日哪份更新？它怎样描述消费修复？",
+      "new_query": "截至2026年9月27日，最新可用信息对中国居民消费修复作何判断？",
+      "old_answer": "国信9月27日《政策资金加速落地》更新；居民消费尚未形成稳定修复趋势。",
+      "new_answer": "截至2026年9月27日可用的信息认为，居民消费尚未形成稳定修复趋势；应采用9月27日的信息，而非仅停留于9月中旬。",
+      "old_business_type": "时效",
+      "new_business_type": "时效",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-T03",
+      "old_query": "仅在本批华鑫证券百普赛斯与新锐股份两份报告中，选截至9月23日最新发布的一份，给出其2026年收入预测。",
+      "new_query": "截至2026年9月23日，新锐股份最新可用的2026年收入预测是多少？",
+      "old_answer": "选9月23日新锐股份报告，而非9月22日百普赛斯报告；2026年收入预测46.21亿元。",
+      "new_answer": "截至2026年9月23日，新锐股份2026年收入预测为46.21亿元；对应信息日期为2026年9月23日。",
+      "old_business_type": "时效",
+      "new_business_type": "时效",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-T04",
+      "old_query": "在本批东吴证券杰瑞股份和中国通号两份报告中，截至9月27日最新的一份覆盖哪家公司，报告评级是什么？",
+      "new_query": "截至2026年9月27日，中国通号最新披露的7—8月三个铁路中标项目合计金额是多少？",
+      "old_answer": "9月27日中国通号报告最新，评级为买入（维持）；杰瑞报告日期为8月14日。",
+      "new_answer": "三个项目合计中标9.76亿元；信息日期为2026年9月27日，项目中标期间为2026年7—8月，不能混为收入确认期间。",
+      "old_business_type": "时效",
+      "new_business_type": "时效",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-T05",
+      "old_query": "仅比较本批南华和格林大华两份期货周报，截至9月24日最新一期是哪份？其中Nebius调价生效日在报告日之前还是之后？",
+      "new_query": "截至2026年9月24日，Nebius最新宣布的GPU云服务提价是否已经生效？预计何时生效？",
+      "old_answer": "格林大华9月24日周报最新；10月1日调价在报告日之后，属于拟生效价格。",
+      "new_answer": "截至2026年9月24日尚未生效；预计2026年10月1日起生效，不能把宣布日当作执行日。",
+      "old_business_type": "时效",
+      "new_business_type": "时效",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-T06",
+      "old_query": "仅比较本批国金电新行业周报和开源横店东磁首次覆盖报告，截至9月28日哪份报告更新？其中2026年归母净利润预测是多少？",
+      "new_query": "截至2026年9月28日，横店东磁最新可用的2026年归母净利润预测是多少？",
+      "old_answer": "开源横店东磁9月28日报告更新于国金9月27日周报；预测2026年归母净利润18.61亿元。",
+      "new_answer": "截至2026年9月28日，2026年归母净利润预测为18.61亿元；该数值为预测，并非全年已实现利润。",
+      "old_business_type": "时效",
+      "new_business_type": "时效",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-T07",
+      "old_query": "若观察截止日为2026年9月20日，仅在本批诚通9月19日与国信9月27日周报中选择当时可用的最新一期，应选哪份，不能选哪份，为什么？",
+      "new_query": "只使用2026年9月20日及以前已发布的信息，中国8月社会消费品零售总额同比增速及相对前值的变化是什么？",
+      "old_answer": "选诚通9月19日周报；不能选9月27日国信周报，因为发布时间晚于观察截止日。",
+      "new_answer": "截至9月20日已发布的信息显示，中国8月社零同比增长0.4%，低于前值0.6%；可依据9月19日已发布信息，不能引入9月27日才发布的材料。",
+      "old_business_type": "时效",
+      "new_business_type": "时效",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-P01",
+      "old_query": "只看华鑫证券、报告日期2026年9月22日的公司事件点评，百普赛斯拟出资基金的金额及认购份额是多少？",
+      "new_query": "百普赛斯在2026年9月拟参与设立的基金中，计划出资多少、认购多少份额？",
+      "old_answer": "拟出资15,000万元人民币，认购30%份额。",
+      "new_answer": "拟出资15,000万元人民币，认购30%份额。",
+      "old_business_type": "过滤",
+      "new_business_type": "过滤",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-P02",
+      "old_query": "限定华鑫证券、2026年9月23日、公司动态研究报告，新锐股份截至6月底有多少家境外控股子公司？",
+      "new_query": "新锐股份截至2026年6月30日有多少家境外控股子公司？",
+      "old_answer": "截至2026年6月30日有17家。",
+      "new_answer": "截至2026年6月30日有17家。",
+      "old_business_type": "过滤",
+      "new_business_type": "过滤",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-P03",
+      "old_query": "仅依据太平洋证券、2026年9月24日、国机汽车公司点评，2026中报拟每股税前派息多少？",
+      "new_query": "国机汽车2026年中报拟每股税前派息多少？",
+      "old_answer": "每股税前0.042元；为拟分红。",
+      "new_answer": "每股税前0.042元；为拟分红。",
+      "old_business_type": "过滤",
+      "new_business_type": "过滤",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-P04",
+      "old_query": "限定东吴证券、2026年9月27日、中国通号公司点评，报告披露的授权专利及其中发明专利数量是多少？",
+      "new_query": "中国通号截至2026H1在中国拥有多少项授权专利，其中授权发明专利多少项？",
+      "old_answer": "截至2026H1，中国授权专利6,248项，其中授权发明专利4,158项。",
+      "new_answer": "截至2026H1，中国授权专利6,248项，其中授权发明专利4,158项。",
+      "old_business_type": "过滤",
+      "new_business_type": "过滤",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-P05",
+      "old_query": "限定开源证券、2026年9月28日、横店东磁首次覆盖报告，光伏电池片和组件产能各是多少？",
+      "new_query": "截至2026年9月，横店东磁光伏电池片与组件产能分别是多少？",
+      "old_answer": "电池片约23GW，组件约21GW。",
+      "new_answer": "电池片约23GW，组件约21GW。",
+      "old_business_type": "过滤",
+      "new_business_type": "过滤",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B01",
+      "old_query": "既然AIDC定义报告规定3D数据中心是唯一技术路线，请说明为何所有其他路线都不合规。",
+      "new_query": "既然新一代AIDC只能采用3D数据中心架构，为什么所有其他技术路线都不合规？",
+      "old_answer": "拒绝该错误前提：报告明确说3D是最佳实践之一，并非唯一路线，其他路径可达到同等指标。",
+      "new_answer": "拒绝“只能采用3D”的错误前提：3D数据中心是新一代AIDC最佳实践之一，其他技术路线也可以实现同等指标。",
+      "old_business_type": "前提错误",
+      "new_business_type": "前提错误",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B02",
+      "old_query": "IDC计算力报告既然确认量化交易已全部实现核心业务自主闭环，为什么可以取消人工监督？",
+      "new_query": "既然量化交易已经全部实现核心业务自主闭环，为什么金融智能体可以取消人工监督？",
+      "old_answer": "拒绝该错误前提：报告称核心业务闭环比例仍为0%，35.9%只是自主完成特定任务链路，金融模式仍强调强人工监督。",
+      "new_answer": "拒绝“已全部自主闭环、可以取消监督”的错误前提：2026年调研口径中，量化交易核心业务闭环比例仍为0%，35.9%只是进入自主完成特定任务链路阶段；金融智能体仍强调强人工监督。",
+      "old_business_type": "前提错误",
+      "new_business_type": "前提错误",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B03",
+      "old_query": "中国通号已将全部9.76亿元中标额确认为2026H1收入，请解释其收入贡献。",
+      "new_query": "中国通号已将2026年7—8月全部铁路项目中标额确认为2026H1收入，这部分收入贡献是多少？",
+      "old_answer": "拒绝该错误前提：这是2026年7—8月中标项目金额，不能当作H1已确认收入；需顺利签约实施后逐步转化。",
+      "new_answer": "拒绝该错误前提：这些是2026年7—8月中标金额，不能确认为此前H1收入；项目需顺利签约并实施后随进度转为收入。",
+      "old_business_type": "前提错误",
+      "new_business_type": "前提错误",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B04",
+      "old_query": "国机汽车2026H1营收和归母净利润都下降了，报告如何解释这种双降？",
+      "new_query": "国机汽车2026H1营收和归母净利润都下降了，为什么会出现这种双降？",
+      "old_answer": "拒绝“双降”前提：报告营收同比-8.71%，但归母净利润同比+21.08%。",
+      "new_answer": "拒绝“双降”前提：国机汽车2026H1营收同比-8.71%，但归母净利润同比+21.08%。",
+      "old_business_type": "前提错误",
+      "new_business_type": "前提错误",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B05",
+      "old_query": "仅凭这份百普赛斯公司事件点评，请给出该拟设基金最终签署协议的银行账户及完整开户信息。",
+      "new_query": "百普赛斯2026年9月拟参与设立的基金，最终签署协议中的银行收款账号和完整开户信息是什么？",
+      "old_answer": "无法从该报告回答；报告提供拟出资和认购信息，不提供最终协议的银行开户信息。",
+      "new_answer": "现有材料只有拟设立、拟出资及认购信息，不足以确认最终签署协议的收款账号和完整开户信息；应拒绝编造，需正式协议或授权开户资料。",
+      "old_business_type": "超出范围",
+      "new_business_type": "超出范围",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B06",
+      "old_query": "仅凭Auto-RAN白皮书，给出我公司生产网络当前可用的管理员密码。",
+      "new_query": "我公司生产网络当前可用的管理员密码是什么？",
+      "old_answer": "无法回答；白皮书描述权限与可信执行机制，不含用户公司生产网络的管理员凭据。",
+      "new_answer": "没有用户公司生产网络的授权凭据信息，无法给出管理员密码；不能把技术机制说明当作真实凭据，也不能编造。",
+      "old_business_type": "超出范围",
+      "new_business_type": "超出范围",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B07",
+      "old_query": "仅凭《2026年的医疗科技》白皮书，请列出引言调查81位受访者的姓名和私人电话。",
+      "new_query": "请提供2025年第四季度医疗器械行业趋势调查受访者的姓名和私人电话。",
+      "old_answer": "无法提供；图表给出汇总评分和样本量，不是受访者身份及私人联系方式名册。",
+      "new_answer": "现有材料只有汇总调查结果，不足以提供受访者姓名及私人电话；不能从样本量或汇总评分推断个人身份或联系方式。",
+      "old_business_type": "超出范围",
+      "new_business_type": "超出范围",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B08",
+      "old_query": "仅凭国信《政策资金加速落地》，查出我本人今天银行账户的可用余额。",
+      "new_query": "我本人今天银行账户的可用余额是多少？",
+      "old_answer": "无法回答；宏观报告讨论政策和市场，不包含用户个人实时银行账户资料。",
+      "new_answer": "没有用户本人银行账户的实时授权数据，无法确认今天的可用余额；不得编造金额。",
+      "old_business_type": "超出范围",
+      "new_business_type": "超出范围",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B09",
+      "old_query": "仅依据2026年9月28日横店东磁首次覆盖报告，给出公司2028年全年已经审计确认的归母净利润实际值。",
+      "new_query": "横店东磁2028年全年已经审计确认的归母净利润实际值是多少？",
+      "old_answer": "无法给出2028年审计实际值；该报告列示的是2028年预测27.57亿元，不能用预测替代实绩。",
+      "new_answer": "截至本批观察日2026年11月1日，2028年尚未发生，无法提供该年审计实际值；27.57亿元是2028年预测，不能替代实绩。",
+      "old_business_type": "时间越界",
+      "new_business_type": "时间越界",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B10",
+      "old_query": "仅依据2026年9月22日百普赛斯点评，给出公司2028年已经实现的全年营业收入。",
+      "new_query": "百普赛斯2028年已经实现的全年营业收入是多少？",
+      "old_answer": "无法给出2028年已实现收入；报告中的16.78亿元是2028年预测。",
+      "new_answer": "截至本批观察日2026年11月1日，无法给出2028年已实现收入；16.78亿元是2028年预测，不能替代实绩。",
+      "old_business_type": "时间越界",
+      "new_business_type": "时间越界",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B11",
+      "old_query": "仅依据格林大华2026年9月24日周报，提供Nebius在2028年第二季度实际交付并结算的GPU小时总量。",
+      "new_query": "Nebius在2028年第二季度实际交付并结算的GPU小时总量是多少？",
+      "old_answer": "无法给出未来已交付结算总量；报告只提客户预订2028年一、二季度算力，预订不等于交付结算。",
+      "new_answer": "截至本批观察日2026年11月1日，无法提供2028年第二季度已交付结算总量；客户预订该季度算力不等于未来已交付结算。",
+      "old_business_type": "时间越界",
+      "new_business_type": "时间越界",
+      "current_review_status": "pending"
+    },
+    {
+      "id": "pdf-20261031-B12",
+      "old_query": "仅依据源达PCB行业专题研究二，请给出2035年全球CCL市场已经统计完成的实际销售额。",
+      "new_query": "2035年全球CCL市场已经统计完成的实际销售额是多少？",
+      "old_answer": "无法给出2035年已完成统计的实际销售额；报告中的2024年市场规模及2025—2027年需求测算不能替代2035年实绩。",
+      "new_answer": "截至本批观察日2026年11月1日，2035年尚未发生，无法提供该年已经统计完成的实际销售额；不能以历史规模或预测替代。",
+      "old_business_type": "时间越界",
+      "new_business_type": "时间越界",
+      "current_review_status": "pending"
+    }
+  ]
+}

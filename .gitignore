@@ -1,4 +1,6 @@
 .env
+.env.local
+.local-data/
 .venv/
 .worktrees/
 __pycache__/

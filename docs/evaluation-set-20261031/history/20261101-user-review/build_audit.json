@@ -1,0 +1,83 @@
+{
+  "case_count": 102,
+  "review_status_counts": {
+    "pending": 102
+  },
+  "business_type_counts": {
+    "事实": 30,
+    "数值读取": 15,
+    "计算": 8,
+    "跨文档": 15,
+    "列表": 10,
+    "时效": 7,
+    "过滤": 5,
+    "前提错误": 4,
+    "超出范围": 4,
+    "时间越界": 4
+  },
+  "difficulty_counts": {
+    "easy": 30,
+    "medium": 42,
+    "hard": 30
+  },
+  "evidence_reference_count": 118,
+  "evidence_references_by_source": {
+    "2026中报点评：短期扰动不改基本面，燃机订单超预期+AIDC一体化打开成长空间.pdf": 8,
+    "H3_AP202609211829713285_1.pdf": 8,
+    "H3_AP202609231829798847_1.pdf": 9,
+    "H3_AP202609241829833777_1.pdf": 12,
+    "H3_AP202609241829864267_1.pdf": 7,
+    "H3_AP202609251829896818_1.pdf": 6,
+    "H3_AP202609261829925702_1.pdf": 8,
+    "H3_AP202609261829929547_1.pdf": 5,
+    "H3_AP202609261829929869_1.pdf": 6,
+    "H3_AP202609261829929943_1.pdf": 9,
+    "H3_AP202609271829935298_1.pdf": 6,
+    "H3_AP202609271829939976_1.pdf": 7,
+    "H3_AP202609271829940631_1.pdf": 8,
+    "H3_AP202609281829951050_1.pdf": 9,
+    "H3_AP202609281829951153_1.pdf": 5,
+    "H3_AP202609281829953173_1.pdf": 5
+  },
+  "evidence_references_by_publisher": {
+    "东吴证券": 16,
+    "诚通证券": 8,
+    "华鑫证券": 21,
+    "格林大华期货": 7,
+    "南华期货": 6,
+    "太平洋证券": 8,
+    "未核实机构": 5,
+    "全球计算联盟等联合编制": 6,
+    "IDC": 9,
+    "中信科移动和无线移动通信全国重点实验室": 6,
+    "国信证券": 7,
+    "开源证券": 9,
+    "国金证券": 5,
+    "源达信息": 5
+  },
+  "max_source_reference_share": 0.1016949152542373,
+  "max_publisher_reference_share": 0.17796610169491525,
+  "candidate_file_sha256": "cb7a92c610274d26e3f9cc5bccf1a2cb14830c7e23085a1afe66ea9ec3aa9c7f",
+  "checks": [
+    "102 unique IDs and queries",
+    "all pending",
+    "all cited local files and pages exist",
+    "all quotes match complete PyMuPDF page text and page-local offsets",
+    "all document SHA256 captured",
+    "12 negatives have empty evidence and separate audit references",
+    "15 multi-document items reference at least two sources",
+    "8 calculation annotations with formulas, units and tolerance",
+    "7 temporal annotations with expected date",
+    "5 explicit filter annotations",
+    "single source/publisher evidence-reference share <=20%"
+  ],
+  "not_performed": [
+    "RAG retrieval/generation",
+    "LLM judge",
+    "A/B",
+    "dataset.freeze",
+    "ingested chunk mapping",
+    "live KB category/date verification",
+    "human approval"
+  ]
+}

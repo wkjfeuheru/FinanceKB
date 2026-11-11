@@ -1,0 +1,31 @@
+{
+  "discovered": 12,
+  "tools": [
+    "resolve_symbol",
+    "get_ohlcv",
+    "get_realtime_quote",
+    "get_financial_statements",
+    "get_valuation_metrics",
+    "get_company_profile",
+    "get_dividend_history",
+    "get_macro_indicator",
+    "get_economic_calendar",
+    "search_news",
+    "get_filings",
+    "get_earnings_calendar"
+  ],
+  "calls": [
+    {
+      "tool": "get_realtime_quote",
+      "count": 1
+    },
+    {
+      "tool": "search_news",
+      "count": 10
+    },
+    {
+      "tool": "get_valuation_metrics",
+      "count": 3
+    }
+  ]
+}

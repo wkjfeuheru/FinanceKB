@@ -1,0 +1,12 @@
+# Local GPU overlay for an already-built FinanceKB image. Keep the base tag
+# separate so the CPU/MCP services continue using their existing image.
+ARG BASE_IMAGE=financekb-app:latest
+FROM ${BASE_IMAGE}
+
+USER root
+# CUDA 12.x supports the laptop's 551 driver via minor-version compatibility.
+# The unpinned base image currently installs CUDA 13.x, which requires >=580.
+RUN python -m pip install --no-cache-dir --upgrade \
+    torch==2.14.1 torchvision==0.29.1 \
+    --index-url https://download.pytorch.org/whl/cu126
+USER app

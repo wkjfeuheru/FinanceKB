@@ -1,0 +1,60 @@
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode zstd gzip
+
+	@search path /api/v1/search/*
+	handle @search {
+		rate_limit {
+			zone search {
+				key {remote_host}
+				events 60
+				window 1m
+			}
+		}
+		reverse_proxy app:8000
+	}
+
+	@market path /mcp/market /mcp/market/*
+	handle @market {
+		reverse_proxy mcp-market:8000
+	}
+
+	@fundamentals path /mcp/fundamentals /mcp/fundamentals/*
+	handle @fundamentals {
+		reverse_proxy mcp-fundamentals:8000
+	}
+
+	@macro path /mcp/macro /mcp/macro/*
+	handle @macro {
+		reverse_proxy mcp-macro:8000
+	}
+
+	@news path /mcp/news /mcp/news/*
+	handle @news {
+		reverse_proxy mcp-news:8000
+	}
+
+	@knowledge path /mcp/knowledge /mcp/knowledge/*
+	handle @knowledge {
+		reverse_proxy mcp-knowledge:8000
+	}
+
+	handle {
+		rate_limit {
+			zone ui {
+				key {remote_host}
+				events 120
+				window 1m
+			}
+		}
+		reverse_proxy app:8000
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000;"
+		X-Content-Type-Options nosniff
+	}
+}

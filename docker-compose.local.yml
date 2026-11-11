@@ -1,0 +1,43 @@
+# 本地部署覆盖：模型缓存放到宿主机磁盘，避免占用 Docker Desktop 的 C 盘镜像；
+# 同时暴露 app:8000 便于直接调试（生产仍只由 Caddy 对外）。
+services:
+  app:
+    ports:
+      - "8000:8000"
+    volumes:
+      # 本地源码直挂：容器内网络无法访问 apt/npm 镜像时无需全量重建镜像，
+      # 重启 app 即可加载最新后端代码
+      - ./src:/app/src:ro
+      - ./assets/reports:/app/assets/reports:ro
+      - ./.local-data/onnx_cache:/app/onnx_cache
+      - app_state:/app/assets/state
+      - app_files:/app/files
+
+  # 四套结构化 MCP 共用一个本地镜像，复用已构建的 CPU 运行层。
+  mcp-market: &structured-mcp-local
+    image: financekb-structured-mcp:local
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM financekb-app:latest
+        USER root
+        RUN python -m pip install --no-cache-dir infoway-sdk==0.4.1 "tzdata>=2025.2"
+        WORKDIR /opt/financekb
+        ENV PYTHONPATH=/opt/financekb
+        COPY src/ /opt/financekb/src/
+        USER app
+    volumes:
+      # 与 app 一致：本地直挂源码，重启即加载最新结构化工具代码，
+      # 无需重建镜像（构建期 pip 需要外网）
+      - ./src:/opt/financekb/src:ro
+  mcp-fundamentals:
+    <<: *structured-mcp-local
+  mcp-macro:
+    <<: *structured-mcp-local
+  mcp-news:
+    <<: *structured-mcp-local
+  mcp-knowledge:
+    image: financekb-app:latest
+    volumes:
+      # 与 app 一致：本地直接加载最新代理代码，无需重建镜像
+      - ./src:/app/src:ro

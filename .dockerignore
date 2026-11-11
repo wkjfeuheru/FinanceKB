@@ -13,7 +13,6 @@ frontend/dist
 
 # 数据与产物（容器内重新生成）
 .venv/
-assets/
 files/
 tests/
 scripts/results/
@@ -22,6 +21,9 @@ files/docs/*.md
 assets/state/
 artifacts/
 .trae/
+
+# 运行数据与模型缓存不进镜像；容器启动时挂载持久卷
+assets/*
 
 # 环境与日志
 .env

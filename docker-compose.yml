@@ -1,4 +1,28 @@
-version: "3.9"
+# 统一入口只有 Caddy；其余服务仅在同一 Compose 网络中互相访问。
+# 五套 MCP 共用同一镜像、以不同入口启动，容器内统一监听 8000。
+
+x-mcp-common: &mcp-common
+  build: .
+  expose:
+    - "8000"
+  restart: unless-stopped
+  environment: &mcp-environment
+    MCP_API_TOKENS: ${MCP_API_TOKENS:-${DATA_API_TOKENS:?DATA_API_TOKENS is required}}
+    DATA_API_TOKENS: ${DATA_API_TOKENS:?DATA_API_TOKENS is required}
+    MCP_ALLOWED_HOSTS: ${MCP_ALLOWED_HOSTS:-}
+    MCP_SOURCE_MAX_RETRIES: ${MCP_SOURCE_MAX_RETRIES:-2}
+    MCP_CALL_TIMEOUT_SECONDS: ${MCP_CALL_TIMEOUT_SECONDS:-120}
+    TZ: ${TZ:-Asia/Shanghai}
+  healthcheck:
+    test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/healthz')"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+  logging: &default-logging
+    driver: json-file
+    options:
+      max-size: "50m"
+      max-file: "5"
 
 services:
   etcd:
@@ -17,6 +41,23 @@ services:
       interval: 30s
       timeout: 20s
       retries: 3
+    logging: *default-logging
+
+  minio:
+    image: minio/minio:RELEASE.2024-05-10T01-41-38Z
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    logging: *default-logging
 
   postgres:
     image: postgres:16-alpine
@@ -32,11 +73,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging: *default-logging
 
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}"]
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD is required}", "--appendonly", "yes"]
     volumes:
       - redis_data:/data
     healthcheck:
@@ -44,31 +86,49 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging: *default-logging
 
   milvus:
     # 必须 >= 2.5：本服务的稀疏检索用 Milvus 原生 BM25 Function
     # （全文检索自 2.5 引入），且环境里的 pymilvus 为 3.0.0。
-    # 原 pin v2.4.0 会让 create_collection 的 add_function 直接失败。
     image: milvusdb/milvus:v2.6.17
     restart: unless-stopped
     command: ["milvus", "run", "standalone"]
+    security_opt:
+      - seccomp:unconfined
     environment:
       ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+      MINIO_ACCESS_KEY_ID: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
     volumes:
       - milvus_data:/var/lib/milvus
     depends_on:
-      - etcd
+      etcd:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
       interval: 30s
       timeout: 20s
       retries: 3
+    logging: *default-logging
 
   app:
     build: .
+    expose:
+      - "8000"
+    restart: unless-stopped
+    stop_grace_period: 30s
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
     environment:
       APP_ENV: ${APP_ENV:-production}
-      MILVUS_URI: ${MILVUS_URI:?MILVUS_URI is required}
+      TZ: ${TZ:-Asia/Shanghai}
+      MILVUS_URI: ${MILVUS_URI:-http://milvus:19530}
       MILVUS_TIMEOUT_SECONDS: "30"
       DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
       POSTGRES_DB: ${POSTGRES_DB:-finance_rag}
@@ -76,17 +136,23 @@ services:
       REDIS_URL: redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       REDIS_CACHE_PREFIX: finance_rag
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-oss}
       OSS_ENDPOINT: ${OSS_ENDPOINT}
       OSS_BUCKET: ${OSS_BUCKET}
       OSS_REGION: ${OSS_REGION}
       OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID}
       OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET}
-      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek:deepseek-v4-pro}
+      DEEPSEEK_MODEL: ${DEEPSEEK_MODEL:-deepseek:deepseek-chat}
       JWT_SECRET: ${JWT_SECRET}
       JWT_ADMIN_USERNAME: ${JWT_ADMIN_USERNAME:-admin}
       JWT_ADMIN_PASSWORD: ${JWT_ADMIN_PASSWORD}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8000}
-      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-localhost,127.0.0.1}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://${DOMAIN:-localhost}}
+      # app 是 mcp-knowledge 回调 knowledge-api 的内部主机名，必须始终放行
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-${DOMAIN:-localhost}},app
+      KB_COLLECTION_NAME: ${REPORT_COLLECTION_NAME:-finance_report}
+      REPORT_COLLECTION_NAME: ${REPORT_COLLECTION_NAME:-finance_report}
+      POLICY_COLLECTION_NAME: ${POLICY_COLLECTION_NAME:-finance_policy}
+      DATA_API_TOKENS: ${DATA_API_TOKENS:?DATA_API_TOKENS is required}
       MODEL_CACHE_DIR: /app/onnx_cache/models
       MODEL_OFFLINE: "true"
       HF_HUB_OFFLINE: "true"
@@ -96,7 +162,6 @@ services:
       OMP_NUM_THREADS: ${OMP_NUM_THREADS:-4}
       MKL_NUM_THREADS: ${MKL_NUM_THREADS:-4}
       HF_ENDPOINT: ${HF_ENDPOINT:-https://hf-mirror.com}
-      # HF 模型缓存（嵌入 + reranker）纳入持久卷，避免容器重建后重新下载
       HF_HOME: /app/onnx_cache/hf_home
       ONNX_CACHE_DIR: /app/onnx_cache
       MILVUS_FINGERPRINT_PATH: /app/assets/state/.milvus_fingerprint
@@ -105,14 +170,11 @@ services:
       - app_onnx_cache:/app/onnx_cache
       - app_state:/app/assets/state
       - app_files:/app/files
-    restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/ready')"]
       interval: 30s
       timeout: 10s
       retries: 3
-    ports:
-      - "127.0.0.1:8000:8000"
     depends_on:
       milvus:
         condition: service_healthy
@@ -120,12 +182,83 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    logging: *default-logging
+
+  mcp-market:
+    <<: *mcp-common
+    environment:
+      <<: *mcp-environment
+      INFOWAY_API_KEY: ${INFOWAY_API_KEY:-}
+    command: ["python", "-m", "src.mcp.market"]
+
+  mcp-fundamentals:
+    <<: *mcp-common
+    environment:
+      <<: *mcp-environment
+      INFOWAY_API_KEY: ${INFOWAY_API_KEY:-}
+    command: ["python", "-m", "src.mcp.fundamentals"]
+
+  mcp-macro:
+    <<: *mcp-common
+    command: ["python", "-m", "src.mcp.macro"]
+
+  mcp-news:
+    <<: *mcp-common
+    command: ["python", "-m", "src.mcp.news"]
+
+  mcp-knowledge:
+    <<: *mcp-common
+    command: ["python", "-m", "src.mcp.knowledge"]
+    environment:
+      <<: *mcp-environment
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      KNOWLEDGE_API_BASE_URL: http://app:8000
+      KNOWLEDGE_API_TOKEN: ${KNOWLEDGE_API_TOKEN:-${DATA_API_TOKENS:?DATA_API_TOKENS is required}}
+      # 研报检索含 CPU 重排，单次可达 30s+，默认给到 120s
+      KNOWLEDGE_API_TIMEOUT_SECONDS: ${KNOWLEDGE_API_TIMEOUT_SECONDS:-120}
+    depends_on:
+      app:
+        condition: service_healthy
+
+  caddy:
+    build:
+      context: .
+      dockerfile: deploy/caddy/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+      ACME_EMAIL: ${ACME_EMAIL:-}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+      mcp-market:
+        condition: service_healthy
+      mcp-fundamentals:
+        condition: service_healthy
+      mcp-macro:
+        condition: service_healthy
+      mcp-news:
+        condition: service_healthy
+      mcp-knowledge:
+        condition: service_healthy
+    logging: *default-logging
 
 volumes:
   etcd_data:
+  minio_data:
   milvus_data:
   postgres_data:
   redis_data:
   app_onnx_cache:
   app_state:
   app_files:
+  caddy_data:
+  caddy_config:

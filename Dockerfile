@@ -29,7 +29,8 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
 # 复制后端代码
-COPY finance_rag/ ./finance_rag/
+COPY src/ ./src/
+COPY scripts/ ./scripts/
 COPY main.py .
 
 # 复制前端构建产物（来自 Stage 1）
@@ -45,4 +46,4 @@ USER app
 EXPOSE 8000
 
 # 生产模式启动（不开 reload）
-CMD ["uvicorn", "finance_rag.src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
