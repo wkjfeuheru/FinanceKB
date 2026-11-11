@@ -32,8 +32,8 @@ def verify_prepared(manifest: dict, files: list[Path]) -> None:
 
 
 def validate_parse_artifact(item: dict, source: str, sha: str):
-    from finance_rag.src.rag.ingestion.mineru_parser import ParseResult
-    from finance_rag.src.rag.ingestion.pdf_assets import ContentBlock
+    from src.ingest.mineru_parser import ParseResult
+    from src.ingest.pdf_assets import ContentBlock
     if not isinstance(item.get('markdown'), str) or not item['markdown'].strip():
         raise ValueError(f'empty parse markdown: {source}')
     if item.get('source') != source or item.get('pdf_sha256') != sha:
@@ -55,8 +55,8 @@ def validate_parse_artifact(item: dict, source: str, sha: str):
 
 
 def validate_baselines(directory: Path, dataset, content_hash: str) -> None:
-    from finance_rag.src.eval.dataset import EvalCase
-    from finance_rag.src.eval.runner import EvaluationRunner
+    from src.eval.dataset import EvalCase
+    from src.eval.runner import EvaluationRunner
     for layer in ('L0', 'L1', 'L2', 'L3', 'L5', 'PRODUCTION'):
         candidates = list(directory.rglob(f'*-{layer}/summary.json'))
         valid = False
@@ -91,8 +91,8 @@ def validate_baselines(directory: Path, dataset, content_hash: str) -> None:
 
 
 def loss_audit(source: str, markdown: str) -> dict:
-    from finance_rag.src.rag.ingestion.cleaner import TextCleaner
-    from finance_rag.src.rag.ingestion.html_table import restore_html_table
+    from src.ingest.cleaner import TextCleaner
+    from src.chunking.html_table import restore_html_table
     cleaned = TextCleaner().clean_with_audit(markdown)
     tables = []
     for table in re.finditer(r'<table\b[^>]*>.*?</table>', markdown, re.I | re.S):
@@ -130,9 +130,9 @@ def seal_prepared(directory: Path) -> None:
 
 
 def prepare(directory: Path) -> int:
-    from finance_rag.src.rag.ingestion.mineru_parser import parse_with_mineru
-    from finance_rag.src.rag.ingestion.cleaner import TextCleaner
-    from finance_rag.src.rag.ingestion.html_table import restore_html_table
+    from src.ingest.mineru_parser import parse_with_mineru
+    from src.ingest.cleaner import TextCleaner
+    from src.chunking.html_table import restore_html_table
 
     directory.mkdir(parents=True, exist_ok=True)
     manifest_path = directory / 'parse_manifest.json'
@@ -178,22 +178,21 @@ def prepare(directory: Path) -> int:
     return 0 if len(files) == 18 and all(r['status'] == 'completed' for r in manifest['reports'].values()) else 1
 
 
-def ingest(prepared: Path, snapshot: Path, baseline: Path, dataset: Path, confirmation: str, report: Path) -> int:
+def ingest(prepared: Path, snapshot: Path, baseline: Path, dataset: Path, confirmation: str, report: Path, *, collection: str = 'finance_kb') -> int:
     from scripts.kb_snapshot import verify_snapshot, _read_rows
-    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
-    from finance_rag.src.rag.ingestion.mineru_parser import ParseResult
-    from finance_rag.src.rag.ingestion.pdf_assets import ContentBlock, extract_images
-    import finance_rag.src.rag.ingestion as facade
+    from src.index.milvus_kb import get_knowledge_base
+    from src.ingest.mineru_parser import ParseResult
+    from src.ingest.pdf_assets import ContentBlock, extract_images
+    import src.ingest as facade
     from scripts.ingest_reports import _run
 
-    if confirmation != 'finance_kb':
-        raise ValueError('--confirm-collection finance_kb is required')
-    saved = verify_snapshot(snapshot)
+    if confirmation != collection:
+        raise ValueError(f'--confirm-collection {collection} is required')
+    saved = verify_snapshot(snapshot, collection=collection)
     if saved.get('source_count') != 18 or not {'vectors.jsonl.gz', 'parent_chunks.jsonl.gz',
             'table_chunks.jsonl.gz', 'schema.json', 'fingerprints.json', 'pdf_manifest.json'} <= saved['artifacts'].keys():
         raise ValueError('complete 18-source backup is required before rebuilding')
-    from finance_rag.src.eval.dataset import EvaluationDataset
-    from finance_rag.src.eval.runner import EvaluationRunner
+    from src.eval.dataset import EvaluationDataset
     rows = _read_rows(snapshot / 'vectors.jsonl.gz')
     chunks = sorted((r['id'], r['source'], hashlib.sha256(r['content'].encode('utf8')).hexdigest()) for r in rows)
     content_hash = hashlib.sha256(json.dumps(chunks, ensure_ascii=False).encode('utf8')).hexdigest()
@@ -229,8 +228,8 @@ def ingest(prepared: Path, snapshot: Path, baseline: Path, dataset: Path, confir
     # 只替换本次迁移进程的解析读入：使用刚刚完整重跑 MinerU 的可校验产物。
     # 之后继续走既有清洗/切块/图片描述/embedding/写库流水线。
     facade.parse_with_mineru = prepared_parse
-    get_knowledge_base('finance_kb').rebuild_collection()
-    args = argparse.Namespace(only=[], limit=0, category='investment_research', timeout=1800,
+    get_knowledge_base(collection).rebuild_collection()
+    args = argparse.Namespace(only=[], limit=0, timeout=1800,
                               skip_ingest=False, report_json=str(report))
     return asyncio.run(_run(args))
 
@@ -243,6 +242,8 @@ def main() -> int:
     parser.add_argument('--baseline')
     parser.add_argument('--dataset')
     parser.add_argument('--confirm-collection', default='')
+    parser.add_argument('--collection', default='finance_kb',
+                        help='目标集合名（迁移后重建研报请传 finance_report）')
     parser.add_argument('--report', default='migration.json')
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
@@ -253,7 +254,8 @@ def main() -> int:
         return 0
     if not args.snapshot or not args.baseline or not args.dataset:
         parser.error('ingest requires --snapshot, --baseline and --dataset')
-    return ingest(Path(args.prepared), Path(args.snapshot), Path(args.baseline), Path(args.dataset), args.confirm_collection, Path(args.report))
+    return ingest(Path(args.prepared), Path(args.snapshot), Path(args.baseline), Path(args.dataset),
+                  args.confirm_collection, Path(args.report), collection=args.collection)
 
 
 if __name__ == '__main__':

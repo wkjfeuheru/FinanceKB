@@ -28,7 +28,7 @@
 
 用法::
 
-    python scripts/build_gold_set.py --questions q.json --out finance_rag/src/eval/data/research_report_gold.jsonl
+    python scripts/build_gold_set.py --questions q.json --out src/eval/data/research_report_gold.jsonl
 """
 
 from __future__ import annotations
@@ -142,8 +142,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--reviewer", default="implementation-agent")
     args = parser.parse_args(argv)
 
-    from finance_rag.src.core.config import KB_COLLECTION_NAME
-    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+    from src.core.config import KB_COLLECTION_NAME
+    from src.index.milvus_kb import get_knowledge_base
 
     questions = json.loads(Path(args.questions).read_text(encoding="utf-8"))
     kb = get_knowledge_base(KB_COLLECTION_NAME)

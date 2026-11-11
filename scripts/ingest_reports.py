@@ -29,7 +29,6 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 REPORTS_DIR = ROOT / "assets" / "reports"
-DEFAULT_CATEGORY = "investment_research"
 TERMINAL_STATUSES = {"completed", "failed"}
 LINE = "=" * 78
 META_KEYS = (
@@ -55,19 +54,19 @@ def _discover(args: argparse.Namespace) -> list[Path]:
     return files
 
 
-async def _ingest_one(path: Path, category: str, timeout_seconds: int) -> dict:
+async def _ingest_one(path: Path, timeout_seconds: int) -> dict:
     """提交一篇并入队等待结算；返回 ``{status, result, error}``。"""
     from starlette.datastructures import UploadFile
 
-    from finance_rag.src.services.document_service import get_document_manager
-    from finance_rag.src.services.task_service import get_task_manager
+    from src.ingest.documents import get_document_manager
+    from src.ingest.tasks import get_task_manager
 
     size_mb = path.stat().st_size / 1024 / 1024
     manager = get_document_manager()
     try:
         with path.open("rb") as handle:
             upload = UploadFile(file=handle, filename=path.name, size=path.stat().st_size)
-            submitted = await manager.upload_document_async(upload, category=category)
+            submitted = await manager.upload_document_async(upload)
     except Exception as exc:  # noqa: BLE001 - 单篇失败不中断批次
         return {"status": "rejected", "error": f"{type(exc).__name__}: {exc}", "size_mb": size_mb}
 
@@ -125,11 +124,11 @@ def _verify(kb, source: str, table_store) -> dict:
 
 
 async def _run(args: argparse.Namespace) -> int:
-    from finance_rag.src.core.config import KB_COLLECTION_NAME, MAX_UPLOAD_SIZE_MB
-    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
-    from finance_rag.src.rag.ingestion.chunk_worker import shutdown_chunk_pool
-    from finance_rag.src.rag.retrieval.table_store import TableStore
-    from finance_rag.src.services.ingestion_pipeline import drain_ingestion_pipeline
+    from src.core.config import KB_COLLECTION_NAME, MAX_UPLOAD_SIZE_MB
+    from src.index.milvus_kb import get_knowledge_base
+    from src.chunking.chunk_worker import shutdown_chunk_pool
+    from src.index.table_store import TableStore
+    from src.ingest.pipeline import drain_ingestion_pipeline
 
     files = _discover(args)
     if not files:
@@ -156,7 +155,7 @@ async def _run(args: argparse.Namespace) -> int:
     if not args.skip_ingest:
         for index, path in enumerate(files, start=1):
             print(f"[{index}/{len(files)}] 入库 {path.name} …", flush=True)
-            outcome = await _ingest_one(path, args.category, args.timeout)
+            outcome = await _ingest_one(path, args.timeout)
             result = outcome.get("result") or {}
             note = ""
             if result.get("skipped"):
@@ -228,7 +227,7 @@ async def _run(args: argparse.Namespace) -> int:
     print(LINE)
     exit_code = batch_exit_code([outcome for _, outcome in outcomes], summary)
     if getattr(args, 'report_json', None):
-        from finance_rag.src.core import config
+        from src.core import config
         output = Path(args.report_json)
         output.parent.mkdir(parents=True, exist_ok=True)
         payload = {'exit_code': exit_code, 'source_count': len(summary), 'summary': summary,
@@ -258,7 +257,6 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--limit", type=int, default=0, help="只处理前 N 篇（0 = 全部）")
     parser.add_argument("--only", action="append", default=[],
                         help="按文件名片段筛选（多个为并集），可重复；如 --only 0026 --only 0027")
-    parser.add_argument("--category", default=DEFAULT_CATEGORY, help="入库分类")
     parser.add_argument("--timeout", type=int, default=600, help="单篇等待上限（秒）")
     parser.add_argument("--skip-ingest", action="store_true", help="跳过入库，只出验证报告")
     parser.add_argument('--report-json', help='保存逐文档入库结果与验证报告')

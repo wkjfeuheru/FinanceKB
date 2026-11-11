@@ -6,8 +6,7 @@ import { Loading } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import { useChatStore } from '../store/chat'
 import { chatStream, fetchDocumentPage } from '../api'
-import { categoryLabel } from '../constants/categories'
-import { answerStatusLabel } from '../utils/answer'
+import { answerStatusLabel, coverageWarnings } from '../utils/answer'
 
 const store = useChatStore()
 
@@ -43,15 +42,6 @@ const blockTypeLabels = { table: '表格', image: '图片', text: '' }
 function filterChips(filters) {
   if (!filters) return []
   const chips = []
-  if (filters.category?.length) {
-    chips.push({ key: 'category', text: `分类：${filters.category.map(categoryLabel).join('/')}` })
-  }
-  if (filters.industry_l1?.length) {
-    chips.push({ key: 'industry_l1', text: `行业：${filters.industry_l1.join('/')}` })
-  }
-  if (filters.industry_l2?.length) {
-    chips.push({ key: 'industry_l2', text: `子行业：${filters.industry_l2.join('/')}` })
-  }
   if (filters.report_type?.length) {
     chips.push({ key: 'report_type', text: `类型：${filters.report_type.join('/')}` })
   }
@@ -99,7 +89,11 @@ function pageLabel(src) {
 
 // 打开原文页：结论验证的关键一步——拿到页码直接看到那一页
 async function openSourcePage(src) {
-  const page = src.start_page || 1
+  const page = Number(src.start_page) || 0
+  if (page <= 0) {
+    ElMessage.warning('该片段没有页码，无法打开原文页')
+    return
+  }
   pageDialog.title = src.title || src.source
   pageDialog.page = page
   pageDialog.loading = true
@@ -139,10 +133,13 @@ async function sendMessage() {
   store.setStreaming(true)
 
   // 构建历史（排除当前占位消息）
+  // 只发送最近若干轮：后端有请求级上限，超长历史会直接被 422 拒绝（RAG-15）。
+  const HISTORY_TURNS = 20
   const history = store.messages
     .slice(0, -2)
-    .map(m => ({ role: m.role, content: m.content }))
     .filter(m => m.content)
+    .slice(-HISTORY_TURNS)
+    .map(m => ({ role: m.role, content: m.content }))
 
   // 过滤条件由后端 LLM 根据问题自动推断（Self-querying）；
   // 分析师点掉 chip 后置 infer_filters=false，避免又被推断回来。
@@ -176,28 +173,37 @@ async function sendMessage() {
           msg.citationValidation = event.citation_validation || null
           msg.answerStatus = event.answer_status || 'unverified'
           msg.missingItems = event.missing_items || []
+          msg.warnings = event.warnings || []
           msg.answerRejected = !!event.answer_rejected
           msg.lowConfidence = !!event.low_confidence
         } else if (event.type === 'error') {
           msg.content = `❌ 错误：${event.message}`
-          msg.streaming = false
           msg.stage = ''
         }
       })
-      // error 事件也需要重置 streaming 状态
-      if (event.type === 'error' || event.type === 'done') {
+    },
+    {
+      // 唯一的终态收尾：正常完成、协议错误、连接中断、主动取消都走这里，
+      // 保证「回答中」状态一定被解除，且每次请求只收尾一次（RAG-14）。
+      onFinish: ({ status, error }) => {
+        store.updateLastAssistant((msg) => {
+          msg.streaming = false
+          msg.stage = ''
+          if (status === 'aborted') {
+            if (!msg.content) msg.content = '（已取消）'
+            msg.answerStatus = 'unverified'
+          } else if (status === 'transport-error') {
+            const reason = error?.message || '网络异常'
+            msg.content += `${msg.content ? '\n\n' : ''}❌ 请求失败：${reason}`
+            msg.answerStatus = 'unverified'
+          } else if (status === 'error') {
+            // 协议级 error 事件的正文已在上方写入，这里只标记未核验
+            msg.answerStatus = 'unverified'
+          }
+        })
         store.setStreaming(false)
         abortController = null
       }
-    },
-    (err) => {
-      store.updateLastAssistant((msg) => {
-        msg.content = `❌ 请求失败：${err.message}`
-        msg.streaming = false
-        msg.stage = ''
-      })
-      store.setStreaming(false)
-      abortController = null
     }
   )
 }
@@ -207,6 +213,7 @@ function stopStreaming() {
     abortController.abort()
     abortController = null
   }
+  // 立即恢复输入状态；终态收尾（onFinish）同样幂等，不会重复报错或重复清理
   store.updateLastAssistant((msg) => {
     msg.streaming = false
     msg.stage = ''
@@ -272,6 +279,10 @@ onUnmounted(() => {
               清除过滤（下次提问生效）
             </el-button>
           </div>
+
+          <ul v-if="msg.role === 'assistant' && coverageWarnings(msg).length" class="coverage-warnings">
+            <li v-for="(warning, widx) in coverageWarnings(msg)" :key="widx">{{ warning }}</li>
+          </ul>
 
           <!-- 幻觉治理状态：拒答 / 低置信 / 引用校验 -->
           <div v-if="msg.role === 'assistant' && (msg.answerRejected || msg.lowConfidence || msg.citationValidation)" class="credibility-row">
@@ -520,6 +531,13 @@ onUnmounted(() => {
 }
 .filter-chip { font-size: 11px; }
 
+.coverage-warnings {
+  margin: 4px 0 6px;
+  padding-left: 18px;
+  color: var(--el-color-warning);
+  font-size: 12px;
+  line-height: 1.5;
+}
 .credibility-row {
   display: flex;
   align-items: center;

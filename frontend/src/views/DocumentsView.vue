@@ -1,9 +1,8 @@
 <script setup>
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
-import { listDocuments, deleteDocument, uploadDocuments, getTaskStatus, getKbStats, listKnowledgeBases, patchDocumentMetadata } from '../api'
-import { categoryLabel } from '../constants/categories'
+import { listDocuments, deleteDocument, uploadDocuments, getTaskStatus, getKbStats, patchDocumentMetadata } from '../api'
 import { buildMetadataPatch } from '../utils/metadata'
 
 const documents = ref([])
@@ -11,11 +10,8 @@ const stats = ref({ document_count: 0, chunk_count: 0, exists: false })
 const uploading = ref(false)
 const uploadProgress = ref(0)
 const uploadFiles = ref([])
-const selectedCategory = ref('')     // 上传时选择的分类
-const filterCategory = ref('')       // 列表分类筛选
-const knowledgeBases = ref([])       // 知识库类别列表（内置四类 + 自定义）
 
-// ---- 研报元数据人工修正 ----
+// ---- 文档元数据人工修正 ----
 // 抽取链路会抽错，没有修正入口这个维度就形同虚设
 const metadataDialog = reactive({
   visible: false,
@@ -23,25 +19,23 @@ const metadataDialog = reactive({
   source: '',
   title: '',
   form: {
-    security_name: '',
-    industry_l1: '',
-    industry_l2: '',
+    version: '',
     report_type: '',
-    broker: ''
+    broker: '',
+    date: ''
   }
 })
 
-const REPORT_TYPES = ['个股', '行业', '宏观']
+const REPORT_TYPES = ['个股', '行业', '宏观', '策略']
 
 function openMetadataDialog(row) {
   metadataDialog.source = row.source
   metadataDialog.title = row.title || row.source
   metadataDialog.form = {
-    security_name: row.security_name || '',
-    industry_l1: row.industry_l1 || '',
-    industry_l2: row.industry_l2 || '',
+    version: row.version || '',
     report_type: row.report_type || '',
-    broker: row.broker || ''
+    broker: row.broker || '',
+    date: row.date || ''
   }
   metadataDialog.visible = true
 }
@@ -62,43 +56,9 @@ async function saveMetadata() {
   }
 }
 
-function isPlainDocument(row) {
-  // 非研报文档（如内部制度）没有标的/行业，不显示「待确认」
-  return !row.report_type && !row.security_name && !row.industry_l1
-}
-
-// 分类选项（类别值 -> 显示名），供上传选择与列表筛选使用
-const categoryOptions = computed(() =>
-  knowledgeBases.value.map(kb => ({ value: kb.name, label: kb.display_name }))
-)
-
-// 类别值 -> 显示名（表格分类标签用，动态支持自定义类别）
-const categoryNameMap = computed(() =>
-  Object.fromEntries(knowledgeBases.value.map(kb => [kb.name, kb.display_name]))
-)
-
-function displayCategory(value) {
-  return categoryNameMap.value[value] || categoryLabel(value)
-}
-
-// 按分类筛选后的文档列表
-const filteredDocuments = computed(() => {
-  if (!filterCategory.value) return documents.value
-  return documents.value.filter(d => (d.category || '') === filterCategory.value)
-})
-
 // 异步上传任务状态
 const asyncTasks = ref([]) // [{task_id, filename, status, result, error}]
 let _pollTimer = null
-
-async function loadKnowledgeBases() {
-  try {
-    knowledgeBases.value = await listKnowledgeBases()
-  } catch (e) {
-    // 类别列表加载失败不阻断文档页，回退为内置四类
-    knowledgeBases.value = []
-  }
-}
 
 async function loadDocuments() {
   try {
@@ -135,7 +95,7 @@ async function handleUpload() {
     // 统一走异步上传，立即返回 task_id 列表
     const tasks = await uploadDocuments(files, (p) => {
       uploadProgress.value = p
-    }, selectedCategory.value, '')
+    })
 
     for (const t of tasks) {
       asyncTasks.value.push({
@@ -240,7 +200,6 @@ function formatSource(source) {
 }
 
 onMounted(() => {
-  loadKnowledgeBases()
   loadDocuments()
 })
 </script>
@@ -289,22 +248,6 @@ onMounted(() => {
           </div>
         </template>
       </el-upload>
-      <div class="upload-category">
-        <span class="upload-category-label">文档分类：</span>
-        <el-select
-          v-model="selectedCategory"
-          clearable
-          placeholder="未分类"
-          style="width: 200px"
-        >
-          <el-option
-            v-for="c in categoryOptions"
-            :key="c.value"
-            :label="c.label"
-            :value="c.value"
-          />
-        </el-select>
-      </div>
       <el-button
         type="primary"
         :loading="uploading"
@@ -348,40 +291,20 @@ onMounted(() => {
       <div class="card-header">
         <span>知识库文档</span>
         <div class="list-actions">
-          <el-select
-            v-model="filterCategory"
-            clearable
-            placeholder="全部类别"
-            style="width: 160px; margin-right: 8px"
-          >
-            <el-option
-              v-for="c in categoryOptions"
-              :key="c.value"
-              :label="c.label"
-              :value="c.value"
-            />
-          </el-select>
           <el-button size="small" @click="loadDocuments">刷新</el-button>
         </div>
       </div>
-      <el-table :data="filteredDocuments" style="width: 100%" empty-text="暂无文档，请上传">
-        <el-table-column prop="title" label="文档标题" min-width="180" />
+      <el-table :data="documents" style="width: 100%" empty-text="暂无文档，请上传">
         <el-table-column label="文件名" min-width="180">
-          <template #default="{ row }">{{ formatSource(row.source) }}</template>
-        </el-table-column>
-        <el-table-column label="分类" width="140" align="center">
           <template #default="{ row }">
-            <el-tag size="small">{{ displayCategory(row.category) }}</el-tag>
+            <span :title="row.title">{{ formatSource(row.source) }}</span>
           </template>
         </el-table-column>
         <el-table-column label="研报元数据" min-width="200">
           <template #default="{ row }">
             <div class="meta-cell">
-              <el-tag v-if="row.security_name" size="small" type="info">{{ row.security_name }}</el-tag>
-              <el-tag v-if="row.industry_l1" size="small" type="info">{{ row.industry_l1 }}</el-tag>
               <el-tag v-if="row.report_type" size="small" type="info">{{ row.report_type }}</el-tag>
-              <el-tag v-if="row.needs_review" size="small" type="warning">待确认</el-tag>
-              <span v-if="isPlainDocument(row)" class="meta-empty">—</span>
+              <el-tag v-if="row.broker" size="small" type="info">{{ row.broker }}</el-tag>
             </div>
           </template>
         </el-table-column>
@@ -405,30 +328,26 @@ onMounted(() => {
       </el-table>
     </div>
 
-    <!-- 研报元数据人工修正 -->
+    <!-- 文档元数据人工修正 -->
     <el-dialog v-model="metadataDialog.visible" :title="`修正元数据 — ${metadataDialog.title}`" width="560px">
       <el-form label-width="96px">
-        <el-form-item v-if="metadataDialog.form.report_type === '个股'" label="证券简称">
-          <el-input v-model="metadataDialog.form.security_name" placeholder="如 贵州茅台" />
-        </el-form-item>
-        <el-form-item v-if="metadataDialog.form.report_type === '行业'" label="申万一级">
-          <el-input v-model="metadataDialog.form.industry_l1" placeholder="必须用申万标准名，如 食品饮料" />
-        </el-form-item>
-        <el-form-item v-if="metadataDialog.form.report_type === '行业'" label="申万二级">
-          <el-input v-model="metadataDialog.form.industry_l2" placeholder="必须属于所选一级，如 白酒Ⅱ" />
-        </el-form-item>
         <el-form-item label="报告类型">
-          <el-select v-model="metadataDialog.form.report_type" placeholder="请选择报告类型">
+          <el-select v-model="metadataDialog.form.report_type" placeholder="请选择报告类型" clearable>
             <el-option v-for="t in REPORT_TYPES" :key="t" :label="t" :value="t" />
           </el-select>
         </el-form-item>
         <el-form-item label="发布机构">
           <el-input v-model="metadataDialog.form.broker" placeholder="如 中信证券" />
         </el-form-item>
+        <el-form-item label="生效日期">
+          <el-date-picker v-model="metadataDialog.form.date" type="date" value-format="YYYY-MM-DD" placeholder="请核对文档生效日期" />
+        </el-form-item>
+        <el-form-item label="版本">
+          <el-input v-model="metadataDialog.form.version" placeholder="如 v2，可留空" />
+        </el-form-item>
       </el-form>
       <div class="meta-hint">
-        行业名必须是申万标准名（如「白酒Ⅱ」而不是「白酒」），否则该文档无法被行业维度检索到。
-        个股必须填写证券简称，行业必须提供一级或合法二级行业；发布机构与二级行业可留空。
+        保存会完整校验这些字段：报告类型必须是 个股/行业/宏观/策略 之一；确实未知的日期或机构可留空。
       </div>
       <template #footer>
         <el-button @click="metadataDialog.visible = false">取消</el-button>
@@ -447,7 +366,6 @@ onMounted(() => {
   flex-wrap: wrap;
   align-items: center;
 }
-.meta-empty { color: var(--text-muted); }
 .meta-hint {
   font-size: 12px;
   color: var(--text-muted);
@@ -476,16 +394,6 @@ onMounted(() => {
 .stat-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; letter-spacing: 0.5px; }
 
 .upload-section { margin-bottom: 0; }
-.upload-category {
-  display: flex;
-  align-items: center;
-  margin-top: 12px;
-}
-.upload-category-label {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-right: 8px;
-}
 .list-actions {
   display: flex;
   align-items: center;

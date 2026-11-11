@@ -17,7 +17,6 @@
 from __future__ import annotations
 
 import argparse
-import json
 import sys
 from collections import Counter
 from pathlib import Path
@@ -80,9 +79,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--seed", type=int, default=7)
     args = parser.parse_args(argv)
 
-    from finance_rag.src.core.config import KB_COLLECTION_NAME
-    from finance_rag.src.eval.dataset import EvaluationDataset
-    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+    from src.core.config import KB_COLLECTION_NAME
+    from src.eval.dataset import EvaluationDataset
+    from src.index.milvus_kb import get_knowledge_base
 
     kb = get_knowledge_base(KB_COLLECTION_NAME)
     chunks = _load_chunks(kb)

@@ -13,9 +13,9 @@ if __package__ in {None, ""}:
 
 
 async def check_model(model) -> dict:
-    from finance_rag.src.agent.planning import Subproblem
-    from finance_rag.src.orchestration.nodes.decision import request_tool_calls
-    from finance_rag.src.services.citation_validator import validate_claims
+    from src.agent.planning import Subproblem
+    from src.agent.nodes.decision import request_tool_calls
+    from src.answer.citations import validate_claims
     started = perf_counter()
     if model is None:
         return {"ready": False, "tool_protocol": "unavailable", "claim_protocol": "unavailable"}
@@ -39,7 +39,7 @@ def main():
     if not args.live:
         print(json.dumps({"ready": False, "status": "not_run", "reason": "未请求真实端点测试"}, ensure_ascii=False))
         return 0
-    from finance_rag.src.core.config import get_model
+    from src.core.config import get_model
     try:
         result = asyncio.run(check_model(get_model()))
     except Exception as exc:

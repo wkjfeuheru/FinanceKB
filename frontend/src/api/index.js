@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+import { consumeEventStream } from './sse.js'
+
 const TOKEN_KEY = 'finance_rag_token'
 
 export const getToken = () => localStorage.getItem(TOKEN_KEY)
@@ -65,15 +67,6 @@ export const login = (username, password) =>
   })
 
 // ---------------------------------------------------------------------------
-// 知识库管理
-// ---------------------------------------------------------------------------
-
-export const listKnowledgeBases = () => http.get('/knowledge-bases').then(r => r.data)
-export const createKnowledgeBase = (payload) => http.post('/knowledge-bases', payload).then(r => r.data)
-export const updateKnowledgeBase = (name, payload) => http.patch(`/knowledge-bases/${encodeURIComponent(name)}`, payload).then(r => r.data)
-export const deleteKnowledgeBase = (name) => http.delete(`/knowledge-bases/${encodeURIComponent(name)}`).then(r => r.data)
-
-// ---------------------------------------------------------------------------
 // 文档管理
 // ---------------------------------------------------------------------------
 
@@ -81,10 +74,9 @@ export const listDocuments = (kb = '') => http.get('/documents', { params: { kb 
 export const deleteDocument = (source, kb = '') => http.delete(`/documents/${encodeURIComponent(source)}`, { params: { kb } }).then(r => r.data)
 
 // 上传文档（统一异步：返回 task_id 列表，需轮询 /tasks/{task_id} 获取结果）
-export const uploadDocuments = (files, onProgress, category = '', kb = '') => {
+export const uploadDocuments = (files, onProgress, kb = '') => {
   const form = new FormData()
   files.forEach(file => form.append('files', file))
-  if (category) form.append('category', category)
   if (kb) form.append('kb', kb)
   return http.post('/documents/upload', form, {
     timeout: 300000,
@@ -122,89 +114,82 @@ export const chat = (payload) => http.post('/chat', payload).then(r => r.data)
 
 // ---------------------------------------------------------------------------
 // 流式问答（SSE）
-// 接收回调 onEvent(event)，返回 AbortController 用于中止
+// 接收回调 onEvent(event)，返回 AbortController 用于中止。
+//
+// handlers 支持两种写法：
+//   chatStream(payload, onEvent, (err) => {...})                    // 旧签名
+//   chatStream(payload, onEvent, { onError, onFinish })             // 推荐
+//
+// onFinish({ status, error }) 是**唯一**的终态收尾入口，每次请求只调用一次：
+//   status = 'done'            收到 done 事件
+//          | 'error'           收到 error 事件（正文已由 onEvent 呈现）
+//          | 'transport-error' 网络/HTTP/读取中断等异常
+//          | 'aborted'         用户主动取消
 // ---------------------------------------------------------------------------
 
-export function chatStream(payload, onEvent, onError) {
+export function chatStream(payload, onEvent, handlers = {}) {
+  const { onError, onFinish } =
+    typeof handlers === 'function' ? { onError: handlers } : handlers || {}
   const controller = new AbortController()
   const token = getToken()
+  let settled = false
 
-  fetch('/api/chat/stream', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {})
-    },
-    body: JSON.stringify(payload),
-    signal: controller.signal
-  })
-    .then(async (response) => {
-      if (!response.ok) {
-        // 与 axios 拦截器保持一致：401 清 token 并跳登录页
-        if (response.status === 401) {
-          clearToken()
-          if (window.location.pathname !== '/login') {
-            window.location.href = '/login'
-          }
-        }
-        // 解析后端返回的友好 detail 信息，优先展示给用户
-        let detail = ''
-        try {
-          const body = await response.json()
-          detail = body.detail || ''
-        } catch { /* 响应体非 JSON 时忽略 */ }
-        throw new Error(detail || `HTTP ${response.status}`)
-      }
-      const reader = response.body.getReader()
-      const decoder = new TextDecoder()
-      let buffer = ''
+  const settle = (status, error = null) => {
+    if (settled) return
+    settled = true
+    if (status === 'transport-error' && onError) onError(error)
+    if (onFinish) onFinish({ status, error })
+  }
 
-      while (true) {
-        const { done, value } = await reader.read()
-        if (done) break
-        buffer += decoder.decode(value, { stream: true })
+  const run = async () => {
+    let response
+    try {
+      response = await fetch('/api/chat/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      })
+    } catch (err) {
+      if (err?.name === 'AbortError') settle('aborted')
+      else settle('transport-error', err)
+      return
+    }
 
-        // 解析 SSE 事件（以空行分隔，兼容 \n\n 和 \r\n\r\n）
-        const blocks = buffer.split(/\r?\n\r?\n/)
-        buffer = blocks.pop() || ''
-
-        for (const block of blocks) {
-          const event = parseSSEBlock(block)
-          if (event) onEvent(event)
+    if (!response.ok) {
+      // 与 axios 拦截器保持一致：401 清 token 并跳登录页
+      if (response.status === 401) {
+        clearToken()
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
         }
       }
-      // 处理最后残余
-      if (buffer.trim()) {
-        const event = parseSSEBlock(buffer)
-        if (event) onEvent(event)
-      }
-    })
-    .catch((err) => {
-      if (err.name !== 'AbortError' && onError) onError(err)
-    })
+      // 解析后端返回的友好 detail 信息，优先展示给用户
+      let detail = ''
+      try {
+        const body = await response.json()
+        detail = body.detail || ''
+      } catch { /* 响应体非 JSON 时忽略 */ }
+      settle('transport-error', new Error(detail || `HTTP ${response.status}`))
+      return
+    }
 
-  return controller
-}
-
-function parseSSEBlock(block) {
-  let eventType = 'message'
-  let dataStr = ''
-  for (const line of block.split(/\r?\n/)) {
-    if (line.startsWith('event:')) {
-      eventType = line.slice(6).trim()
-    } else if (line.startsWith('data:')) {
-      // 保留 data 内容中的空格，只去除 "data:" 前缀后的一个可选空格
-      const raw = line.slice(5)
-      dataStr += raw.startsWith(' ') ? raw.slice(1) : raw
+    try {
+      const { terminal } = await consumeEventStream(response, { onEvent })
+      // 协议级 error 事件的正文已由 onEvent 呈现，这里只做终态收尾
+      settle(terminal === 'error' ? 'error' : 'done')
+    } catch (err) {
+      if (err?.name === 'AbortError') settle('aborted')
+      else settle('transport-error', err)
     }
   }
-  if (!dataStr) return null
-  try {
-    const data = JSON.parse(dataStr)
-    return { type: eventType, ...data }
-  } catch {
-    return { type: eventType, data: dataStr }
-  }
+
+  run()
+
+  return controller
 }
 
 

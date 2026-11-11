@@ -55,12 +55,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from prometheus_client import REGISTRY  # noqa: E402
 from starlette.datastructures import UploadFile  # noqa: E402
 
-from finance_rag.src.core import config  # noqa: E402
-from finance_rag.src.services.document_service import get_document_manager  # noqa: E402
-from finance_rag.src.services.ingestion_pipeline import (  # noqa: E402
+from src.core import config  # noqa: E402
+from src.ingest.documents import get_document_manager  # noqa: E402
+from src.ingest.pipeline import (  # noqa: E402
     shutdown_ingestion_pipeline,
 )
-from finance_rag.src.services.task_service import TaskStatus, get_task_manager  # noqa: E402
+from src.ingest.tasks import TaskStatus, get_task_manager  # noqa: E402
 
 STAGES = ("parse", "chunk", "embed", "write")
 STAGE_LABELS = {
@@ -315,14 +315,14 @@ def _stage_total(stage: str) -> float:
 # 单文档测量
 # ---------------------------------------------------------------------------
 
-async def _ingest_one(dm, path: Path, category: str) -> dict:
+async def _ingest_one(dm, path: Path) -> dict:
     """入库一份文档并返回耗时明细。"""
     content = path.read_bytes()
     upload = UploadFile(file=io.BytesIO(content), filename=path.name)
     tm = get_task_manager()
 
     started = time.perf_counter()
-    submitted = await dm.upload_document_async(upload, category=category)
+    submitted = await dm.upload_document_async(upload)
     submit_seconds = time.perf_counter() - started
 
     task_id = submitted["task_id"]
@@ -360,12 +360,12 @@ async def _run(args: argparse.Namespace, paths: list[Path]) -> int:
     batch_started = time.perf_counter()
     if args.concurrent:
         records = await asyncio.gather(
-            *(_ingest_one(dm, path, args.category) for path in paths)
+            *(_ingest_one(dm, path) for path in paths)
         )
     else:
         records = []
         for path in paths:
-            record = await _ingest_one(dm, path, args.category)
+            record = await _ingest_one(dm, path)
             records.append(record)
             flag = "OK" if record["status"] is TaskStatus.COMPLETED else "FAIL"
             chunks = record["result"].get("chunk_count")
@@ -479,7 +479,6 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--count", type=int, default=5, help="文档份数")
     parser.add_argument("--chars", type=int, default=80000, help="合成文档目标字符数")
     parser.add_argument("--kb", default="", help="目标知识库集合名（空 = 默认）")
-    parser.add_argument("--category", default="", help="文档分类（如 compliance_risk）")
     parser.add_argument("--concurrent", action="store_true", help="一次性提交全部文档（批量口径）")
     parser.add_argument("--no-cleanup", dest="cleanup", action="store_false",
                         help="测量后不删除已入库文档（下次运行会因增量跳过而失效）")

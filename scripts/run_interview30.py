@@ -12,20 +12,20 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from finance_rag.src.eval.ab_catalog import select_experiments
-from finance_rag.src.eval.ab_runner import run_experiment
-from finance_rag.src.eval.dataset import EvaluationDataset
-from finance_rag.src.eval.interview_dataset import INTERVIEW30_PATH
-from finance_rag.src.eval.interview_report import render_interview_report
-from finance_rag.src.eval.retrieval import LAYER_SPECS, build_retrieval_strategy
-from finance_rag.src.eval.runner import EvaluationRunner
+from src.eval.ab_catalog import select_experiments
+from src.eval.ab_runner import run_experiment
+from src.eval.dataset import EvaluationDataset
+from src.eval.interview_dataset import INTERVIEW30_PATH
+from src.eval.interview_report import render_interview_report
+from src.eval.retrieval import LAYER_SPECS, build_retrieval_strategy
+from src.eval.runner import EvaluationRunner
 
 DATASET = INTERVIEW30_PATH
 LAYERS = ["L0", "L1", "L2", "L3", "L5"]
 ABLATIONS = ("route_on_off", "rewrite_on_off", "reflect_on_off")
 COMMANDS = [
     "python scripts/build_interview30.py",
-    "python scripts/evaluate.py dataset validate --dataset finance_rag/src/eval/data/research_report_interview30.jsonl --online",
+    "python scripts/evaluate.py dataset validate --dataset src/eval/data/research_report_interview30.jsonl --online",
     "python scripts/run_interview30.py",
 ]
 
@@ -43,8 +43,8 @@ def main() -> int:
         "note": "数字来自这次运行。简历里的 Recall@5=90%、MRR@5=1.0、上下文精确率 +14.1% 不是这套 18 篇研报、30 题协议的结果。",
     }
     try:
-        from finance_rag.src.eval.testset_generator import build_evidence_resolver
-        from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+        from src.eval.testset_generator import build_evidence_resolver
+        from src.index.milvus_kb import get_knowledge_base
 
         dataset = EvaluationDataset.load(DATASET)
         kb = get_knowledge_base()
@@ -124,7 +124,7 @@ def _compact_ab(report: dict) -> dict:
 
 
 def _stratum_from_report(report: dict) -> str:
-    from finance_rag.src.eval.ab_runner import _render_stratum_breakdown
+    from src.eval.ab_runner import _render_stratum_breakdown
 
     return "\n".join(_render_stratum_breakdown(report))
 

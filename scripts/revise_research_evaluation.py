@@ -13,7 +13,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
-DATA = ROOT / 'finance_rag/src/eval/data'
+DATA = ROOT / 'src/eval/data'
 VERSION = 'research-report-facts-v2-20261002'
 
 
@@ -96,7 +96,7 @@ def remap_case(case: dict, rows: list[dict]) -> dict:
     """完整引文跨块时以原连续句子拆分，组合内要求全部命中。"""
     def remap_table_prefix(ref: dict) -> dict | None:
         """表格渲染尾部变更时，仅映射原样保留的完整表头和连续目标行。"""
-        from finance_rag.src.eval.metrics import compute_text_coverage
+        from src.eval.metrics import compute_text_coverage
         ref_id = ref['evidence_id']
         facts = [fact for fact in case['facts'] if any(ref_id in group for group in fact['acceptable_evidence_sets'])]
         if not facts or any(
@@ -192,7 +192,7 @@ def _supports(content: str, aliases: list[list[str]]) -> list[str] | None:
 
 def audit_cases(cases: list[dict], rows: list[dict], pdf_pages: dict[str, list[str]],
                 pdf_hashes: dict[str, str]) -> dict:
-    from finance_rag.src.eval.dataset import EvaluationDataset
+    from src.eval.dataset import EvaluationDataset
     indexed = {(row.get('kind', 'chunk'), row['id']): row for row in rows}
     for case in cases:
         for ref in case['evidence']:

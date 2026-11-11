@@ -1,3 +1,7 @@
+export function coverageWarnings(msg) {
+  return (msg?.warnings || []).filter((item) => typeof item === 'string' && item.startsWith('覆盖评估'))
+}
+
 export function answerStatusLabel(msg) {
   if (msg.answerStatus === 'unverified' || msg.citationValidation?.status === 'unknown') {
     return '无法验证：未发布事实答案'

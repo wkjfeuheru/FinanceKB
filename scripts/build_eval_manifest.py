@@ -10,12 +10,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from finance_rag.src.eval.manifest import build_manifest  # noqa: E402
+from src.eval.manifest import build_manifest  # noqa: E402
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--data-dir", type=Path, default=ROOT / "finance_rag/src/eval/data")
+    parser.add_argument("--data-dir", type=Path, default=ROOT / "src/eval/data")
     parser.add_argument("--output", type=Path, default=ROOT / "scripts/results/agentic-v2/manifest.json")
     args = parser.parse_args()
     manifest = build_manifest(args.data_dir)

@@ -25,10 +25,8 @@ const routes = [
     meta: { title: '文档管理' }
   },
   {
-    path: '/knowledge-bases',
-    name: 'knowledge-bases',
-    component: () => import('../views/KnowledgeBasesView.vue'),
-    meta: { title: '知识库管理' }
+    path: '/:pathMatch(.*)*',
+    redirect: '/chat'
   }
 ]
 

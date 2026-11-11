@@ -15,18 +15,18 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.kb_snapshot import COLLECTION, _digest, _read_rows, snapshot_fields, verify_snapshot
-from finance_rag.src.core.config import TENANT_ID
-from finance_rag.src.rag.ingestion.public_metadata import RULES_VERSION, resolve_public_metadata
+from src.core.config import TENANT_ID
+from src.chunking.public_metadata import RULES_VERSION, resolve_public_metadata
 
 MUTABLE = {"date", "broker", "meta_source", "needs_review"}
 AUDITS = {"public_metadata_audit", "type_metadata_audit"}
 CODE_FILES = ["scripts/repair_report_metadata.py", "scripts/kb_snapshot.py",
-              "finance_rag/src/rag/ingestion/public_metadata.py",
-              "finance_rag/src/rag/ingestion/metadata_extractor.py",
-              "finance_rag/src/infrastructure/vector_store/milvus_kb.py",
-              "finance_rag/src/infrastructure/vector_store/fingerprint_store.py",
-              "finance_rag/src/infrastructure/relational_db/document_manifest.py",
-              "finance_rag/src/services/document_service.py"]
+              "src/chunking/public_metadata.py",
+              "src/chunking/metadata_extractor.py",
+              "src/index/milvus_kb.py",
+              "src/index/fingerprint_store.py",
+              "src/storage/relational_db/document_manifest.py",
+              "src/ingest/documents.py"]
 
 
 def digest_value(value):
@@ -78,7 +78,7 @@ def read_live_rows(kb):
 
 def read_derived():
     from sqlalchemy import create_engine, text
-    from finance_rag.src.core.config import DATABASE_URL
+    from src.core.config import DATABASE_URL
     engine = create_engine(DATABASE_URL, pool_pre_ping=True)
     try:
         with engine.connect().execution_options(isolation_level="REPEATABLE READ") as connection:
@@ -92,7 +92,7 @@ def read_derived():
 
 def load_before(snapshot, pdf_root):
     snapshot, pdf_root = Path(snapshot), Path(pdf_root)
-    manifest = verify_snapshot(snapshot)
+    manifest = verify_snapshot(snapshot, collection=COLLECTION)
     rows = grouped(_read_rows(snapshot / "vectors.jsonl.gz"))
     if any(row.get("tenant_id") != TENANT_ID for items in rows.values() for row in items):
         raise ValueError("snapshot contains rows outside configured tenant")
@@ -119,10 +119,10 @@ def check_derived(snapshot):
 
 def get_kb(kb):
     if kb is None:
-        from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+        from src.index.milvus_kb import get_knowledge_base
         kb = get_knowledge_base(COLLECTION)
     if kb.collection_name != COLLECTION:
-        raise ValueError("collection must be finance_kb")
+        raise ValueError(f"collection must be {COLLECTION}")
     return kb
 
 
@@ -190,7 +190,7 @@ def apply(snapshot, proposal, confirmation, report, *, kb=None, pdf_root=None):
         save_report(handle, result)
         try:
             if confirmation != COLLECTION:
-                raise ValueError("explicit --confirm-collection finance_kb required")
+                raise ValueError(f"explicit --confirm-collection {COLLECTION} required")
             kb, pdf_root = get_kb(kb), Path(pdf_root or ROOT / "assets/reports")
             manifest, before, pdfs, fingerprints = load_before(snapshot, pdf_root)
             proposed = json.loads(Path(proposal).read_text(encoding="utf8"))
@@ -275,7 +275,7 @@ def verify(snapshot, report, *, kb=None, pdf_root=None):
                     if changed or any(row.get("meta_source") == "public" for row in rows):
                         if not audit:
                             raise ValueError(f"missing persisted public audit: {source}")
-                        from finance_rag.src.rag.ingestion.public_metadata import validate_public_metadata_audit, public_audit_needs_review
+                        from src.chunking.public_metadata import validate_public_metadata_audit, public_audit_needs_review
                         audit = validate_public_metadata_audit(audit)
                         if audit["source"] != source or audit["pdf_sha256"] != pdfs[source]:
                             raise ValueError(f"audit source/PDF SHA mismatch: {source}")
@@ -300,7 +300,9 @@ def verify(snapshot, report, *, kb=None, pdf_root=None):
 
 
 def main(argv=None):
+    global COLLECTION
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--collection", default=COLLECTION, help="目标集合名（默认 finance_kb）")
     sub = parser.add_subparsers(dest="command", required=True)
     for name in ("preflight", "apply", "verify"):
         command = sub.add_parser(name)
@@ -310,6 +312,7 @@ def main(argv=None):
             command.add_argument("--proposal", required=True)
             command.add_argument("--confirm-collection", required=True)
     args = parser.parse_args(argv)
+    COLLECTION = args.collection
     try:
         if args.command == "preflight":
             result = preflight(args.snapshot, args.output)

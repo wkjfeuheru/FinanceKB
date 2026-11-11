@@ -7,7 +7,9 @@ dependencies = [
     "python-dotenv>=1.2.0",
     "numpy>=2.0",
     "oss2>=2.18.6",
-    "mineru==3.4.5",
+    "mineru[torch]==4.1.2",
+    "transformers>=5.10.1,<6",
+    "huggingface-hub==1.25.1",
     "ftfy>=6.3.1",
     "langchain>=1.2.0",
     "langchain-core>=1.2.0",
@@ -32,6 +34,11 @@ dependencies = [
     "prometheus-fastapi-instrumentator>=7.0.0",
     "prometheus-client>=0.20.0",
     "langgraph>=0.2.0",
+    "mcp>=1.29,<2",
+    "jsonschema>=4",
+    "infoway-sdk==0.4.1",
+    "tzdata>=2025.2",
+    "httpx>=0.27.0",
 ]
 
 [project.optional-dependencies]
@@ -51,11 +58,19 @@ eval = [
 ]
 
 [project.scripts]
-finance-rag = "finance_rag.src.main:main"
+finance-rag = "src.main:main"
 
 [build-system]
 requires = ["setuptools>=75"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src", "src.*"]
+namespaces = false
+
+[tool.setuptools.package-data]
+"src.eval" = ["data/*.json", "data/*.jsonl", "data/*.md", "data/*.csv"]
 
 [tool.ruff]
 line-length = 100
@@ -70,6 +85,7 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 markers = [
     "slow: 需要导入重依赖或耗时的测试（默认不跑，用 -m slow 显式执行）",
+    "live: 连接真实 Milvus、PostgreSQL 或 OSS（默认跳过，用 -m live 执行）",
 ]
 
 [tool.mypy]

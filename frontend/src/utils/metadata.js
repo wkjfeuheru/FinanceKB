@@ -1,10 +1,4 @@
+// 元数据修正提交核心字段：版本、报告类型、发布机构与生效日期
 export function buildMetadataPatch(form) {
-  const payload = { report_type: form.report_type, broker: form.broker }
-  if (form.report_type === '个股') {
-    payload.security_name = form.security_name
-  } else if (form.report_type === '行业') {
-    payload.industry_l1 = form.industry_l1
-    payload.industry_l2 = form.industry_l2
-  }
-  return payload
+  return { version: form.version, report_type: form.report_type, broker: form.broker, date: form.date || '' }
 }

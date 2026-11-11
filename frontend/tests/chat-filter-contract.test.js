@@ -5,7 +5,8 @@ import vm from 'node:vm'
 
 async function visibleFilterChips(filters) {
   const source = await readFile(new URL('../src/views/ChatView.vue', import.meta.url), 'utf8')
-  const filterChips = source.match(/function filterChips\(filters\) \{[\s\S]*?\n\}\n/)[0]
+  // 源文件是 CRLF 行尾，正则必须容忍 \r
+  const filterChips = source.match(/function filterChips\(filters\) \{[\s\S]*?\r?\n\}\r?\n/)[0]
   const result = vm.runInNewContext(`${filterChips}\nfilterChips(filters)`, {
     filters,
     categoryLabel: (value) => value,

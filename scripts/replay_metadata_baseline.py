@@ -15,10 +15,10 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from finance_rag.src.eval.dataset import EvaluationDataset
-from finance_rag.src.eval.retrieval import _run_async, adapt_production_output, knowledge_content_fingerprints
-from finance_rag.src.eval.runner import EvaluationRunner, EvaluationStrategy, RetrievalOutput
-from finance_rag.src.rag.retrieval.filter_policy import validate_explicit_filters
+from src.eval.dataset import EvaluationDataset
+from src.eval.retrieval import _run_async, adapt_production_output, knowledge_content_fingerprints
+from src.eval.runner import EvaluationRunner, EvaluationStrategy, RetrievalOutput
+from src.retrieve.filter_policy import validate_explicit_filters
 
 
 def _sha(value: Any) -> str:
@@ -79,7 +79,7 @@ def load_baseline(baseline_dir: str | Path, dataset: EvaluationDataset) -> dict[
 
 
 def build_replay_strategy(plan: dict[str, Any], kb: Any) -> EvaluationStrategy:
-    from finance_rag.src.services import chat_service
+    from src import engine as chat_service
 
     by_query = {control["query"]: control for control in plan["cases"].values()}
 
@@ -134,9 +134,9 @@ def build_parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    from finance_rag.src.eval.cli import _dataset_version
-    from finance_rag.src.eval.testset_generator import knowledge_base_fingerprint
-    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+    from src.eval.cli import _dataset_version
+    from src.eval.testset_generator import knowledge_base_fingerprint
+    from src.index.milvus_kb import get_knowledge_base
 
     path = Path(args.dataset)
     version = _dataset_version(path, None)

@@ -61,8 +61,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--out")
     args = parser.parse_args(argv)
 
-    from finance_rag.src.core.config import KB_COLLECTION_NAME
-    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+    from src.core.config import KB_COLLECTION_NAME
+    from src.index.milvus_kb import get_knowledge_base
 
     kb = get_knowledge_base(KB_COLLECTION_NAME)
     client = kb._get_client()

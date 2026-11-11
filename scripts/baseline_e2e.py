@@ -13,7 +13,7 @@
 
 用法::
 
-    python scripts/baseline_e2e.py --dataset finance_rag/src/eval/data/research_report_gold20.jsonl \
+    python scripts/baseline_e2e.py --dataset src/eval/data/research_report_gold20.jsonl \
         --out scripts/results/research_report/18-docs-baseline/e2e
 """
 
@@ -48,7 +48,7 @@ def _is_refusal(answer: str, rejected: bool) -> bool:
     """
     if rejected:
         return True
-    from finance_rag.src.services.citation_validator import REFUSAL_ANSWER
+    from src.answer.citations import REFUSAL_ANSWER
 
     text = (answer or "").strip()
     if not text:
@@ -67,7 +67,7 @@ def _is_decline(answer: str, rejected: bool) -> bool:
     """
     if _is_refusal(answer, rejected):
         return True
-    from finance_rag.src.eval.runner import negative_rejection_score
+    from src.eval.runner import negative_rejection_score
 
     return negative_rejection_score(answer or "") == 1.0
 
@@ -131,8 +131,8 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    from finance_rag.src.eval.dataset import EvaluationDataset
-    from finance_rag.src.services.chat_service import chat
+    from src.eval.dataset import EvaluationDataset
+    from src.engine import chat
 
     dataset = EvaluationDataset.load(args.dataset)
     cases = list(dataset.cases)

@@ -55,9 +55,8 @@ if str(ROOT) not in sys.path:
 # 研报维度与证据字段（与 KnowledgeBase._REPORT_FIELD_SPECS 保持一致）。
 # 旧集合没有这些列，搬运时按下面的默认值补齐。
 REPORT_FIELDS = (
-    "security_name", "industry_l1", "industry_l2",
-    "report_type", "broker", "meta_source", "block_type",
-    "start_page", "end_page", "image_key", "needs_review",
+    "report_type", "broker", "block_type",
+    "start_page", "end_page", "image_key",
 )
 
 # 当前代码期望的字段（与 KnowledgeBase.create_collection 保持一致）
@@ -87,8 +86,8 @@ def _describe(client: Any, name: str) -> list[str]:
 
 def _derive_missing(row: dict[str, Any]) -> dict[str, Any]:
     """补齐新 schema 中旧集合没有的字段（与入库链路的取值方式一致）。"""
-    from finance_rag.src.infrastructure.vector_store.milvus_kb import _report_scalars
-    from finance_rag.src.rag.ingestion.incremental import content_hash
+    from src.index.milvus_kb import _report_scalars
+    from src.ingest.incremental import content_hash
 
     content = str(row.get("content") or "")
     digest = content_hash(content)
@@ -147,7 +146,7 @@ def inspect(client: Any, collection: str) -> tuple[list[str], int]:
 
 
 def migrate(args: argparse.Namespace) -> int:
-    from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+    from src.index.milvus_kb import get_knowledge_base
 
     # 注意：不能传空字符串（会把默认集合名覆盖为空），空值必须走默认参数
     kb = get_knowledge_base(args.collection) if args.collection else get_knowledge_base()

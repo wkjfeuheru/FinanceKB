@@ -10,9 +10,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.build_gold_set import _document_version, _load_chunks
-from finance_rag.src.eval.dataset import EvaluationDataset
-from finance_rag.src.eval.testset_generator import build_evidence_resolver
-from finance_rag.src.infrastructure.vector_store.milvus_kb import get_knowledge_base
+from src.eval.dataset import EvaluationDataset
+from src.eval.testset_generator import build_evidence_resolver
+from src.index.milvus_kb import get_knowledge_base
 
 
 def refresh(path: Path, grouped: dict, resolver) -> None:
@@ -45,7 +45,7 @@ def main() -> int:
     kb = get_knowledge_base()
     grouped = _load_chunks(kb)
     resolver = build_evidence_resolver(kb)
-    data = ROOT / "finance_rag" / "src" / "eval" / "data"
+    data = ROOT / "src" / "eval" / "data"
     refresh(data / "research_report_interview30.jsonl", grouped, resolver)
     refresh(data / "research_report_gold20.jsonl", grouped, resolver)
     return 0

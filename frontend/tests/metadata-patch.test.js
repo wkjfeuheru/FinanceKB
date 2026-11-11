@@ -6,7 +6,7 @@ import vm from 'node:vm'
 // 执行视图实际保存函数，隔离网络请求及消息展示；断言送出的 PATCH。
 async function savedPayload(form) {
   const source = await readFile(new URL('../src/views/DocumentsView.vue', import.meta.url), 'utf8')
-  const saveFunction = source.match(/async function saveMetadata\(\) \{[\s\S]*?\n\}\n/)[0]
+  const saveFunction = source.match(/async function saveMetadata\(\) \{[\s\S]*?\r?\n\}/)[0]
   let builder
   try {
     builder = (await import('../src/utils/metadata.js')).buildMetadataPatch
@@ -25,14 +25,22 @@ async function savedPayload(form) {
   return JSON.parse(JSON.stringify(sent))
 }
 
-for (const [type, expected] of [
-  ['个股', { report_type: '个股', broker: '中信证券', security_name: '贵州茅台' }],
-  ['行业', { report_type: '行业', broker: '中信证券', industry_l1: '电子', industry_l2: '半导体' }],
-  ['宏观', { report_type: '宏观', broker: '中信证券' }],
-]) {
-  test(`保存 ${type} 时仅提交适用类型字段`, async () => {
-    const payload = await savedPayload({ report_type: type, broker: '中信证券',
-      security_name: '贵州茅台', industry_l1: '电子', industry_l2: '半导体' })
-    assert.deepEqual(payload, expected)
-  })
-}
+test('编辑时回填已有发布日期，缺失日期保持空白', async () => {
+  const source = await readFile(new URL('../src/views/DocumentsView.vue', import.meta.url), 'utf8')
+  const openFunction = source.match(/function openMetadataDialog\(row\) \{[\s\S]*?\r?\n\}/)[0]
+  const metadataDialog = {}
+  const context = { metadataDialog }
+  vm.runInNewContext(`${openFunction}\nopenMetadataDialog({source: '报告.pdf', date: '2026-09-28'})`, context)
+  assert.equal(metadataDialog.form.date, '2026-09-28')
+  vm.runInNewContext("openMetadataDialog({source: '报告.pdf'})", context)
+  assert.equal(metadataDialog.form.date, '')
+})
+
+test('保存时提交全部核心字段，空日期清空', async () => {
+  const payload = await savedPayload({ category: 'investment_research', version: 'v2', report_type: '个股',
+    broker: '中信证券', date: '2026-09-28' })
+  assert.deepEqual(payload, { category: 'investment_research', version: 'v2', report_type: '个股',
+    broker: '中信证券', date: '2026-09-28' })
+  const empty = await savedPayload({ category: '', version: '', report_type: '', broker: '', date: '' })
+  assert.deepEqual(empty, { category: '', version: '', report_type: '', broker: '', date: '' })
+})

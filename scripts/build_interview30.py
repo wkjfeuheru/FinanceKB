@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from finance_rag.src.eval.interview_dataset import INTERVIEW30_PATH, write_interview_dataset
+from src.eval.interview_dataset import write_interview_dataset
 
 
 def main() -> int:

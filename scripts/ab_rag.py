@@ -37,7 +37,7 @@ if str(ROOT) not in sys.path:
 logger = logging.getLogger(__name__)
 
 DEFAULT_TESTSET = (
-    ROOT / "finance_rag" / "src" / "eval" / "data" / "evaluation_qa_generated.md"
+    ROOT / "src" / "eval" / "data" / "evaluation_qa_generated.md"
 )
 
 
@@ -54,7 +54,7 @@ def _resolve_testset(path: str | None) -> Path:
 
 
 def _cmd_list() -> int:
-    from finance_rag.src.eval.ab_catalog import AB_EXPERIMENTS
+    from src.eval.ab_catalog import AB_EXPERIMENTS
 
     for exp in AB_EXPERIMENTS:
         print(f"{exp.name:24s} {exp.label}  [{exp.kind}]")
@@ -62,10 +62,10 @@ def _cmd_list() -> int:
 
 
 def _cmd_generate_testset(args: argparse.Namespace) -> int:
-    from finance_rag.src.eval.testset_generator import generate_evaluation_dataset
+    from src.eval.testset_generator import generate_evaluation_dataset
 
     out = Path(args.out) if args.out else (
-        ROOT / "finance_rag" / "src" / "eval" / "data" / "evaluation_candidates.jsonl"
+        ROOT / "src" / "eval" / "data" / "evaluation_candidates.jsonl"
     )
     dataset, out = generate_evaluation_dataset(
         count=args.count,
@@ -86,8 +86,8 @@ def _cmd_generate_testset(args: argparse.Namespace) -> int:
 
 
 def _cmd_run(args: argparse.Namespace) -> int:
-    from finance_rag.src.eval.ab_catalog import AB_EXPERIMENTS, select_experiments
-    from finance_rag.src.eval.ab_runner import run_experiment
+    from src.eval.ab_catalog import AB_EXPERIMENTS, select_experiments
+    from src.eval.ab_runner import run_experiment
 
     experiments = AB_EXPERIMENTS if args.all else select_experiments(args.experiment)
     testset_path = _resolve_testset(args.testset)
@@ -97,7 +97,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
     if testset_path.suffix.lower() == ".md":
         print("警告：Markdown 测试集已弃用；当前仅以兼容模式运行。")
     else:
-        from finance_rag.src.eval.dataset import DatasetValidationError, EvaluationDataset
+        from src.eval.dataset import DatasetValidationError, EvaluationDataset
         dataset = EvaluationDataset.load(testset_path)
         pending_gold = [
             case.id for case in dataset.cases
