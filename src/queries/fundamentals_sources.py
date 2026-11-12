@@ -6,7 +6,7 @@ import gzip
 import json
 import re
 from datetime import date, datetime
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, localcontext
 from functools import lru_cache
 from html.parser import HTMLParser
 from typing import Any
@@ -22,6 +22,8 @@ from src.queries.fundamentals_types import (
     FinancialLine,
     FinancialStatement,
     Period,
+    SegmentDimension,
+    SegmentRevenue,
     Shareholder,
     ShareholderList,
     TradingCalendar,
@@ -196,6 +198,86 @@ def fetch_financial_statements(
         except (KeyError, TypeError, ValueError, InvalidOperation):
             raise DataSourceError(f"东财财报 {statement} 响应格式、标的或报告期异常") from None
     return result
+
+
+def _segment_number(value: Any) -> Decimal | None:
+    if value in (None, "", "-", "--"):
+        return None
+    if isinstance(value, bool):
+        raise ValueError
+    number = Decimal(str(value))
+    if not number.is_finite():
+        raise ValueError
+    return number
+
+
+def fetch_segment_revenue(symbol: str) -> list[SegmentRevenue]:
+    try:
+        raw = _eastmoney(
+            _F10_BASE + "BusinessAnalysis/PageAjax", {"code": f"{symbol[7:]}{symbol[:6]}"}
+        )
+    except DataSourceError as exc:
+        exc.source = "eastmoney"
+        raise
+    try:
+        rows = raw["zygcfx"]
+        if not isinstance(rows, list):
+            raise ValueError
+        dimensions: dict[str, SegmentDimension] = {"1": "industry", "2": "product", "3": "region"}
+        records: dict[tuple[str, date, SegmentDimension, str], SegmentRevenue] = {}
+        for row in rows:
+            if not isinstance(row, dict):
+                raise ValueError
+            if row["SECUCODE"] != symbol or row["SECURITY_CODE"] != symbol[:6]:
+                raise ValueError
+            raw_date = row["REPORT_DATE"]
+            if not isinstance(raw_date, str) or not re.fullmatch(
+                r"[0-9]{4}-[0-9]{2}-[0-9]{2}(?: [0-9]{2}:[0-9]{2}:[0-9]{2})?", raw_date
+            ):
+                raise ValueError
+            report_date = datetime.fromisoformat(raw_date).date()
+            name = row["ITEM_NAME"]
+            if not isinstance(name, str) or not name.strip():
+                raise ValueError
+            revenue = _segment_number(row.get("MAIN_BUSINESS_INCOME"))
+            cost = _segment_number(row.get("MAIN_BUSINESS_COST"))
+            profit = _segment_number(row.get("MAIN_BUSINESS_RPOFIT"))
+            margin = _segment_number(row.get("GROSS_RPOFIT_RATIO"))
+            share = _segment_number(row.get("MBI_RATIO"))
+            basis = "source" if profit is not None else None
+            numbers = [n for n in (revenue, cost, margin, share) if n is not None]
+            with localcontext() as context:
+                # Decimal's default precision can round source amounts during arithmetic.
+                if numbers:
+                    context.prec = max(
+                        context.prec,
+                        max(n.adjusted() for n in numbers)
+                        - min(int(n.as_tuple().exponent) for n in numbers) + 3,
+                    )
+                if profit is None and revenue is not None and cost is not None:
+                    profit = revenue - cost
+                    basis = "revenue_minus_cost"
+                margin = margin * 100 if margin is not None else None
+                share = share * 100 if share is not None else None
+            item = SegmentRevenue(
+                symbol=symbol,
+                report_date=report_date,
+                dimension=dimensions[row["MAINOP_TYPE"]],
+                segment_name=name,
+                revenue=revenue,
+                cost=cost,
+                gross_profit=profit,
+                gross_profit_basis=basis,
+                gross_margin_pct=margin,
+                revenue_share_pct=share,
+            )
+            key = (item.symbol, item.report_date, item.dimension, item.segment_name)
+            if key in records and records[key] != item:
+                raise ValueError
+            records[key] = item
+        return list(records.values())
+    except (KeyError, TypeError, ValueError, InvalidOperation):
+        raise DataSourceError("东财主营构成响应格式、标的或报告期异常", source="eastmoney") from None
 
 
 def fetch_valuation_metrics(symbol: str) -> list[ValuationMetric]:

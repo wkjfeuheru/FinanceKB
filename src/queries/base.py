@@ -23,7 +23,7 @@ class QueryEnvelope(BaseModel, Generic[Item]):
     """结构化查询的统一返回信封。"""
 
     available: bool = Field(description="本次请求是否取得所需数据。false时查看reason；true且items为空表示查询成功但无匹配。执行错误通过MCP isError返回。")
-    domain: str = Field(description="数据域：market / fundamentals / macro / news")
+    domain: str = Field(description="数据域：market / fundamentals / macro / news / futures")
     reason: str = Field(default="", description="不可用原因；可用时为空")
     as_of: str = Field(description="服务端生成响应的 UTC 时间")
     items: list[Item] = Field(default_factory=list)

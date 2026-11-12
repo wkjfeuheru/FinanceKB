@@ -1,8 +1,4 @@
-"""MCP 服务装配：FastMCP + Streamable HTTP + Bearer 鉴权。
-
-五个 MCP 服务共用本模块，各自通过 ``python -m src.mcp.<domain>`` 独立启动。
-每个服务只暴露本域工具；不需要在应用内挂载其他域的路径。
-"""
+"""MCP 服务装配：FastMCP + Streamable HTTP + Bearer 鉴权。"""
 
 from __future__ import annotations
 

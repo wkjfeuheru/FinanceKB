@@ -12,6 +12,7 @@ from src.queries.fundamentals_sources import (
     fetch_company_profile,
     fetch_dividend_history,
     fetch_financial_statements,
+    fetch_segment_revenue,
     fetch_trading_calendar,
     fetch_valuation_metrics,
 )
@@ -20,6 +21,8 @@ from src.queries.fundamentals_types import (
     DividendEvent,
     FinancialStatement,
     Period,
+    SegmentDimension,
+    SegmentRevenue,
     StockSymbol,
     ValuationMetric,
     shanghai_now,
@@ -99,10 +102,50 @@ async def get_dividend_history(
     return _result(DividendEvent, items[:limit])
 
 
+async def get_segment_revenue(
+    symbol: StockSymbol,
+    report_date: Annotated[
+        str | None,
+        Field(
+            pattern=r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+            description="报告期末YYYY-MM-DD，精确匹配；省略或null先取全源最新报告期，再筛维度，不回退旧期。",
+        ),
+    ] = None,
+    dimension: Annotated[
+        SegmentDimension,
+        Field(description="product产品、industry行业、region地区；默认产品，单次仅一个维度。"),
+    ] = "product",
+) -> QueryEnvelope[SegmentRevenue]:
+    """查询东财单一报告期、单一维度的全部主营构成（非完整财报或法定分部），返回收入、成本、主营利润及推导标记、源毛利率和收入占比；金额为元、比例为百分数，Decimal以字符串返回。缺指标为null，缺报告期或维度为available=false；跨维度不可相加，不推算未单列的储能收入，源未标明单季或累计口径。"""
+    target = None
+    if report_date is not None:
+        try:
+            target = date.fromisoformat(report_date)
+            if target.isoformat() != report_date:
+                raise ValueError
+        except ValueError:
+            raise ValueError("report_date 必须是有效的 YYYY-MM-DD 日期") from None
+    await asyncio.to_thread(require_stock, symbol)
+    rows = await asyncio.to_thread(fetch_segment_revenue, symbol)
+    if not rows:
+        return _result(SegmentRevenue, [], "segment_revenue_unavailable")
+    target = target or max(row.report_date for row in rows)
+    period_rows = [row for row in rows if row.report_date == target]
+    if not period_rows:
+        return _result(SegmentRevenue, [], f"segment_revenue_unavailable_for_report_date:{target}")
+    items = sorted(
+        (row for row in period_rows if row.dimension == dimension),
+        key=lambda row: row.segment_name,
+    )
+    reason = "" if items else f"segment_revenue_unavailable_for_dimension:{target}:{dimension}"
+    return _result(SegmentRevenue, items, reason)
+
+
 __all__ = [
     "DOMAIN",
     "get_company_profile",
     "get_dividend_history",
     "get_financial_statements",
+    "get_segment_revenue",
     "get_valuation_metrics",
 ]

@@ -1,4 +1,4 @@
-"""mcp-fundamentals：沪深股票财务、估值、公司资料和分红。"""
+"""mcp-fundamentals：沪深股票财务、估值、公司资料、分红和主营构成。"""
 
 from __future__ import annotations
 
@@ -12,7 +12,8 @@ NAME = "mcp-fundamentals"
 STREAMABLE_HTTP_PATH = "/mcp/fundamentals"
 INSTRUCTIONS = (
     "按需查询沪深股票基本面。使用 resolve_symbol 得到的标准股票代码。"
-    "财报按报告期，估值按最近已收盘交易日，分红按公告日期查询。"
+    "财报和主营构成按报告期，估值按最近已收盘交易日，分红按公告日期查询。"
+    "主营构成按产品、行业或地区分别查询，跨维度不可相加；源未单列储能时不得估算。"
 )
 
 
@@ -22,6 +23,7 @@ def register_tools(mcp: FastMCP) -> None:
         queries.get_valuation_metrics,
         queries.get_company_profile,
         queries.get_dividend_history,
+        queries.get_segment_revenue,
     ):
         mcp.add_tool(tool, annotations=ToolAnnotations(readOnlyHint=True))
 

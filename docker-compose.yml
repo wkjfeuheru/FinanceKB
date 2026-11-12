@@ -1,5 +1,5 @@
 # 统一入口只有 Caddy；其余服务仅在同一 Compose 网络中互相访问。
-# 五套 MCP 共用同一镜像、以不同入口启动，容器内统一监听 8000。
+# 五套结构化 MCP + 一套知识 MCP，共六套，共用同一镜像、以不同入口启动，容器内统一监听 8000。
 
 x-mcp-common: &mcp-common
   build: .
@@ -191,6 +191,10 @@ services:
       INFOWAY_API_KEY: ${INFOWAY_API_KEY:-}
     command: ["python", "-m", "src.mcp.market"]
 
+  mcp-futures:
+    <<: *mcp-common
+    command: ["python", "-m", "src.mcp.futures"]
+
   mcp-fundamentals:
     <<: *mcp-common
     environment:
@@ -240,6 +244,8 @@ services:
       app:
         condition: service_healthy
       mcp-market:
+        condition: service_healthy
+      mcp-futures:
         condition: service_healthy
       mcp-fundamentals:
         condition: service_healthy

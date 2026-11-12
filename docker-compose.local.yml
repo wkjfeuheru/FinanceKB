@@ -13,7 +13,7 @@ services:
       - app_state:/app/assets/state
       - app_files:/app/files
 
-  # 四套结构化 MCP 共用一个本地镜像，复用已构建的 CPU 运行层。
+  # 五套结构化 MCP 共用一个本地镜像，复用已构建的 CPU 运行层；加一套知识 MCP，共六套。
   mcp-market: &structured-mcp-local
     image: financekb-structured-mcp:local
     build:
@@ -30,6 +30,8 @@ services:
       # 与 app 一致：本地直挂源码，重启即加载最新结构化工具代码，
       # 无需重建镜像（构建期 pip 需要外网）
       - ./src:/opt/financekb/src:ro
+  mcp-futures:
+    <<: *structured-mcp-local
   mcp-fundamentals:
     <<: *structured-mcp-local
   mcp-macro:

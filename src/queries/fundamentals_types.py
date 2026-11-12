@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field, FiniteFloat
 
 Period = Literal["annual", "quarterly"]
 StatementKind = Literal["income", "balance", "cash_flow"]
+SegmentDimension = Literal["product", "industry", "region"]
 StockSymbol = Annotated[
     str,
     Field(
@@ -44,6 +45,24 @@ class FinancialStatement(BaseModel):
     reporting_scope: str | None = None
     source: Literal["eastmoney"] = "eastmoney"
     lines: list[FinancialLine]
+
+
+class SegmentRevenue(BaseModel):
+    symbol: StockSymbol
+    report_date: date = Field(description="报告期末日期，不是公告日；源未标明单季或累计口径。")
+    dimension: SegmentDimension = Field(description="主营构成维度：产品、行业或地区；跨维度不可相加。")
+    segment_name: str = Field(min_length=1, description="东财原始构成名称，不等同于法定报告分部。")
+    revenue: Decimal | None = Field(default=None, allow_inf_nan=False, description="主营收入，元；Decimal字符串，缺失为null。")
+    cost: Decimal | None = Field(default=None, allow_inf_nan=False, description="同一构成的主营成本，元；缺失不补零。")
+    gross_profit: Decimal | None = Field(default=None, allow_inf_nan=False, description="源提供的主营利润或同一行收入减成本，元；不是净利润。")
+    gross_profit_basis: Literal["source", "revenue_minus_cost"] | None = Field(
+        default=None, description="source为源主营利润；revenue_minus_cost为同一行收入减成本；null表示无值。"
+    )
+    gross_margin_pct: Decimal | None = Field(default=None, allow_inf_nan=False, description="源提供的毛利率，百分数（23.9577表示23.9577%）；缺失不推导。")
+    revenue_share_pct: Decimal | None = Field(default=None, allow_inf_nan=False, description="源提供的收入占比，百分数；不重算分母，缺失为null。")
+    currency: None = Field(default=None, description="源未提供币种，固定为null，不推定为CNY。")
+    unit: Literal["元"] = Field(default="元", description="收入、成本与利润的金额单位。")
+    source: Literal["eastmoney"] = Field(default="eastmoney", description="东财F10主营构成，覆盖范围以源返回为准。")
 
 
 class ValuationMetric(BaseModel):

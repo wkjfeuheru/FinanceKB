@@ -30,6 +30,7 @@
 | market | get_realtime_quote | 茅台 1 条 Infoway；另验五粮液、平安银行、沪深300，返回 3 条新浪快照 | 通过；深市 Infoway 514 已降级，盘中时效另验 |
 | market（2026-11-11 直连改造后复测） | resolve_symbol / get_realtime_quote | 东财搜索解析 000001、平安银行、沪深300；新浪快照返回平安银行、茅台、沪深300、上证指数 4 条 | 通过 |
 | market（2026-11-11 直连改造后复测） | get_ohlcv | 东财 K 线直连复测期间出口 IP 被东财临时限流，解封后补验日线与分钟线 | 待复测 |
+| knowledge（2026-11-11 GPU 复测） | search_research | RTX 4060 + CUDA 12.6 镜像生效（torch 2.14.1+cu126，cuda available=True，RERANKER_DEVICE=cuda）；两次真实检索 12.2s（含预热）/3.7s，CPU 时代为 25–70s | 通过；延迟下降约一个数量级 |
 | fundamentals | get_financial_statements | 茅台最近完整年度三张报表，东财 | 通过 |
 | fundamentals | get_valuation_metrics | 五粮液 11 月 10 日 PE、PB、PS 三项，东财 | 通过 |
 | fundamentals | get_company_profile | 五粮液公司概况及高管/股东结构，1 个聚合对象，Infoway + 东财 | 通过 |

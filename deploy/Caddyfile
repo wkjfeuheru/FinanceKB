@@ -22,6 +22,11 @@
 		reverse_proxy mcp-market:8000
 	}
 
+	@futures path /mcp/futures /mcp/futures/*
+	handle @futures {
+		reverse_proxy mcp-futures:8000
+	}
+
 	@fundamentals path /mcp/fundamentals /mcp/fundamentals/*
 	handle @fundamentals {
 		reverse_proxy mcp-fundamentals:8000
